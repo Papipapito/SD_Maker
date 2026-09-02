@@ -1,0 +1,188 @@
+New drivers for the MSX Turbo-R
+Mouse, Trackball, MSX-Paddle, Light-Pen, Touchpad, PAUSE Key and Key click.
+v1.1 (c) FRS 2020
+
+
+== Overview ==
+
+This is a new set of drivers for the MSX Turbo-R BIOS, with many improvements
+over its original set of drivers, including way better performance.
+
+1) Adds the missing drivers for these devices:
+
+- MSX-Paddles (or any PWM device, just like the original)
+- Light-Pen (Sanyo standard)
+
+2) Replace the existing drivers with much better ones for these devices:
+
+- Mouse
+- Trackball
+- Touchpad
+- PAUSE Key
+- Key click
+
+3) Other enhanced routines:
+
+- BEEP: Doesn't reset the system timer anymore
+
+
+== Detailed info ==
+
+- You can now use paddles and light-pens with the MSX Turbo-R models, just like
+  the previous generations of MSX computers.
+- All drivers are coded with R800 support, for the best possible performance
+  when this CPU is enabled.
+- The paddle driver is the only of the new drivers that resets the system-
+  timer. This is necessary because the timer is used to measure the PWM pulse
+  reliably regardless of the CPU used.
+- Touchpad
+  - The new driver supports the R800, unlike the original driver that switched
+    to the Z80 behind the scenes and caused a huge performance drop.
+  - This driver doesn't freeze when a mouse is connected, unlike the original
+    driver.
+- New mouse/trackball driver: it's way faster than the original, with many juicy
+  features:
+  - The mouse and trackball drivers are now independent. This results in much
+    better performance. The main routine will detect the type of the device
+    internally call the appropriate driver accordingly.
+  - The driver now supports disconnect detection. It will both report the 
+    disconnection to the client software, and will also keep the reported
+    offsets at 0. This fixes the runaway mouse pointer issue that happened with
+    the original mouse driver when no mouse was connected.
+  - Added support for the Nyyrikki & Prodaton extended mouse protocol that
+    has support for a mouse wheel. The GTPAD BIOS function was modified to
+    return the extra information as follows:
+    - Functions 12 and 16 will now return the following status:
+      - bit0: button 3	; 0=pressed, 1=not pressed
+      - bit1: button 4
+      - bit2: button 5
+      - bit3: reserved for future use. Might be random for now. Must be masked
+        out from readings
+      - bit4: button 1
+      - bit5: button 2
+      - bit6: 0=Mouse/trackball is disconnected. 1=It's connected.
+      - bit7: 0=New mouse driver, 1=old mouse driver
+    - Functions 15 and 19: mouse Z offset (usually the scroll wheel) 
+  - The trackball driver now converts the angle of the ball rotation to a linear
+    offset. This results in much better responsiveness. The original driver
+    had such terrible resolution that the user was forced to spin the ball
+    wildly to make it reach any point on the screen. Test it on Philips Video
+    Graphics or Graph Saurus to see the difference.
+  - This new mouse/trackball driver doesn't reset the system-timer, unlike the
+    original driver.
+- PAUSE Key: fixed the bug that caused Konami games to freeze when the R800
+  CPU was in use and this key was pressed. The interrupt handler now also
+  behaves much closer to the MSX2+ interrupt handler.
+- Key click: The keyclick volume and tone is now the same for both the R800 ROM,
+  R800 DRAM and Z80 DRAM. You'll notice that it's volume is lower and it has a
+  higher pitch than what you're used from the MSX1 to MSX2+. This is
+  intentional. I always thought that the keyclick was annoyingly loud on the
+  previous generations. The classic click volume/pitch can only be heard in
+  Z80 ROM mode.
+- Z80 DRAM mode will be used when the Z80 CPU is selected, to allow the new
+  drivers to be used with this CPU too.
+
+== Usage ==
+
+TRNEWDRV [/U]
+
+- If you run TRNEWDRV.COM without any parameters, the drivers will be installed
+- the /U parameters uninstall the new drivers and reload the original drivers
+  in their place.
+
+== FAQ ==
+
+Q: Can I use this drivers in other MSX generations?
+A: No. These drivers are exclusive for MSX Turbo-R computers (MSXVER=3 on BIOS).
+   But you can place TRNEWDRV.COM in your AUTOEXEC.BAT that is also used by
+   computers of other generations. It will then just print a message that the
+   drivers were not loaded.
+
+Q: Does TRNEWDRV.COM works on MSX-DOS1 or only on MSX-DOS2/Nextor?
+A: It does work on all these operating systems. On MSX-DOS1 it will print a
+   warning message if no memory mapper EXTBIOS handler is present, but in this
+   case it will fall back to direct I/O and the drivers will be loaded normally
+
+Q: Can I use the mentioned devices in MSX-BASIC?
+A: Yes. Both GTPDL and GTPAD work normally on MSX-BASIC as PDL(x) and PAD(x)
+   functions, as expected. This means that you can use any of the new features
+   on MSX-BASIC too.
+
+Q: How do I uninstall the drivers?
+A: Use the /U parameter. Also, if you select the ROM mode, the native drivers
+   will be used. If you reset the MSX, the new drivers will also be gone.
+   A good idea is to load TRNEWDRV on your AUTOEXEC.BAT, so it will be loaded
+   on every boot.
+
+Q: Where are the drivers loaded? Will it use any extra RAM from my MSX Turbo-R?
+A: The drivers are loaded inside the BIOS pages on DRAM mode. They'll not
+   use any additional pages other than the ones that the DRAM mode already
+   uses for itself.
+
+Q: How do I change to the Z80 ROM mode?
+A: The DRAM mode is now preserved from the previously activated R800 mode.
+   This means that you have to switch to the Z80 from the R800 ROM mode to have
+   the Z80 ROM mode. It goes like this:
+   - R800 DRAM -> Z80 DRAM
+   - R800 ROM -> Z80 ROM
+   - Z80 ROM or DRAM -> R800 ROM or DRAM
+   I.e.: On MSX-DOS2/Nextor with the COMMAND2.COM v2.44 or higher, you can type
+   the following commands:
+   CPU 2, then CPU 0: Z80 DRAM
+   CPU 1, then CPU 0: Z80 ROM
+
+== Changelog ==
+v1.0: Initial release
+v1.1: Mouse driver rewrite, to make it more compact
+      **Breaking change: The bit meaning for the buttons on the GTPAD functions
+      12 and 16 had to be inverted, to allow compatibility with the software
+      that test if a mouse driver is present by checking if function-12 returns
+      zero.
+
+== Thanks and Credits ==
+
+Without the valuable help of these friends, this project wouldn't ever be
+possible:
+
+- Werner Kai, for his quest to find me a Sony GB-6 trackball.
+- Manuel Bilderbeek, for donating a Philips NMS-1150 touchpad.
+- Erik Luppes, of www.msxinfo.net, for donating a rare Sanyo MLP-001 Lightpen.
+
+===========================================================================
+	                     License
+                           Terms of use
+---------------------------------------------------------------------------
+
+1) This software is gratis for non-commercial purposes, and the author retains
+   its copyright. You only can run, make backup copies or distribute this
+   software while observing the non-commercial restriction.
+
+2) You are only allowed distribute this software (online or on a removable
+   media) under the following conditions:
+   2.1) No commercial transaction of any kind is involved.
+   2.2) All the original files are distributed together inside the same
+   compressed file.
+   2.3) This README file must be included unmodified inside the same compressed
+   file.
+
+3) If you want to use this software for commercial purposes you MUST first
+   contact me to negotiate the terms and conditions. Send an e-mail to
+   sdsnatcheralpha@gmail.com to contact me.
+
+4) This software is provided ‘as-is’, without any express or implied warranty.
+   In no event will the author be held liable for any damages resulting from the
+   use of this software.
+
+5) USE THIS SOFTWARE SOLELY AT YOUR OWN RISK.
+
+===========================================================================
+                          Donations
+---------------------------------------------------------------------------
+ If you like this software and want to show your appreciation for the time
+ invested in making it, you can donate any amount, or MSX hardware, and it will
+ be very welcome and will help future development.
+ Donations can be done via PayPal to sdsnatcheralpha@gmail.com, and for MSX
+ hardware, try contacting me on this e-mail address too.
+ For a hardware wishlist, please check:
+ http://frs.badcoffee.info/wishlist.html
+

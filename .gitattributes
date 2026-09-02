@@ -1,0 +1,37 @@
+# Por defecto, que git NO adivine ni convierta nada.
+* -text
+
+# Binarios: jamas tocarlos (core.autocrlf=true los corromperia si los tomara
+# por texto). Incluye los .COM/.SYS/.ROM del MSX y los packs.
+*.COM   binary
+*.com   binary
+*.SYS   binary
+*.sys   binary
+*.ROM   binary
+*.rom   binary
+*.bin   binary
+*.DAT   binary
+*.dat   binary
+*.EXE   binary
+*.TBL   binary
+*.CFG   binary
+*.FNT   binary
+*.PHS   binary
+*.HIS   binary
+*.MNU   binary
+*.HLP   binary
+
+# Ficheros de TEXTO que van a la SD: el MSX exige CRLF. Se fuerza en el checkout
+# haga quien lo haga y desde donde sea (en Linux, sin esto, saldrian con LF y el
+# AUTOEXEC.BAT reventaria con "Batch file error: Command too long").
+sd/**/*.BAT   text eol=crlf
+sd/**/*.bat   text eol=crlf
+sd/**/*.TXT   text eol=crlf
+sd/**/*.BTM   text eol=crlf
+
+# Fuentes del proyecto: LF, como cualquier repo normal
+*.asm   text eol=lf
+*.py    text eol=lf
+*.sh    text eol=lf
+*.md    text eol=lf
+Makefile text eol=lf

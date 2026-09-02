@@ -1,0 +1,29 @@
+{
+	"gridmode" : false,
+	"gridZoom" : 64,
+	"filterMode" : 0,
+	"columnLayout" : 	{
+		"columns" : [		
+			{
+				"width" : 200.000000,
+				"index" : 0
+			},
+		
+			{
+				"width" : 100.000000,
+				"index" : 1
+			},
+		
+			{
+				"width" : 100.000000,
+				"index" : 2
+			},
+			{
+				"width" : 200.000000,
+				"index" : 3
+			}
+		],
+		"sortOrder" : 0,
+		"sortColumn" : -1
+	}
+}

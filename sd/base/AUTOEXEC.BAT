@@ -1,0 +1,26 @@
+PATH A:\;%1\mm;%1\SOFARUN;%1\UTIL;%1\bin;%1\hub;%1\WIFI;%1\musica
+SET TIMEZONE=+02:00
+mode 80
+ALIAS .BAS = "BASIC "
+ALIAS .ASC = "BASIC "
+sntp pool.ntp.org /v
+set temp %1\TMP
+set help %1\HELP
+set MM=%1\MM
+alias .BAS basic
+alias .ROM srom
+alias .DSK sri
+yenslash
+SET FONT0808=A:\FONTS\ISO-LAT1.FNT
+echo Type LOGIN to show system info (not for MSX1!)
+echo Type DI for DIR with long filenames
+echo Type SR to start Sofarun
+echo Type MM to start Multi Mente
+echo Type FH to FileHunter Download
+echo
+echo Maped Units C,D
+echo Unit C: - Games ROM
+echo Unit D: - Games DSK
+mapdrv c: 2 1 0
+mapdrv d: 3 1 0
+

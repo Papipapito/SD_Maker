@@ -1,0 +1,16 @@
+= Font pack for MultiMente =
+
+This pack includes 9 useful fonts for MultiMente. See MM.CFG to install a font.
+
+ISO-LAT1.FNT is a font coded ISO/IEC 8859-1 (Latin 1)
+MSX-INT.FNT is a font coded as international MSX
+MSX-INT2.FNT is a font coded as international MSX
+MSX-JAP.FNT is a font coded as Japanese MSX
+MSX-JAP2.FNT is a font coded as Japanese MSX
+MSX-JAP3.FNT is a font coded as Japanese MSX
+MSX-KOR.FNT is a font coded as Korean MSX
+MSX-RUS.FNT is a font coded as Russian MSX
+WIN-1252.FNT is a font coded Windows 1252 (aka ANSI, Font similar to Latin 1)
+
+ISO-LAT1 and WIN-1252 allow you to display texts from Linux or Windows (CRLF)
+with the accents.

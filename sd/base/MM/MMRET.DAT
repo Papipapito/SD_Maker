@@ -1,0 +1,112 @@
+
+;＞＞＞＞＞＞  拡張子別実行･データファイル  ＭＭ ver 2 以降用  ＜＜＜＜＜＜
+;      ＞＞＞＞＞                                          ＜＜＜＜＜
+;            ＞＞＞＞ 1993,1994,1995 Copyright (C)MOGU ＜＜＜＜
+
+;==============================================================================
+;                     ■ 拡張子別実行の書式について ■
+;
+; .1
+;	<.???> TAB or SPACE <command[option]> TAB or SPACE [rem]
+;	   ^                        ^                        ^
+;	   |                        |                        + ｺﾒﾝﾄの入力
+;	   |                        |
+;	   |                        + 実行させたいｺﾏﾝﾄﾞの入力 (ﾏｸﾛの使用が可能)
+;          |
+;          + 反応させたい拡張子の入力
+;
+; .2
+;	<:command> TAB or SPACE <command[option]> TAB or SPACE [rem]
+;	    ^                       ^                            ^
+;	    |                       |                            + ｺﾒﾝﾄの入力
+;	    |                       |
+;	    |                       + 実行させたいｺﾏﾝﾄﾞの入力 (ﾏｸﾛの使用が可能)
+;           |
+;           + 反応させたいﾌｧｲﾙﾈｰﾑの入力
+;
+;==============================================================================
+
+
+.BAS	BASIC $C
+.BAT	$C
+.BGM	PLAYER $C A:
+.COM	$C$K
+.CFG	AKID $C
+.CRT	CHRIS $C
+.DSK    FDSK $M
+.0??    FDSK $M
+.1??    FDSK $M
+.2??    FDSK $M
+.3??    FDSK $M
+.4??    FDSK $M
+.5??    FDSK $M
+.6??    FDSK $M
+.7??    FDSK $M
+.8??    FDSK $M
+.9??    FDSK $M
+.EVA	EVAFJ $C /B \BIN\CIRCUIT.SCC
+.FD?	FDSK $M
+.GB?	JACKSBOY $M /B \BIN\JACKSPAD.SC8
+.GE5	BLS $C
+.GRP	BLS $C
+.JPG	JPD $T
+.LDR	BASIC $C
+.LZH	LHEXT L $C$K
+.MAG	BLS $C
+.MAX	BLS $C
+.MBM	MBMPLAY $C -D
+.MBK	MBMPLAY $C
+.MCM	MCDRV $C
+.MDX	MXPV $M
+.MID	MIDIPLAY $C	;MIDRY $C /I31	;SMF $C
+.MIO	MP $C
+.MIF    MV $T
+.MKI	BLS $C
+.MOD	MMP $C
+.MSA	MSA $C
+.MUS	MGSC $C -P -N
+.MWM	MWMPLAY $C
+.MWK	MWMPLAY $C
+.PAC PACS $C$K/L12345678
+.PCK	PCMPLAY $C
+.PCM	PCMPLAY $C
+.PDX	MXPV $M
+.PI 	PI $C
+.PIC	BLS $C
+.PMA	PMEXT $C$K
+.PT3	PT3PLAY $C
+.RAM    
+.ROM	FROM $M
+.SC?	BLS $C
+.SR?	BLS $C
+.TXT	AKID $C
+.TMU	TT $C
+.VGM	VGMPLAY $C
+.VGZ	VGMPLAY $C
+.ZIP	UNZIP2 $C$K
+.???	AKID $C
+
+
+; The following options can be used when executing an external program:
+;
+;	$A =	Drive input on commandline
+;	$F =    Filename input on commandline
+;	$C =	Filename of current file
+;	$X =	Filename of current file (without extension)
+;	$D =	Current drive
+;	$d =	Temporary drive (that is in environment item TEMP)
+;	$J =	Execute program in Kanji-mode
+;	$K =	Ask for any key before returning to Multi Mente
+;	$k =	
+;	$P =	Current path
+;	$R =	Put a RETURN in the commandline
+;	$T =	Filenames of selected files (one by one)
+;	$t =	Same as $T, but without extension
+;	$M =	Filenames of selected files (all behind eachother)
+;	$m =	Same as $M, but without extension
+;	$V =	Show file with internal viewer
+;	$$ =	Put a "$" in the commandline 
+;	$Z =	Uncrunch file, dependant of file-extension
+;
+;-------------------------------------------------------------
+
