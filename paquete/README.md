@@ -103,7 +103,7 @@ How many fit on the most common cards (their real capacity is a bit less than th
 
 ![FAT16 of 4 GB with the leftover space used](capturas/2_fat16_4gb.png)
 
-> ⚠️ **FAT32 and MSX-DOS.** Neither Nextor 2.1.4 nor Nextor 3.0 can read FAT32 partitions. With a FAT32 card the MSX **will not boot MSX-DOS** from it; you get the MSXimus menu or BASIC. Choose it only if you will launch ROM and DSK files from the MSXimus menu, or for the MSX Pico.
+> ⚠️ **FAT32 and MSX-DOS.** Neither Nextor 2.1.4 nor Nextor 3.0 can read FAT32 partitions. With a FAT32 card the MSX **will not boot MSX-DOS** from it; you get the MSXimus menu or BASIC. On the MSXimus, the menu also cannot download from File-Hunter or save cartridge SRAM on FAT32: it only launches ROM and DSK files. Choose it only for that, or for the MSX Pico.
 >
 > ![FAT32 warning](capturas/3_fat32.png)
 
