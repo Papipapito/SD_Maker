@@ -1,0 +1,123 @@
+-------------------------------------------------
+     SG-1000(II), FG-1000, SC-3000, Othello 
+ Multivision & Mark III/Korean Gam*boy ROM Loader
+   for MSX with Franky or Playsoniq cartridge
+
+               v.0.92 r2 by GDX
+-------------------------------------------------
+
+SG1000F.COM allows SG-1000 games to work on MSX.
+Franky or Playsoniq cartridge allows to get a perfect sound.
+You will not get sound without one of these two cartridges.
+
+
+Using:
+
+ SG1000F.COM is a MSX-DOS1/2 command. 
+ Input the command and file name of the ROM in following order.
+
+  >SG1000F RomName.ext
+
+
+Example:
+
+  A>SG1000F DROL.SG
+
+
+List of games that are currently working:
+
+ 007 James Bond [Othello Multivision] (Only 1 player supported)
+ Bank Panic
+ Bomb Jack
+ Borderline
+ Bubble Bobble [MarkIII]
+ C So! [SG-1000]
+ Chack'n Pop [SG-1000]
+ Challenge Derby
+ Champion Baseball (2P OK)
+ Champion Billiards
+ Champion Boxing
+ Champion Golf (2P OK)
+ Champion Ice Hockey (2P OK)
+ Champion Soccer (2P OK)
+ Choplifter (2P OK) (no support for proto version)
+ Congo Bongo *
+ DokiDoki Penguin Land [SG-1000] (2P OK)
+ Dr. Hello! [MarkIII] (2P OK)
+ Dragon Wang
+ Drol
+ Eagles 5 [MarkIII] (Doesn't work on some MSX)
+ Elevator Action (2P OK)
+ FA-Tetris [MarkIII]
+ Flashpoint [MarkIII]
+ Flicky
+ Girl's Garden
+ Golgo 13
+ GP World
+ Gun Smoke
+ Guzzler [Othello Multivision]
+ H.E.R.O.
+ Hang-On II
+ Home Mahjong (see Extra folder)
+ Hong Gil-Dong (see Extra folder)
+ Hustle Chumy
+ Hyper Sport (Only 1 player supported)
+ King Valley [conversion from MSX]
+ Lode Runner
+ Mahjong
+ Micro Xevious [MarkIII]
+ Monaco GP
+ N-Sub *
+ New Boggle Boggle 2 [MarkIII] (2P OK)
+ Ninja Princess
+ Okamoto Ayako no Match Play Golf [Othello Multivision]
+ Orguss
+ Othello (2P OK)
+ Pacar
+ Pachinko
+ Pachinko II
+ Pitfall II - The Lost Caverns (Only 1 player supported)
+ Pop Flamer
+ Power Boggle [MarkIII]
+ Puznic [MarkIII]
+ Q-bert [Othello Multivision]
+ Rock'n Bolt (works on MSX1 only, graphical bugs during stages on MSX2~)
+ Safari Hunting
+ Safari Race
+ San-nin Mahjong
+ Sega Flipper (Only 1 player supported) (also 40kB version supported)
+ Sega-Galaga (2P OK) (also 40kB version supported)
+ Serizawa Hachidan no Tsumeshogi
+ ShinNyushaIn Tooru Kun (2P OK)
+ Sky Fighter (see Extra folder)
+ Space Armor * (works on MSX1 only, sprites bug on MSX2~)
+ Space Invaders
+ Space Mountain [Othello Multivision]
+ Star Force
+ Star Jacker (v.1.2)
+ Super Uwolf (see Extra folder)
+ Super Tank (2P OK)
+ The Black Onyx
+ The Castle
+ Three Dragon Story [MarkIII]
+ Wonder Boy [MarkIII]
+ Yamato (2P OK)
+ Zaxxon
+ Zippy Race (2P OK)
+ Zoom 909 (Only 1 player supported)
+
+* The 40kB version is not supported. (This version is same that the smaller
+  version but with ROM mirrors included in file)
+
+Notes:
+- The player 2 is supported for most games.
+- About MarkIII/Korean Gam*boy roms, only a few games that use a screen mode
+  supported by the TMS9918 can work.
+- The keyboard is not supported.
+- This loader doesn't support 48KB ROM or bigger. (See Extra folder for 48KB Roms)
+- Franky is a cartridge made by SuperSoniqs.
+   http://supersoniqs.com/category/franky/
+- Playsoniq is a cartridge made by SuperSoniqs.
+   http://supersoniqs.com/category/playsoniq/
+
+Enjoy!

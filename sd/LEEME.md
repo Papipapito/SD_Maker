@@ -12,8 +12,12 @@ sd/
 │   ├── FHUNT/   ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 │   └── TMP/     ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
-└── nextor-3.0.0-beta1/      NEXTOR.SYS + COMMAND3.COM + tools/
+├── nextor-3.0.0-beta1/      NEXTOR.SYS + COMMAND3.COM + tools/
+└── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09)
 ```
+
+**Más fácil: `tools/sdmaker`** (MSX SD Maker) particiona, formatea y copia todo esto a una tarjeta, con el
+`AUTOEXEC.BAT` hecho según lo que se elija. Ver `tools/sdmaker/LEEME.md`.
 
 ## 🚨 FHUNT y TMP tienen que existir aunque estén vacías
 
