@@ -347,7 +347,18 @@ def relanzar_como_admin():
     sys.exit(0)
 
 
+def nitido():
+    """Que Windows no amplie la ventana como un mapa de bits en pantallas con escalado (125 %, 150 %...)."""
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            ctypes.windll.shcore.SetProcessDpiAwareness(1)
+        except Exception:
+            pass
+
+
 def main():
+    nitido()
     raiz = tk.Tk()
     try:
         ttk.Style().theme_use("vista" if sys.platform == "win32" else "clam")

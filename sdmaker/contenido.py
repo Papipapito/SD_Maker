@@ -14,7 +14,7 @@ from .fatfs import Nodo
 SISTEMAS = {
     "nextor214": ("Nextor 2.1.4", "nextor-2.1.4", None),
     "nextor3": ("Nextor 3.0 beta 1", "nextor-3.0.0-beta1", None),
-    "msxdos": ("MSX-DOS basico (MSXDOS2.SYS + COMMAND2.COM, y MSXDOS.SYS + COMMAND.COM)", "nextor-2.1.4",
+    "msxdos": ("MSX-DOS básico (MSXDOS2.SYS + COMMAND2.COM, y MSXDOS.SYS + COMMAND.COM)", "nextor-2.1.4",
                ["MSXDOS2.SYS", "COMMAND2.COM", "MSXDOS.SYS", "COMMAND.COM"]),
     "ninguno": ("Ninguno (solo formatear)", None, None),
 }
@@ -26,9 +26,9 @@ GRUPOS = [
     ("util", "Utilidades (UTIL: 120 programas)", ["base/UTIL"], ["UTIL"], []),
     ("wifi", "Red WiFi / UNAPI (WIFI: hget, ftp, telnet, sntp...)", ["base/WIFI"], ["WIFI"], []),
     ("fonts", "Fuentes de pantalla (FONTS)", ["base/FONTS"], [], []),
-    ("musica", "Musica (reproductores de MoonBlaster, VGM...)", ["base/musica"], ["musica"], []),
+    ("musica", "Música (reproductores de MoonBlaster, VGM...)", ["base/musica"], ["musica"], []),
     ("hub", "HUB (gestor de paquetes msxhub.com)", ["extras/hub"], ["hub"], []),
-    ("ia", "IA (cliente de chat; las claves van en IA\\ia.cfg)", ["extras/IA"], ["IA"], []),
+    ("ia", "IA (cliente de chat con IA; las claves van en IA\\ia.cfg)", ["extras/IA"], ["IA"], []),
     ("varios", "mapper e indev", ["extras/mapper", "extras/indev.com"], ["mapper"], []),
 ]
 SIEMPRE = ["FHUNT", "TMP"]      # FHUNT: el menu descarga del File-Hunter ahi y NO puede crear carpetas
@@ -37,11 +37,16 @@ EXCLUIR = {"ruvector.db", "thumbs.db", "desktop.ini", "autoexec.bat", "nextor.em
 
 
 def carpeta_sd():
-    """packs/sd del repo, o la copia que lleva el .exe."""
+    """El contenido de la SD: el que lleva dentro el .exe; o MSXSDMAKER_SD; o una carpeta sd/ junto a MSXsdmaker.py;
+    o packs/sd del repositorio de la BIOS (donde se desarrolla)."""
     if getattr(sys, "_MEIPASS", None):
         return os.path.join(sys._MEIPASS, "sd")
     aqui = os.path.dirname(os.path.abspath(__file__))
-    return os.path.normpath(os.path.join(aqui, "..", "..", "..", "packs", "sd"))
+    for c in (os.environ.get("MSXSDMAKER_SD"), os.path.join(aqui, "..", "sd"),
+              os.path.join(aqui, "..", "..", "..", "packs", "sd")):
+        if c and os.path.isdir(os.path.join(c, "base")):
+            return os.path.normpath(c)
+    raise FileNotFoundError("no encuentro el contenido de la SD (carpeta sd/ con base/, nextor-2.1.4/...)")
 
 
 def _excluido(nombre):
