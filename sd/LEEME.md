@@ -12,7 +12,7 @@ sd/
 │   ├── FHUNT/   ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 │   └── TMP/     ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
-├── nextor-3.0.0-beta1/      NEXTOR.SYS + COMMAND3.COM + tools/
+├── nextor-3.0.0-beta2/      NEXTOR.SYS + COMMAND3.COM + bin/ (las 25 herramientas oficiales)
 └── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09)
 ```
 
@@ -29,8 +29,9 @@ desde DOS con `MKDIR`, o dejándola aquí.
 ## Por qué las herramientas de Nextor están "duplicadas" (y no lo están)
 
 `UTIL/` lleva **20 herramientas de Nextor en la versión de la era Nextor 2**, que
-es la que corresponde al `nextor-2.1.4` que arranca hoy. `nextor-3.0.0-beta1/tools/`
-lleva las **oficiales v1.1, más nuevas y conscientes de Nextor 3**.
+es la que corresponde al `nextor-2.1.4` que arranca hoy. `nextor-3.0.0-beta2/bin/`
+lleva las **oficiales de Nextor 3** (las 25 del `tools.zip` de la beta 2: v1.1, más EMUFILE 3.0,
+NEXBOOT 3.0, XDIR 1.2 y DEVINFO 1.3).
 
 **No mezclar las dos versiones en la misma SD.** No es redundancia: es
 emparejamiento de versión. Ejemplo real de por qué importa — `MAPDRV` cambió:
@@ -50,7 +51,7 @@ del PATH. `CHKDSK.COM` sí se conservó (no estaba en `UTIL/`).
 
 ## Al probar Nextor 3
 
-1. Copiar `base/` + `nextor-3.0.0-beta1/` a la raíz de la SD.
+1. Copiar `base/` + `nextor-3.0.0-beta2/` a la raíz de la SD.
 2. **Primero `DRVTEST.COM 3-2`** 🚨 con el subslot: el Nextor vive en el slot
    **3-2**, que es EXPANDIDO. `drvtest 1|2|3` a secas responde *"Invalid disk
    driver"*. Mapa del slot 3: 3-0 mapper de RAM · 3-1 sub-ROM/logo/menú ·
@@ -117,7 +118,7 @@ Z80MODE…) y se quitó `COMMAND2.COM`, que ya está en `nextor-2.1.4/` como fic
 de sistema.
 
 Recuerda: las de `UTIL` eran de la **era Nextor 2** ⇒ están ahora en
-`nextor-2.1.4/tools/`. Las de `nextor-3.0.0-beta1/tools/` son las oficiales v1.1,
+`nextor-2.1.4/bin/`. Las de `nextor-3.0.0-beta2/bin/` son las oficiales de Nextor 3,
 más nuevas. **No mezclar las dos versiones en la misma tarjeta.**
 
 ## Limpieza de `UTIL/` del 02/09: fuera lo de otras máquinas
