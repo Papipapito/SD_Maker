@@ -2,9 +2,9 @@
 
 ## MSX SD Maker
 
-© 2026 Albert (Papipapito), proyecto MSXimus / MSXnano. GNU General Public License v3, como el resto del proyecto. El código fuente está en `fuente/`.
+© 2026 Albert (Papipapito), proyecto MSXimus / MSXnano. GNU General Public License v3, como el resto del proyecto. El código fuente está en https://github.com/Papipapito/SD_Maker (y una copia en `fuente/`).
 
-© 2026 Albert (Papipapito), MSXimus / MSXnano project. GNU General Public License v3, like the rest of the project. The source code is in `fuente/`.
+© 2026 Albert (Papipapito), MSXimus / MSXnano project. GNU General Public License v3, like the rest of the project. The source code is at https://github.com/Papipapito/SD_Maker (and a copy in `fuente/`).
 
 ## Lo que se copia en la tarjeta / What is copied to the card
 

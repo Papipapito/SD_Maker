@@ -43,14 +43,14 @@ Nothing to install: it is a single file, `MSXsdmaker.exe`. The program itself is
 
 ## 2. Opening the program
 
-1. Download **`MSXsdmaker.exe`** from this folder. On GitHub: click the file, then the download button (*Download raw file*).
+1. Download **`MSXsdmaker.exe`** from the [latest MSX SD Maker release](https://github.com/Papipapito/SD_Maker/releases/latest), in its own repository ([SD_Maker](https://github.com/Papipapito/SD_Maker)). The machines' repositories also carry a copy in their `MSXsdmaker` folder: click the file, then the download button (*Download raw file*).
 2. Put the card in the reader.
 3. Double-click `MSXsdmaker.exe`.
 4. Windows asks whether to allow it to make changes to the device: answer **Yes**. It needs this because it writes the whole card, partition table included.
 
 **If Windows shows "Windows protected your PC"** (SmartScreen): click **More info** and then **Run anyway**. It appears because the program is not digitally signed.
 
-**If your antivirus complains**: Python programs packed into a single `.exe` sometimes trigger false positives. The source code is in the `fuente/` folder.
+**If your antivirus complains**: Python programs packed into a single `.exe` sometimes trigger false positives. The source code is in [SD_Maker](https://github.com/Papipapito/SD_Maker) (and a copy in the `fuente/` folder).
 
 ---
 
@@ -366,7 +366,7 @@ No. It only writes to the card you choose, and the Windows disk never appears in
 - **Names**: it stores the 8+3 short name MSX-DOS reads and, when needed, also the long name Windows and the menu show.
 - **The partition table is written last**, once everything else is in place. Then everything is read back and every file is compared by its CRC32.
 
-The source code is in the [`fuente/`](fuente/) folder (Python 3 with tkinter; `construir_exe.bat` builds the `.exe` with PyInstaller). To run it without the `.exe` you need the card contents in an `sd/` folder next to `MSXsdmaker.py`, with `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` and `extras/`. The `.exe` already carries them. From the command line it can also make images:
+The source code and the card contents are in [SD_Maker](https://github.com/Papipapito/SD_Maker); the machines' repositories carry a copy of the program in [`fuente/`](fuente/) (Python 3 with tkinter; `construir_exe.bat` builds the `.exe` with PyInstaller). To run it without the `.exe` you need the card contents in an `sd/` folder next to `MSXsdmaker.py`, with `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` and `extras/`. The `.exe` already carries them. From the command line it can also make images:
 
 ```
 python MSXsdmaker.py imagen test.img --tamano 8G --esquema fat16-2g --n 3 --sistema nextor214 --programas todos

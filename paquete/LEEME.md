@@ -43,14 +43,14 @@ No hay nada que instalar: es un solo fichero, `MSXsdmaker.exe`.
 
 ## 2. Abrir el programa
 
-1. Descarga **`MSXsdmaker.exe`** de esta carpeta. En GitHub: pulsa el fichero y luego el botón de descarga (*Download raw file*).
+1. Descarga **`MSXsdmaker.exe`** de la [última versión de MSX SD Maker](https://github.com/Papipapito/SD_Maker/releases/latest), en su repositorio ([SD_Maker](https://github.com/Papipapito/SD_Maker)). En los repositorios de las máquinas también hay una copia en la carpeta `MSXsdmaker`: pulsa el fichero y luego el botón de descarga (*Download raw file*).
 2. Mete la tarjeta en el lector.
 3. Haz doble clic en `MSXsdmaker.exe`.
 4. Windows pregunta si permites que haga cambios en el equipo: responde **Sí**. Hace falta porque el programa escribe la tarjeta entera, tabla de particiones incluida.
 
 **Si Windows muestra «Windows protegió su PC»** (SmartScreen): pulsa **Más información** y después **Ejecutar de todas formas**. Sale porque el programa no está firmado digitalmente.
 
-**Si el antivirus se queja**: los programas hechos en Python y empaquetados en un solo `.exe` dan a veces falsos positivos. El código fuente está en la carpeta `fuente/`.
+**Si el antivirus se queja**: los programas hechos en Python y empaquetados en un solo `.exe` dan a veces falsos positivos. El código fuente está en [SD_Maker](https://github.com/Papipapito/SD_Maker) (y una copia en la carpeta `fuente/`).
 
 ---
 
@@ -364,7 +364,7 @@ No. Solo escribe en la tarjeta que elijas, y el disco de Windows nunca aparece e
 - **Nombres**: guarda el nombre corto de 8+3 que lee MSX-DOS y, si hace falta, también el nombre largo que ven Windows y el menú.
 - **La tabla de particiones se escribe al final**, cuando todo lo demás ya está en su sitio. Luego se relee y se compara cada fichero con su CRC32.
 
-El código fuente está en la carpeta [`fuente/`](fuente/) (Python 3 con tkinter; `construir_exe.bat` hace el `.exe` con PyInstaller). Para usarlo sin el `.exe` hace falta el contenido de la tarjeta en una carpeta `sd/` junto a `MSXsdmaker.py`, con `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/`. El `.exe` ya lo lleva dentro. Desde la línea de órdenes también se pueden hacer imágenes:
+El código fuente y el contenido de la tarjeta están en [SD_Maker](https://github.com/Papipapito/SD_Maker); en los repositorios de las máquinas hay una copia del programa en [`fuente/`](fuente/) (Python 3 con tkinter; `construir_exe.bat` hace el `.exe` con PyInstaller). Para usarlo sin el `.exe` hace falta el contenido de la tarjeta en una carpeta `sd/` junto a `MSXsdmaker.py`, con `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/`. El `.exe` ya lo lleva dentro. Desde la línea de órdenes también se pueden hacer imágenes:
 
 ```
 python MSXsdmaker.py imagen prueba.img --tamano 8G --esquema fat16-2g --n 3 --sistema nextor214 --programas todos
