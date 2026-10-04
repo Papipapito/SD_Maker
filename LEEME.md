@@ -62,3 +62,16 @@ python publicar_paquete.py ../MSXimus_zynq ../MSXimus
 ```
 
 Copia a la carpeta `MSXsdmaker/` de cada repo el `.exe` (antes, `construir_exe.bat`), las instrucciones, `LICENCIAS.md` y las capturas de `paquete/`, y el código en `fuente/`. No hace commit.
+
+## Próxima versión: Linux y macOS
+
+Hoy MSX SD Maker es un programa de Windows. Solo la parte que habla con el lector de tarjetas depende de Windows (listar
+las tarjetas, escribir el disco entero y pedir permisos de administrador, en `sdmaker/dispositivos.py`); particionar,
+formatear, copiar, el `AUTOEXEC.BAT` y las imágenes ya funcionan en Linux (las pruebas corren ahí). El plan:
+
+1. **La ventana y «Guardar como imagen» en Linux y macOS**, y la imagen se graba luego con balenaEtcher o `dd`. Un ZIP por
+   sistema (`windows`, `linux`, `macos`), hecho por GitHub Actions en cada release: descomprimir y ejecutar.
+2. **Escribir la tarjeta directamente**: en Linux, los lectores SD y USB de `lsblk`, desmontarlos y escribir `/dev/sdX`
+   con `sudo`; en macOS, `diskutil` para los discos externos, `unmountDisk` y `/dev/rdiskN` con permisos de
+   administrador. Borra discos enteros, así que solo sale después de probarlo con tarjetas reales en cada sistema (Linux
+   con un lector de verdad, no desde WSL; macOS en el Mac de Albert).

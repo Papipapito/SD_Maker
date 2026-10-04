@@ -40,3 +40,15 @@ bash pruebas/probar_imagenes.sh
 MSX SD Maker is by Albert (Papipapito), under the GPL v3 ([LICENSE](LICENSE)).
 
 Most of `sd/` is third-party MSX software (Nextor, MSX-DOS, SofaRun, Multi Mente, the UNAPI tools…). Each file belongs to its author and is included under the responsibility of this project's author. Authors and licences, including the Nextor licence, are in [paquete/LICENCIAS.md](paquete/LICENCIAS.md). If you are the author of any of these files and would rather it were not included, open an issue and it will be removed.
+
+## Coming next: Linux and macOS
+
+Today MSX SD Maker is a Windows program. Only the part that talks to the card reader is Windows-specific (listing the
+cards, writing the whole disk and asking for administrator rights, in `sdmaker/dispositivos.py`); partitioning,
+formatting, copying, the `AUTOEXEC.BAT` and the card images already work on Linux (the tests run there). The plan:
+
+1. **The window and "Save as image" on Linux and macOS**, with the image then written with balenaEtcher or `dd`. A ZIP for
+   each system (`windows`, `linux`, `macos`), built by GitHub Actions on every release: unzip and run.
+2. **Writing the card directly**: on Linux, the SD and USB card readers from `lsblk`, unmounting them and writing
+   `/dev/sdX` with `sudo`; on macOS, `diskutil` for the external disks, `unmountDisk` and `/dev/rdiskN` with
+   administrator rights. It wipes whole disks, so it ships only after being tried with real cards on each system.
