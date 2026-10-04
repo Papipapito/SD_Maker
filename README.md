@@ -9,7 +9,7 @@
 - copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music…, and the FPGA tools (`MXUPDATE`, which updates the MSXimus and MSXnano core from MSX-DOS), and writes the `AUTOEXEC.BAT`;
 - reads everything back and checks it by CRC. It can also write a card image instead of a card.
 
-How to use it: [paquete/README.md](paquete/README.md) (English) · [paquete/LEEME.md](paquete/LEEME.md) (castellano). The program itself is in Spanish.
+**Download** `MSX_SD_Maker_<version>.zip` from the [latest release](https://github.com/Papipapito/SD_Maker/releases/latest), unzip it and run `MSXsdmaker.exe`. How to use it: [paquete/README.md](paquete/README.md) (English) · [paquete/LEEME.md](paquete/LEEME.md) (castellano). The program itself is in Spanish.
 
 ## Contents
 
@@ -20,12 +20,14 @@ How to use it: [paquete/README.md](paquete/README.md) (English) · [paquete/LEEM
 | `paquete/` | The guide, licences and screenshots that go with the `.exe` |
 | `pruebas/` | Image tests with tools that are not ours (`sfdisk`, `fsck.fat`, `mtools`) |
 | `construir_exe.bat` | Builds `dist\MSXsdmaker.exe` with PyInstaller, with `sd/` inside |
+| `hacer_zip.py` | Builds the release ZIP: the `.exe` with the guide, the licences and the screenshots |
 | `publicar_paquete.py` | Copies the `.exe` and the guide to the `MSXsdmaker/` folder of each machine's repository |
 
 ## Build and test
 
 ```bat
 construir_exe.bat
+python hacer_zip.py
 ```
 
 ```bash
