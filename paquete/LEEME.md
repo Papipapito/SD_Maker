@@ -44,7 +44,7 @@ No hay nada que instalar: es un solo fichero, `MSXsdmaker.exe`.
 
 ## 2. Abrir el programa
 
-1. Descarga el ZIP de la [última versión de MSX SD Maker](https://github.com/Papipapito/SD_Maker/releases/latest) (`MSX_SD_Maker_<versión>.zip`), en su repositorio ([SD_Maker](https://github.com/Papipapito/SD_Maker)), y **descomprímelo** donde quieras: dentro está `MSXsdmaker.exe` con estas instrucciones. En los repositorios de las máquinas también hay una copia en la carpeta `MSXsdmaker`.
+1. Descarga el ZIP de la [última versión de MSX SD Maker](https://github.com/Papipapito/SD_Maker/releases/latest) (`MSX_SD_Maker_<versión>.zip`), en su repositorio ([SD_Maker](https://github.com/Papipapito/SD_Maker)), y **descomprímelo** donde quieras: dentro está `MSXsdmaker.exe` con estas instrucciones y la carpeta `sd`, con todo lo que se copia a la tarjeta (sistemas y programas). Si cambias o añades un fichero en una de sus carpetas, se copia el tuyo; si la borras, el programa usa la copia que lleva dentro. En los repositorios de las máquinas también hay una copia del programa en la carpeta `MSXsdmaker`.
 2. Mete la tarjeta en el lector.
 3. Haz doble clic en `MSXsdmaker.exe`.
 4. Windows pregunta si permites que haga cambios en el equipo: responde **Sí**. Hace falta porque el programa escribe la tarjeta entera, tabla de particiones incluida.

@@ -46,7 +46,7 @@ Casi todo lo de `sd/` es de terceros (Nextor, MSX-DOS, SofaRun, Multi Mente, las
 construir_exe.bat
 ```
 
-Hace `dist\MSXsdmaker.exe` con PyInstaller. `python hacer_zip.py` hace el ZIP de la release (`dist\MSX_SD_Maker_<versión>.zip`: el `.exe` con LEEME, README, LICENCIAS y las capturas).
+Hace `dist\MSXsdmaker.exe` con PyInstaller. `python hacer_zip.py` hace el ZIP de la release (`dist\MSX_SD_Maker_<versión>.zip`: el `.exe`, la carpeta `sd/` (los ficheros de `sd/` que están en git; el programa usa la que tiene al lado y, si falta, la copia que lleva dentro), LEEME, README y LICENCIAS, con las imágenes enlazadas a GitHub, y `OCM-SDBIOS/` con su LEEME).
 
 Línea de órdenes (con Python), útil para probar con imágenes:
 

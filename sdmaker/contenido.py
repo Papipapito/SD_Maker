@@ -1,6 +1,7 @@
 """contenido.py — que se copia a la particion de arranque y el AUTOEXEC.BAT que lo arranca.
 
-Las fuentes son las carpetas de sd/ de este repositorio (o, en el .exe, las que lleva dentro):
+Las fuentes son las carpetas de sd/ (la de este repositorio; con el .exe, la que va a su lado en el ZIP de la release,
+o si falta, la copia que lleva dentro; ver carpeta_sd):
   base/               lo comun de las SD del MSXimus (MM, UTIL, WIFI, FONTS, musica...)
   nextor-2.1.4/       NEXTOR.SYS + COMMAND2.COM + bin/ (herramientas de Nextor 2)
   nextor-3.0.0-beta2/ NEXTOR.SYS + COMMAND3.COM + bin/ (herramientas de Nextor 3)
@@ -84,11 +85,16 @@ EXCLUIR = {"ruvector.db", "thumbs.db", "desktop.ini", "autoexec.bat", "autoexec.
 
 
 def carpeta_sd():
-    """El contenido de la SD: el que lleva dentro el .exe; o MSXSDMAKER_SD; o la carpeta sd/ junto a MSXsdmaker.py."""
+    """El contenido de la SD: MSXSDMAKER_SD; o la carpeta sd/ junto al .exe (la trae el ZIP de la release: lo que se
+    cambie ahi es lo que se copia); o la copia que lleva dentro el .exe (si sd/ falta o no tiene base/); o, sin .exe, la
+    carpeta sd/ junto a MSXsdmaker.py."""
+    candidatas = [os.environ.get("MSXSDMAKER_SD")]
+    if getattr(sys, "frozen", False):
+        candidatas.append(os.path.join(os.path.dirname(sys.executable), "sd"))
     if getattr(sys, "_MEIPASS", None):
-        return os.path.join(sys._MEIPASS, "sd")
-    aqui = os.path.dirname(os.path.abspath(__file__))
-    for c in (os.environ.get("MSXSDMAKER_SD"), os.path.join(aqui, "..", "sd")):
+        candidatas.append(os.path.join(sys._MEIPASS, "sd"))
+    candidatas.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sd"))
+    for c in candidatas:
         if c and os.path.isdir(os.path.join(c, "base")):
             return os.path.normpath(c)
     raise FileNotFoundError("no encuentro el contenido de la SD (carpeta sd/ con base/, nextor-2.1.4/...)")

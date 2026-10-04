@@ -23,7 +23,7 @@
 | `paquete/` | The guide, licences and screenshots that go with the `.exe` |
 | `pruebas/` | Image tests with tools that are not ours (`sfdisk`, `fsck.fat`, `mtools`) |
 | `construir_exe.bat` | Builds `dist\MSXsdmaker.exe` with PyInstaller, with `sd/` inside |
-| `hacer_zip.py` | Builds the release ZIP: the `.exe` with the guide, the licences and the screenshots |
+| `hacer_zip.py` | Builds the release ZIP: the `.exe`, the `sd/` folder (the program uses the one next to it, or the copy inside if it is missing), the guide and the licences (pictures linked to GitHub) |
 | `publicar_paquete.py` | Copies the `.exe` and the guide to the `MSXsdmaker/` folder of each machine's repository |
 
 ## Build and test
