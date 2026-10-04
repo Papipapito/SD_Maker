@@ -16,8 +16,8 @@ sd/
 └── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09)
 ```
 
-**Más fácil: `tools/sdmaker`** (MSX SD Maker) particiona, formatea y copia todo esto a una tarjeta, con el
-`AUTOEXEC.BAT` hecho según lo que se elija. Ver `tools/sdmaker/LEEME.md`.
+**Más fácil: MSX SD Maker** (este repositorio) particiona, formatea y copia todo esto a una tarjeta, con el
+`AUTOEXEC.BAT` hecho según lo que se elija. Ver [`../LEEME.md`](../LEEME.md).
 
 ## 🚨 FHUNT y TMP tienen que existir aunque estén vacías
 

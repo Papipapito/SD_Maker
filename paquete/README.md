@@ -120,6 +120,7 @@ This is the operating system copied to the first, boot partition. **It must matc
 | MSXimus Z (Zynq) | a `BOOT_…_nextor3.bin` | **Nextor 3.0 beta 2** |
 | MSXnano | `pack_bios_msxnano.bin` or `pack_bios_msxnano_en.bin` | **Nextor 2.1.4** |
 | MSXnano | `pack_bios_msxnano_nextor3.bin` or `…_en_nextor3.bin` | **Nextor 3.0 beta 2** |
+| Goa'uld | `pack_bios_goauld_es.bin` or `pack_bios_goauld_en.bin` | **Nextor 2.1.4** |
 | MSX Pico or another MSX with Nextor 2.1 | — | **Nextor 2.1.4** |
 
 The other two options:

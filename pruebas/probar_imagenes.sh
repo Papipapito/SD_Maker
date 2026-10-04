@@ -1,11 +1,11 @@
 #!/bin/bash
 # probar_imagenes.sh — comprueba MSXsdmaker con herramientas que no son suyas (WSL / Linux):
 #   sfdisk (la tabla de particiones), fsck.fat -n (cada particion) y mtools (se extrae la de arranque y se compara con
-#   un arbol de referencia hecho con cp desde packs/sd). mtools sin root: apt-get download mtools && dpkg -x en ~/g3tools/mt.
+#   un arbol de referencia hecho con cp desde sd/). mtools sin root: apt-get download mtools && dpkg -x en ~/g3tools/mt.
 # Uso: bash probar_imagenes.sh [dir de trabajo]      (por defecto ~/sdimg)
 set -u
 S="$(cd "$(dirname "$0")/.." && pwd)"
-SD="$S/../../packs/sd"
+SD="$S/sd"
 W="${1:-$HOME/sdimg}"; mkdir -p "$W"
 MT="$HOME/g3tools/mt/usr/bin"
 export MTOOLS_SKIP_CHECK=1

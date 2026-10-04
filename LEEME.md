@@ -1,6 +1,8 @@
-# MSX SD Maker
+# SD_Maker — tarjetas SD para los MSX en FPGA
 
-Prepara tarjetas SD para **MSXimus** (60K, 138K, Zynq), **MSXnano** y **MSX Pico**: las particiona, las formatea, copia el sistema y deja una estructura de programas con su `AUTOEXEC.BAT`.
+*[English](README.md)*
+
+**MSX SD Maker** prepara tarjetas SD para los MSX en FPGA, **MSXimus** (60K, 138K, Zynq), **MSXnano** y **Goa'uld**, y también para la **MSX Pico**: las particiona, las formatea, copia el sistema y deja una estructura de programas con su `AUTOEXEC.BAT`.
 
 ## Uso
 
@@ -25,7 +27,9 @@ Igual que el `FDISK` de Nextor (`kernel/bank5/fdisk2.c`): partición 1 primaria,
 
 ## Contenido
 
-Sale de `packs/sd/` de este repo y va dentro del `.exe`: `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/` (SOFARUN, hub, mapper, IA e indev de la SD de la MSX Pico). Para cambiar lo que se copia, se cambian esas carpetas y se vuelve a construir.
+Sale de `sd/` y va dentro del `.exe`: `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/` (SOFARUN, hub, mapper, IA e indev de la SD de la MSX Pico); [`sd/LEEME.md`](sd/LEEME.md) explica cada carpeta. Para cambiar lo que se copia, se cambian esas carpetas y se vuelve a construir.
+
+Casi todo lo de `sd/` es de terceros (Nextor, MSX-DOS, SofaRun, Multi Mente, las herramientas UNAPI...) y va bajo la responsabilidad del autor de este proyecto: autores y licencias en [`paquete/LICENCIAS.md`](paquete/LICENCIAS.md), con la licencia de Nextor. El programa es GPL v3 ([`LICENSE`](LICENSE)).
 
 ## Construir y probar
 
@@ -47,4 +51,12 @@ Pruebas en WSL con herramientas ajenas al programa (`sfdisk`, `fsck.fat`, `mtool
 bash pruebas/probar_imagenes.sh
 ```
 
-Siete casos: 3×200 MB, 2×2 GB con sobrante y Nextor 3, 2×4 GB con sobrante, FAT32 de 16 GB, MSX-DOS, vacía y 8 particiones. En cada uno, la partición 1 se extrae y se compara con un árbol hecho con `cp`.
+Nueve casos: 3×200 MB, 2×2 GB con sobrante y Nextor 3, 2×4 GB con sobrante, FAT32 de 16 GB, MSX-DOS, vacía, 8 particiones, las opciones de Nextor 3 y una imagen de 1800 MB. En cada uno, la partición 1 se extrae y se compara con un árbol hecho con `cp`.
+
+## Paquete para los repos de las máquinas
+
+```bash
+python publicar_paquete.py ../MSXimus_zynq ../MSX_up_v3_port
+```
+
+Copia a la carpeta `MSXsdmaker/` de cada repo el `.exe` (antes, `construir_exe.bat`), las instrucciones, `LICENCIAS.md` y las capturas de `paquete/`, y el código en `fuente/`. No hace commit.

@@ -120,6 +120,7 @@ Es el sistema operativo que se copia en la primera partición, la de arranque. *
 | MSXimus Z (Zynq) | un `BOOT_…_nextor3.bin` | **Nextor 3.0 beta 2** |
 | MSXnano | `pack_bios_msxnano.bin` o `pack_bios_msxnano_en.bin` | **Nextor 2.1.4** |
 | MSXnano | `pack_bios_msxnano_nextor3.bin` o `…_en_nextor3.bin` | **Nextor 3.0 beta 2** |
+| Goa'uld | `pack_bios_goauld_es.bin` o `pack_bios_goauld_en.bin` | **Nextor 2.1.4** |
 | MSX Pico u otro MSX con Nextor 2.1 | — | **Nextor 2.1.4** |
 
 Las otras dos opciones:
