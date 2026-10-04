@@ -7,7 +7,10 @@ Las fuentes son las carpetas de sd/ de este repositorio (o, en el .exe, las que 
   extras/             lo de la SD de la MSX Pico que no estaba en base (SOFARUN, hub, mapper, IA, indev.com) y FPGA
                       (MXUPDATE.COM, que actualiza el core del MSXimus 60K/138K y del MSXnano desde MSX-DOS y, por
                       WiFi, se actualiza el mismo)
-El AUTOEXEC.BAT de base/ no se copia: se genera (PATH, alias y MAPDRV segun lo elegido y las particiones creadas)."""
+El AUTOEXEC.BAT de base/ no se copia: se genera (PATH, alias y MAPDRV segun lo elegido y las particiones creadas).
+
+Con la maquina "ocm" (MSXBOOK, OneChipBook, 1chipMSX...) la BIOS, el sistema, HELP y UTILS salen del OCM-SDBIOS Pack de
+KdL (ocm.py) y de sd/ los grupos que sirven en un OCM (sin MXUPDATE ni indev; la musica de OPL4, desmarcada)."""
 import os
 import sys
 
@@ -35,6 +38,27 @@ GRUPOS = [
     ("fpga", "Herramientas FPGA (MXUPDATE: actualizar MSXimus 60K/138K y MSXnano)", ["extras/FPGA"], ["FPGA"], []),
 ]
 SIEMPRE = ["FHUNT", "TMP"]      # FHUNT: el menu descarga del File-Hunter ahi y NO puede crear carpetas
+
+# Maquinas: "fpga" = MSXimus, MSXnano, Goa'uld y MSX Pico (lo de siempre); "ocm" = MSXBOOK, OneChipBook, 1chipMSX y
+# demas con OCM-PLD, con el pack de KdL. En un OCM no van varios (indev es de la MSX Pico) ni fpga (MXUPDATE es de
+# nuestros cores); musica va desmarcado (MBWave y MWM son de OPL4: solo con un cartucho MoonSound o parecido) y util
+# tambien (UTILS de KdL ya trae las del OCM). flash = PLDFLASH y SMXFLASH de UTILS, que flashean el FPGA.
+MAQUINAS = {"fpga": "MSXimus, MSXnano, Goa'uld o MSX Pico",
+            "ocm": "MSXBOOK, OneChipBook o 1chipMSX (OCM-PLD), con el OCM-SDBIOS Pack de KdL"}
+NO_EN_OCM = {"varios", "fpga"}
+GRUPOS_OCM = [("flash", "Flasheo del FPGA (PLDFLASH, SMXFLASH): ¡con cuidado!", [], [], [])]
+DESMARCADOS_OCM = {"util", "musica", "flash"}
+
+
+def grupos_de(maquina):
+    """Los grupos que se ofrecen en esa maquina."""
+    if maquina == "ocm":
+        return [g for g in GRUPOS if g[0] not in NO_EN_OCM] + GRUPOS_OCM
+    return list(GRUPOS)
+
+
+def grupos_por_defecto(maquina):
+    return {g[0] for g in grupos_de(maquina)} - (DESMARCADOS_OCM if maquina == "ocm" else set())
 
 # Opciones del AUTOEXEC con Nextor 3 (beta 2, COMMAND3.COM); con Nextor 2.1.4 y MSX-DOS no se usan.
 #   yenslash: YENSLASH ON, la orden INTERNA de COMMAND3.COM (desde la beta 2): barra invertida en vez de yen. La
@@ -100,13 +124,28 @@ def _meter(padre, ruta, nombre=None):
         padre.hijos.append(Nodo(nombre, origen=ruta, mtime=os.path.getmtime(ruta)))
 
 
-def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None):
+def meter_datos(padre, nombre, datos, mtime=None):
+    """Como _meter pero con los datos en memoria (lo que sale del pack de KdL o se genera)."""
+    viejo = padre.hijo(nombre)
+    if viejo is not None:
+        padre.hijos.remove(viejo)
+    padre.hijos.append(Nodo(nombre, datos=datos, mtime=mtime))
+
+
+def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None, ocm=None):
     """Nodo raiz de la particion de arranque. particiones = cuantas hay en la tarjeta (para el MAPDRV); opciones = las
-    de Nextor 3 (OPCIONES_N3)."""
+    de Nextor 3 (OPCIONES_N3); ocm = {"pack": ocm.Pack, "bios": [(nombre, receta)]} para la maquina "ocm" (el
+    sistema lo deciden entonces sus BIOS: ocm.sistema_de)."""
     sd = raiz_sd or carpeta_sd()
     raiz = Nodo("", es_dir=True)
+    maquina = "ocm" if ocm else "fpga"
+    if ocm:
+        from . import ocm as _ocm
+        sistema = _ocm.sistema_de(ocm["bios"])
     nombre, carpeta, lista = SISTEMAS[sistema]
-    if carpeta:
+    if ocm:
+        _ocm.poner_sistema(raiz, ocm["pack"], ocm["bios"], "flash" in grupos, Nodo, meter_datos)
+    elif carpeta:
         base = os.path.join(sd, carpeta)
         if lista:
             for f in lista:
@@ -114,7 +153,7 @@ def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None):
         else:
             for n in sorted(os.listdir(base), key=str.upper):
                 _meter(raiz, os.path.join(base, n))
-    for clave, _, origenes, _, vacias in GRUPOS:
+    for clave, _, origenes, _, vacias in grupos_de(maquina):
         if clave not in grupos:
             continue
         for o in origenes:
@@ -122,16 +161,20 @@ def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None):
         for v in vacias:
             _asegurar_dir(raiz, v)
     if sistema != "ninguno":
-        for v in SIEMPRE:
+        for v in (["TMP"] if ocm else SIEMPRE):
             _asegurar_dir(raiz, v)
         raiz.hijos.append(Nodo(nombre_autoexec(sistema, opciones),
-                               datos=autoexec(sistema, grupos, particiones, raiz, opciones)))
+                               datos=autoexec(sistema, grupos, particiones, raiz, opciones, maquina)))
+        if ocm:     # REBOOT.BAT: lo ejecuta MSX-DOS al volver de BASIC con CALL SYSTEM (el PATH se pierde)
+            meter_datos(raiz, "REBOOT.BAT", autoexec(sistema, grupos, particiones, raiz, opciones, maquina, False))
     return raiz
 
 
-def autoexec(sistema, grupos, particiones, raiz, opciones=None):
-    """AUTOEXEC.BAT o .BTM (CRLF y ^Z al final, como los de MSX-DOS 2). %1 = unidad de arranque."""
+def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", arranque=True):
+    """AUTOEXEC.BAT o .BTM (CRLF y ^Z al final, como los de MSX-DOS 2). %1 = unidad de arranque. arranque=False: el
+    REBOOT.BAT (solo PATH, alias y variables)."""
     n3 = sistema == "nextor3"
+    ocm = maquina == "ocm"
     o = opciones_n3(opciones)
     def hay(*ruta):
         n = raiz
@@ -142,12 +185,16 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None):
     path = ["A:\\"]
     if hay("bin"):
         path.append("%1\\BIN")
-    for clave, _, _, carpetas, _ in GRUPOS:
+    if ocm:
+        path.append("%1\\UTILS")
+    for clave, _, _, carpetas, _ in grupos_de(maquina):
         if clave in grupos:
             path += ["%1\\" + c for c in carpetas]
+    if not arranque:      # REBOOT.BAT: %1 no vale ahi; la de arranque es A:
+        path = [p.replace("%1", "A:") for p in path]
     L = ["PATH " + ";".join(path), "SET TIMEZONE=+02:00", "mode 80",
          'ALIAS .BAS = "BASIC "', 'ALIAS .ASC = "BASIC "']
-    if "wifi" in grupos:
+    if "wifi" in grupos and not ocm:      # en el OCM, sin el ESP8266 conectado sntp para el arranque
         L.append("sntp pool.ntp.org /v")
     L.append("set temp %1\\TMP")
     if "mm" in grupos:
@@ -161,8 +208,11 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None):
             L.append("SET BUFINSERT=ON")
         if o["dirk"]:
             L.append("SET DIRK=" + o["dirk"])
-    elif hay("UTIL", "YENSLASH.COM"):
+    elif hay("UTIL", "YENSLASH.COM") and not ocm:
         L.append("yenslash")
+    if not arranque:
+        L = [x.replace("%1", "A:") for x in L if not x.startswith("mode")]
+        return ("\r\n".join(L) + "\r\n").encode("ascii") + b"\x1a"
     if hay("FONTS", "ISO-LAT1.FNT"):
         L.append("SET FONT0808=%1\\FONTS\\ISO-LAT1.FNT")
     if hay("UTIL", "LOGIN.COM"):
@@ -175,16 +225,21 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None):
         L.append("echo Type MM to start Multi Mente")
     if "hub" in grupos:
         L.append("echo Type HUBG to start HUB Gui or HUB to CLI")
-    if hay("WIFI", "FH.COM") or hay("UTIL", "FH.COM"):
+    if hay("WIFI", "FH.COM") or hay("UTIL", "FH.COM") or hay("UTILS", "FH.COM"):
         L.append("echo Type FH to FileHunter Download")
-    mapdrv = hay("bin", "MAPDRV.COM") or hay("UTIL", "MAPDRV.COM")
+    if ocm:
+        L.append("echo Type BIOS.TXT for the BIOS on this card (SDBIOS n -R)")
+    mapdrv = hay("bin", "MAPDRV.COM") or hay("UTIL", "MAPDRV.COM") or hay("UTILS", "MAPDRV.COM")
+    donde = "3-2" if ocm else "0"       # OCM: Nextor en el slot 3-2, como en el MAPDRIVE.BAT de KdL
     if particiones > 1:
         letras = "CDEFGHI"[:particiones - 1]
         L.append("echo")
-        if mapdrv:
+        if ocm and sistema == "msxdos":         # MegaSDHC sin Nextor: no hay MAPDRV
+            L.append("echo Partitions 2-%d: only with a Nextor BIOS (MAPDRV)" % particiones)
+        elif mapdrv:
             L.append("echo Maped Units " + ",".join(letras))
             for i, u in enumerate(letras):
-                L.append("mapdrv %s: %d 1 0" % (u.lower(), i + 2))
+                L.append("mapdrv %s: %d 1 %s" % (u.lower(), i + 2, donde))
         else:
             L.append("echo Partitions 2-%d: map them with CALL MAPDRV from BASIC" % particiones)
     return ("\r\n".join(L) + "\r\n").encode("ascii") + b"\x1a"

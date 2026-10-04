@@ -1,8 +1,8 @@
-# MSX SD Maker 1.3 — preparing the SD card
+# MSX SD Maker 1.4 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
-**MSX SD Maker** gets an SD card ready for an **MSXimus** (Tang Console 60K, Tang Mega 138K or the Zynq version), an **MSXnano** or an **MSX Pico**. In a few seconds it does all this:
+**MSX SD Maker** gets an SD card ready for an **MSXimus** (Tang Console 60K, Tang Mega 138K or the Zynq version), an **MSXnano** or an **MSX Pico**, and also for an **MSXBOOK**, **OneChipBook** or **1chipMSX** (see [section 11](#11-msxbook-onechipbook-and-1chipmsx)). In a few seconds it does all this:
 
 1. Wipes the card and splits it into partitions that MSX-DOS understands.
 2. Formats each partition.
@@ -27,6 +27,7 @@ Nothing to install: it is a single file, `MSXsdmaker.exe`. The program itself is
 8. [Troubleshooting](#8-troubleshooting)
 9. [For the curious: how it works](#9-for-the-curious-how-it-works)
 10. [Licenses and credits](#10-licenses-and-credits)
+11. [MSXBOOK, OneChipBook and 1chipMSX](#11-msxbook-onechipbook-and-1chipmsx)
 
 ---
 
@@ -60,7 +61,7 @@ Nothing to install: it is a single file, `MSXsdmaker.exe`. The program itself is
 
 ![The MSX SD Maker window](capturas/1_ventana.png)
 
-The window has four blocks, top to bottom. Fill them in order and press **Preparar la tarjeta** (*Prepare the card*).
+At the top, in **Máquina** (*Machine*), leave the first option ticked (MSXimus, MSXnano, Goa'uld or MSX Pico); for the MSXBOOK, OneChipBook or 1chipMSX see [section 11](#11-msxbook-onechipbook-and-1chipmsx). Below there are four blocks, top to bottom. Fill them in order and press **Preparar la tarjeta** (*Prepare the card*).
 
 ### 3.1 The card — *1. Tarjeta SD*
 
@@ -381,3 +382,47 @@ python MSXsdmaker.py imagen test.img --tamano 8G --esquema fat16-2g --n 3 --sist
 MSX SD Maker is part of the MSXimus / MSXnano project, by Albert (Papipapito), under GPL v3 like the rest of the project.
 
 The programs it copies to the card belong to their authors: Nextor and MSX-DOS, SofaRun, Multi Mente, the UNAPI tools, HUB and more. See [LICENCIAS.md](LICENCIAS.md): it has the list and the Nextor license notice, which must accompany its files.
+
+
+---
+
+## 11. MSXBOOK, OneChipBook and 1chipMSX
+
+These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card itself: a 512 KB `OCM-BIOS.DAT` file. MSX SD Maker builds that file, with the same options as KdL's `make-sdb.cmd`, and lays out the card like his `sdcreate.cmd`: system, `HELP` and `UTILS`, plus the programs you choose.
+
+### What else you need
+
+**KdL's OCM-SDBIOS Pack**, which you ask the author for. MSX SD Maker does not include it because its BIOS images hold third-party system ROMs. Leave it **as it comes** (the `.7z`, or the unpacked folder) in the `OCM-SDBIOS` folder next to `MSXsdmaker.exe`, or pick it with **Buscar el pack...**. Pack 3.8.3 has Nextor 2.1.4 and Nextor 3.0 beta 2; 3.8.1 only Nextor 2.1.4.
+
+### Step by step
+
+1. In **Máquina**, choose **MSXBOOK, OneChipBook o 1chipMSX**. If it is greyed out, the program has not found the pack: it says so in red underneath.
+2. **Partitions**: FAT16 only. The machine's IPL, which loads the BIOS, cannot read FAT32. The first partition holds the BIOS images and the system; the others are mounted as C:, D:… by `MAPDRV` in `AUTOEXEC.BAT`.
+3. **Opciones de las BIOS...** opens the menu of the card's BIOS images. The main one, `OCM-BIOS.DAT`, is the one that boots. **Añadir otra** adds spare ones, `ALT-BIOS.DA0` to `.DA9`. For each one you choose:
+   - **Machine type**: MSX2+ (the usual one), turboR (experimental: the OCM has no R800), MSX2, MSX1, MSX2+ for OCM-PLD 3.0-3.3.3, or empty. The empty one is not a BIOS: the machine rejects it and boots the one in its flash.
+   - **Disk**: Nextor 2.1.4, Nextor 3.0 beta 2, or MegaSDHC (MSX-DOS 2, no Nextor) with one or two SD slots.
+   - **Keyboard**: `\` backslash, `¥` yen or western.
+   - **Boot logo**, with a picture of it. "Propio" is the one you made with the pack's ++Logo Toolkit.
+   - **Option-ROM**: Wi-Fi (the ESP8266 BIOS, which detects the module by itself) and, on the turboR, its logo.
+   - **Extra-ROM**: BASIC'n turbo 2.1, BASIC'n plus 2.0 or none.
+
+   By default: MSX2+ with Nextor 2.1.4, Wi-Fi and the MSX++ logo, and a spare turboR.
+
+   ![The MSXBOOK BIOS images](capturas/6_bios_msxbook.png)
+4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE and `indev` are left out. Music (MBWave, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
+
+### What ends up on the card
+
+- `OCM-BIOS.DAT`, the **first** file in the root. The IPL looks for it there and reads it in one go.
+- The spare `ALT-BIOS.DA?` files.
+- `BIOS.TXT`: which BIOS images there are and how to switch.
+- `NEXTOR.SYS`, `COMMAND2.COM` and `MSXDOS2.SYS`, plus `COMMAND3.COM` with Nextor 3.
+- The pack's `HELP` and `UTILS` (with Nextor 3, its tools).
+- `AUTOEXEC.BAT` and `REBOOT.BAT`.
+
+### On the machine
+
+- **First boot**: if the old BIOS shows up, the machine still has it in memory. Switch it off for a few seconds or give the reset button a **long press**.
+- **Switching BIOS**: `SDBIOS n -R` (n = the last digit of `ALT-BIOS.DAn`) switches and reboots. `SDBIOS -R` goes back to the main one. `TYPE BIOS.TXT` reminds you.
+- **Nextor 2 and Nextor 3** each need their own `NEXTOR.SYS`. If the card has BIOS images with both, the other one is kept as `N2XTOR.SYS` or `N3XTOR.SYS`. To move to a BIOS with the other Nextor: `SDBIOS n` (without `-R`), then `XSYS3` (it swaps `NEXTOR.SYS`) and then a **full restart** (long press on the reset button, or power off and on). The reboot done by `XSYS3` does not reload the BIOS: without the full restart the old one stays and `NEXTOR.SYS` complains that it needs another kernel. To go back: `SDBIOS`, `XSYS3` and a full restart.
+- **If something goes wrong**: a click on the reset button during the initial blinking boots the BIOS in the flash, without taking the card out.

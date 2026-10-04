@@ -2,12 +2,15 @@
 
 *[Castellano](LEEME.md)*
 
-**MSX SD Maker** is a Windows program that gets an SD card ready for the FPGA MSX machines: an **MSXimus** (Tang Console 60K, Tang Mega 138K or Zynq), an **MSXnano** or a **Goa'uld** — and also for an **MSX Pico**:
+**MSX SD Maker** is a Windows program that gets an SD card ready for the FPGA MSX machines: an **MSXimus** (Tang Console 60K, Tang Mega 138K or Zynq), an **MSXnano** or a **Goa'uld** — and also for an **MSX Pico** and the **MSXBOOK / OneChipBook / 1chipMSX** (OCM-PLD):
 
 - partitions it like Nextor's `FDISK`: FAT16 of 2 or 4 GB (up to 8), or one FAT32;
 - copies the system: Nextor 2.1.4, Nextor 3.0 beta 2 or MSX-DOS;
 - copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music…, and the FPGA tools (`MXUPDATE`, which updates the MSXimus and MSXnano core from MSX-DOS), and writes the `AUTOEXEC.BAT`;
-- reads everything back and checks it by CRC. It can also write a card image instead of a card.
+- reads everything back and checks it by CRC. It can also write a card image instead of a card;
+- for the MSXBOOK, OneChipBook and 1chipMSX it builds the `OCM-BIOS.DAT` BIOS images from KdL's OCM-SDBIOS Pack, with
+  the same options as his `make-sdb.cmd`. The pack is not included (its BIOS images hold third-party system ROMs): the
+  user drops it, as downloaded, in the `OCM-SDBIOS` folder next to the program.
 
 **Download** `MSX_SD_Maker_<version>.zip` from the [latest release](https://github.com/Papipapito/SD_Maker/releases/latest), unzip it and run `MSXsdmaker.exe`. How to use it: [paquete/README.md](paquete/README.md) (English) · [paquete/LEEME.md](paquete/LEEME.md) (castellano). The program itself is in Spanish.
 
@@ -33,6 +36,7 @@ python hacer_zip.py
 ```bash
 python MSXsdmaker.py imagen test.img --tamano 1800M --sistema nextor3
 bash pruebas/probar_imagenes.sh
+python pruebas/probar_ocm.py "PATH TO KdL's PACK"
 ```
 
 ## Licences

@@ -32,6 +32,12 @@ MSX-DOS 1 (`MSXDOS.SYS`, `COMMAND.COM`) no forma parte del código fuente de Nex
 
 MSX-DOS 1 (`MSXDOS.SYS`, `COMMAND.COM`) is not part of the Nextor source code and is not covered by its license. It is included under the responsibility of this project's author, for non-commercial use only.
 
+## MSXBOOK, OneChipBook y 1chipMSX / MSXBOOK, OneChipBook and 1chipMSX
+
+`MSXsdmaker.exe` **no** lleva el OCM-SDBIOS Pack de KdL: lo pone el usuario en la carpeta `OCM-SDBIOS` (se le pide al autor). Las BIOS, el sistema, `HELP` y `UTILS` de esas tarjetas salen de ese pack, como hacen sus `make-sdb.cmd` y `sdcreate.cmd`; sus ROMs y programas son de sus autores (KdL y los que cita el pack) y están bajo las condiciones del pack: uso personal, no comercial.
+
+`MSXsdmaker.exe` does **not** include KdL's OCM-SDBIOS Pack: the user puts it in the `OCM-SDBIOS` folder (ask the author for it). The BIOS images, the system, `HELP` and `UTILS` on those cards come from that pack, the way its `make-sdb.cmd` and `sdcreate.cmd` do it; its ROMs and programs belong to their authors (KdL and those credited in the pack) and are under the pack's terms: personal, non-commercial use.
+
 ## Licencia de Nextor / Nextor license
 
 Reproducida tal cual, como exige la propia licencia. / Reproduced verbatim, as the license itself requires.

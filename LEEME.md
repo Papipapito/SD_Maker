@@ -2,7 +2,7 @@
 
 *[English](README.md)*
 
-**MSX SD Maker** prepara tarjetas SD para los MSX en FPGA, **MSXimus** (60K, 138K, Zynq), **MSXnano** y **Goa'uld**, y también para la **MSX Pico**: las particiona, las formatea, copia el sistema y deja una estructura de programas con su `AUTOEXEC.BAT`.
+**MSX SD Maker** prepara tarjetas SD para los MSX en FPGA, **MSXimus** (60K, 138K, Zynq), **MSXnano** y **Goa'uld**, y también para la **MSX Pico** y el **MSXBOOK / OneChipBook / 1chipMSX** (OCM-PLD): las particiona, las formatea, copia el sistema y deja una estructura de programas con su `AUTOEXEC.BAT`.
 
 ## Uso
 
@@ -18,6 +18,13 @@ Se reparte en un ZIP (`MSX_SD_Maker_<versión>.zip`, en las [releases](https://g
 El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una línea `mapdrv c: 2 1 0` por cada partición de más (C:, D:, E:...). Con Nextor 3 (1.1) lleva además las opciones del recuadro: `YENSLASH ON` (la orden interna de COMMAND3.COM desde la beta 2; el `yenslash` a secas solo diría el estado), `SET BUFINSERT=ON`, `SET DIRK=0` y, si se elige, se llama `AUTOEXEC.BTM`. Desde la 1.1, una tarjeta más pequeña que una partición entera (las de "2 GB") lleva una sola con todo, y la imagen pregunta siempre el tamaño (1800M por defecto: cabe en cualquier tarjeta de 2 GB).
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
+
+**MSXBOOK, OneChipBook y 1chipMSX** (1.4): con el OCM-SDBIOS Pack de KdL, que el usuario deja tal cual (el `.7z`) en la
+carpeta `OCM-SDBIOS` junto al programa; no va en este repositorio porque sus BIOS llevan ROMs de sistema con derechos
+de terceros. El programa (`sdmaker/ocm.py`) monta las BIOS como `make-sdb.cmd` (MSX2+, turboR, MSX2, MSX1, OCM-PLD
+3.0-3.3.3 y vacía; Nextor 2.1.4, Nextor 3 o MegaSDHC; teclado, logo, WiFi y Extra-ROM), una principal y hasta diez de
+reserva, y copia sistema, `HELP` y `UTILS` como `sdcreate.cmd`. `OCM-BIOS.DAT` queda el primero de la raíz, en el cluster
+2 y contiguo: la IPL del OCM solo lee FAT16 en la primera partición, busca el fichero en la raíz y lo lee de un tirón.
 
 Al abrirse mira en GitHub la última release de SD_Maker (`sdmaker/novedades.py`); si es mayor que la suya, lo dice y ofrece abrir la página de descarga. `python MSXsdmaker.py version` enseña las dos.
 
@@ -54,6 +61,16 @@ bash pruebas/probar_imagenes.sh
 ```
 
 Nueve casos: 3×200 MB, 2×2 GB con sobrante y Nextor 3, 2×4 GB con sobrante, FAT32 de 16 GB, MSX-DOS, vacía, 8 particiones, las opciones de Nextor 3 y una imagen de 1800 MB. En cada uno, la partición 1 se extrae y se compara con un árbol hecho con `cp`.
+
+MSXBOOK (con Python de Windows y el pack de KdL):
+
+```bash
+python pruebas/probar_ocm.py "RUTA DEL PACK"
+```
+
+Con el pack descomprimido compara cada combinación de opciones con todas las BIOS que KdL trae hechas en `sdbios-*`
+(las de Nextor y MegaSDHC salen idénticas). Luego hace cinco tarjetas y comprueba cada una con `pruebas/ipl_ocm.py`, que
+lee la imagen como la IPL del OCM, además de las BIOS de reserva, el sistema, `HELP` y `UTILS`.
 
 ## Paquete para los repos de las máquinas
 

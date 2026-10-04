@@ -1,0 +1,29 @@
+OCM-SDBIOS: aqui va el OCM-SDBIOS Pack de KdL
+=============================================
+
+Para las tarjetas del MSXBOOK, OneChipBook, 1chipMSX y demas maquinas con OCM-PLD,
+MSX SD Maker necesita el OCM-SDBIOS Pack de KdL (el autor de OCM-PLD). Pideselo a el y
+dejalo en esta carpeta tal cual: el .7z (por ejemplo "20261002 OCM-SDBIOS Pack v3.8.3
+by KdL.7z") o la carpeta descomprimida. Si hay varios, se usa el de version mas alta.
+Tambien se puede elegir desde el programa con "Buscar el pack...".
+
+MSX SD Maker no trae el pack: sus BIOS llevan ROMs de sistema con derechos de terceros.
+Con lo que hay en el pack, el programa monta las BIOS como su make-sdb.cmd y copia el
+sistema, HELP y UTILS como su sdcreate.cmd.
+
+Probado con el pack v3.8.3 (Nextor 2.1.4 y Nextor 3.0 beta 2). El v3.8.1 vale, sin Nextor 3.
+
+
+OCM-SDBIOS: KdL's OCM-SDBIOS Pack goes here
+-------------------------------------------
+
+For the MSXBOOK, OneChipBook, 1chipMSX and the other OCM-PLD machines, MSX SD Maker needs
+KdL's OCM-SDBIOS Pack (KdL is the author of OCM-PLD). Ask him for it and leave it in this
+folder as it comes: the .7z or the unpacked folder. If there are several, the highest
+version is used. It can also be picked from the program with "Buscar el pack...".
+
+MSX SD Maker does not include the pack: its BIOS images hold third-party system ROMs.
+The program builds the BIOS from the pack the way make-sdb.cmd does, and copies the system,
+HELP and UTILS the way sdcreate.cmd does.
+
+Tested with pack v3.8.3 (Nextor 2.1.4 and Nextor 3.0 beta 2). v3.8.1 works, without Nextor 3.

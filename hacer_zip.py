@@ -1,5 +1,6 @@
 """hacer_zip.py — el ZIP de la release: dist/MSX_SD_Maker_<version>.zip con una carpeta MSX_SD_Maker_<version>/ que
-lleva MSXsdmaker.exe y la estructura del paquete (LEEME.md, README.md, LICENCIAS.md y capturas/). Para usarlo:
+lleva MSXsdmaker.exe y la estructura del paquete (LEEME.md, README.md, LICENCIAS.md, capturas/ y la carpeta
+OCM-SDBIOS/ con su LEEME, donde se deja el pack de KdL para el MSXBOOK). Para usarlo:
 descomprimir y ejecutar MSXsdmaker.exe. (Antes: construir_exe.bat.)
 Uso: python hacer_zip.py"""
 import hashlib
@@ -27,6 +28,7 @@ def main():
         z.write(EXE, carpeta + "/MSXsdmaker.exe")
         for n in ("LEEME.md", "README.md", "LICENCIAS.md"):
             z.write(os.path.join(AQUI, "paquete", n), "%s/%s" % (carpeta, n))
+        z.write(os.path.join(AQUI, "OCM-SDBIOS", "LEEME.txt"), carpeta + "/OCM-SDBIOS/LEEME.txt")
         for n in sorted(os.listdir(os.path.join(AQUI, "paquete", "capturas"))):
             z.write(os.path.join(AQUI, "paquete", "capturas", n), "%s/capturas/%s" % (carpeta, n))
     h = hashlib.md5(open(destino, "rb").read()).hexdigest()[:12]

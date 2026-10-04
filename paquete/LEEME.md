@@ -1,8 +1,8 @@
-# MSX SD Maker 1.3 — preparar la tarjeta SD
+# MSX SD Maker 1.4 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
-**MSX SD Maker** deja una tarjeta SD lista para usar en un **MSXimus** (Tang Console 60K, Tang Mega 138K o la versión Zynq), un **MSXnano** o una **MSX Pico**. En unos segundos hace todo esto:
+**MSX SD Maker** deja una tarjeta SD lista para usar en un **MSXimus** (Tang Console 60K, Tang Mega 138K o la versión Zynq), un **MSXnano** o una **MSX Pico**, y también en un **MSXBOOK**, **OneChipBook** o **1chipMSX** (ver el [apartado 11](#11-msxbook-onechipbook-y-1chipmsx)). En unos segundos hace todo esto:
 
 1. Borra la tarjeta y la parte en particiones que MSX-DOS entiende.
 2. Formatea cada partición.
@@ -27,6 +27,7 @@ No hay nada que instalar: es un solo fichero, `MSXsdmaker.exe`.
 8. [Problemas frecuentes](#8-problemas-frecuentes)
 9. [Para curiosos: cómo lo hace](#9-para-curiosos-cómo-lo-hace)
 10. [Licencias y créditos](#10-licencias-y-créditos)
+11. [MSXBOOK, OneChipBook y 1chipMSX](#11-msxbook-onechipbook-y-1chipmsx)
 
 ---
 
@@ -60,7 +61,7 @@ No hay nada que instalar: es un solo fichero, `MSXsdmaker.exe`.
 
 ![La ventana de MSX SD Maker](capturas/1_ventana.png)
 
-La ventana tiene cuatro bloques, de arriba abajo. Rellénalos en orden y pulsa **Preparar la tarjeta**.
+Arriba, en **Máquina**, deja marcada la primera opción (MSXimus, MSXnano, Goa'uld o MSX Pico); para el MSXBOOK, OneChipBook o 1chipMSX mira el [apartado 11](#11-msxbook-onechipbook-y-1chipmsx). Debajo hay cuatro bloques, de arriba abajo. Rellénalos en orden y pulsa **Preparar la tarjeta**.
 
 ### 3.1 La tarjeta
 
@@ -382,3 +383,47 @@ Con Nextor 3: `--sin-yenslash`, `--bufinsert`, `--dirk bytes` y `--btm` son las 
 MSX SD Maker es parte del proyecto MSXimus / MSXnano, de Albert (Papipapito), bajo GPL v3 como el resto del proyecto.
 
 Los programas que copia en la tarjeta son de sus autores: Nextor y MSX-DOS, SofaRun, Multi Mente, las herramientas UNAPI, HUB y más. Mira [LICENCIAS.md](LICENCIAS.md): lleva la lista y el aviso de licencia de Nextor, que exige acompañar a sus ficheros.
+
+
+---
+
+## 11. MSXBOOK, OneChipBook y 1chipMSX
+
+Estas máquinas llevan el firmware **OCM-PLD** de KdL y cargan la BIOS desde la propia tarjeta: un fichero `OCM-BIOS.DAT` de 512 KB. MSX SD Maker monta ese fichero, con las mismas opciones que el `make-sdb.cmd` de KdL, y deja la tarjeta como su `sdcreate.cmd`: sistema, `HELP` y `UTILS`, y además los programas que elijas.
+
+### Qué necesitas además
+
+**El OCM-SDBIOS Pack de KdL**, que se le pide al autor. MSX SD Maker no lo trae porque sus BIOS llevan ROMs de sistema con derechos de terceros. Déjalo **tal cual** (el `.7z`, o la carpeta descomprimida) en la carpeta `OCM-SDBIOS` que hay junto a `MSXsdmaker.exe`, o elígelo con **Buscar el pack...**. Con el pack 3.8.3 hay Nextor 2.1.4 y Nextor 3.0 beta 2; con el 3.8.1, solo Nextor 2.1.4.
+
+### Paso a paso
+
+1. En **Máquina**, elige **MSXBOOK, OneChipBook o 1chipMSX**. Si no se puede elegir, el programa no ha encontrado el pack: lo dice debajo en rojo.
+2. **Particiones**: solo FAT16. La IPL de la máquina, que carga la BIOS, no lee FAT32. La primera partición lleva las BIOS y el sistema; las demás se montan en C:, D:… con `MAPDRV` en el `AUTOEXEC.BAT`.
+3. **Opciones de las BIOS...** abre el menú de las BIOS de la tarjeta. La principal, `OCM-BIOS.DAT`, es la que arranca. Con **Añadir otra** se ponen BIOS de reserva, `ALT-BIOS.DA0` a `.DA9`. De cada una se elige:
+   - **Tipo de máquina**: MSX2+ (la normal), turboR (experimental: el OCM no tiene R800), MSX2, MSX1, MSX2+ para OCM-PLD 3.0-3.3.3 o vacía. La vacía no es una BIOS: la máquina la rechaza y arranca la de su flash.
+   - **Disco**: Nextor 2.1.4, Nextor 3.0 beta 2, o MegaSDHC (MSX-DOS 2, sin Nextor) con una o dos ranuras SD.
+   - **Teclado**: `\` barra invertida, `¥` yen u occidental.
+   - **Logo** de arranque, con su imagen. «Propio» es el que hayas hecho con el ++Logo Toolkit del pack.
+   - **Option-ROM**: el WiFi (la BIOS del ESP8266, que detecta el módulo sola) y, en el turboR, su logo.
+   - **Extra-ROM**: BASIC'n turbo 2.1, BASIC'n plus 2.0 o ninguna.
+
+   Por defecto: MSX2+ con Nextor 2.1.4, WiFi y logo MSX++, y una turboR de reserva.
+
+   ![Las BIOS del MSXBOOK](capturas/6_bios_msxbook.png)
+4. **Programas**: los mismos de siempre menos los que no sirven en estas máquinas. No van MXUPDATE ni `indev`. La música (MBWave, MWM) sale desmarcada: es de OPL4 y solo suena con un cartucho MoonSound o parecido. **Flasheo del FPGA** añade `PLDFLASH` y `SMXFLASH` a `UTILS`: van aparte porque reescriben el firmware de la máquina.
+
+### Qué queda en la tarjeta
+
+- `OCM-BIOS.DAT`, la **primera** de la raíz. La IPL la busca ahí y la lee de un tirón.
+- Las `ALT-BIOS.DA?` de reserva.
+- `BIOS.TXT`: qué BIOS hay y cómo se cambia.
+- `NEXTOR.SYS`, `COMMAND2.COM` y `MSXDOS2.SYS`, y con Nextor 3 también `COMMAND3.COM`.
+- `HELP` y `UTILS` del pack (con Nextor 3, sus herramientas).
+- `AUTOEXEC.BAT` y `REBOOT.BAT`.
+
+### En la máquina
+
+- **Primer arranque**: si sale la BIOS de antes, la máquina la tiene aún en memoria. Apágala unos segundos o haz una **pulsación larga del reset**.
+- **Cambiar de BIOS**: `SDBIOS n -R` (n = la cifra final de `ALT-BIOS.DAn`) cambia y reinicia. `SDBIOS -R` vuelve a la principal. `TYPE BIOS.TXT` lo recuerda.
+- **Nextor 2 y Nextor 3** necesitan cada uno su `NEXTOR.SYS`. Si la tarjeta lleva BIOS de los dos, el otro va como `N2XTOR.SYS` o `N3XTOR.SYS`. Para pasar a una BIOS con el otro Nextor: `SDBIOS n` (sin `-R`), luego `XSYS3` (cambia el `NEXTOR.SYS`) y después un **reinicio completo** (pulsación larga del reset, o apagar y encender). El reinicio de `XSYS3` no recarga la BIOS: sin el completo sigue la de antes y `NEXTOR.SYS` da el error de que necesita otro kernel. Para volver: `SDBIOS`, `XSYS3` y reinicio completo.
+- **Si algo va mal**: un clic en el reset durante el parpadeo inicial arranca la BIOS de la flash, sin sacar la tarjeta.
