@@ -56,7 +56,7 @@ Nueve casos: 3×200 MB, 2×2 GB con sobrante y Nextor 3, 2×4 GB con sobrante, F
 ## Paquete para los repos de las máquinas
 
 ```bash
-python publicar_paquete.py ../MSXimus_zynq ../MSX_up_v3_port
+python publicar_paquete.py ../MSXimus_zynq ../MSXimus
 ```
 
 Copia a la carpeta `MSXsdmaker/` de cada repo el `.exe` (antes, `construir_exe.bat`), las instrucciones, `LICENCIAS.md` y las capturas de `paquete/`, y el código en `fuente/`. No hace commit.
