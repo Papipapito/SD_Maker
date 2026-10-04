@@ -13,7 +13,8 @@ sd/
 │   └── TMP/     ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
 ├── nextor-3.0.0-beta2/      NEXTOR.SYS + COMMAND3.COM + bin/ (las 25 herramientas oficiales)
-└── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09)
+└── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09) y FPGA
+                             (MXUPDATE.COM del MSXimus V3.8, md5 acd3870e9853)
 ```
 
 **Más fácil: MSX SD Maker** (este repositorio) particiona, formatea y copia todo esto a una tarjeta, con el

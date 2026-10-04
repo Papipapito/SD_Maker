@@ -6,7 +6,7 @@
 
 - partitions it like Nextor's `FDISK`: FAT16 of 2 or 4 GB (up to 8), or one FAT32;
 - copies the system: Nextor 2.1.4, Nextor 3.0 beta 2 or MSX-DOS;
-- copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music…, and writes the `AUTOEXEC.BAT`;
+- copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music…, and the FPGA tools (`MXUPDATE`, which updates the MSXimus and MSXnano core from MSX-DOS), and writes the `AUTOEXEC.BAT`;
 - reads everything back and checks it by CRC. It can also write a card image instead of a card.
 
 How to use it: [paquete/README.md](paquete/README.md) (English) · [paquete/LEEME.md](paquete/LEEME.md) (castellano). The program itself is in Spanish.

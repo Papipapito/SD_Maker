@@ -4,7 +4,8 @@ Las fuentes son las carpetas de sd/ de este repositorio (o, en el .exe, las que 
   base/               lo comun de las SD del MSXimus (MM, UTIL, WIFI, FONTS, musica...)
   nextor-2.1.4/       NEXTOR.SYS + COMMAND2.COM + bin/ (herramientas de Nextor 2)
   nextor-3.0.0-beta2/ NEXTOR.SYS + COMMAND3.COM + bin/ (herramientas de Nextor 3)
-  extras/             lo de la SD de la MSX Pico que no estaba en base: SOFARUN, hub, mapper, IA, indev.com
+  extras/             lo de la SD de la MSX Pico que no estaba en base (SOFARUN, hub, mapper, IA, indev.com) y FPGA
+                      (MXUPDATE.COM, que actualiza el core del MSXimus 60K/138K y del MSXnano desde MSX-DOS)
 El AUTOEXEC.BAT de base/ no se copia: se genera (PATH, alias y MAPDRV segun lo elegido y las particiones creadas)."""
 import os
 import sys
@@ -30,6 +31,7 @@ GRUPOS = [
     ("hub", "HUB (gestor de paquetes msxhub.com)", ["extras/hub"], ["hub"], []),
     ("ia", "IA (cliente de chat con IA; las claves van en IA\\ia.cfg)", ["extras/IA"], ["IA"], []),
     ("varios", "mapper e indev", ["extras/mapper", "extras/indev.com"], ["mapper"], []),
+    ("fpga", "Herramientas FPGA (MXUPDATE: actualizar MSXimus 60K/138K y MSXnano)", ["extras/FPGA"], ["FPGA"], []),
 ]
 SIEMPRE = ["FHUNT", "TMP"]      # FHUNT: el menu descarga del File-Hunter ahi y NO puede crear carpetas
 

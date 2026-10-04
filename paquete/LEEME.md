@@ -1,4 +1,4 @@
-# MSX SD Maker 1.1 — preparar la tarjeta SD
+# MSX SD Maker 1.2 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -156,6 +156,7 @@ Se copian en la primera partición, cada uno en su carpeta. Marca los que quiera
 | HUB | `hub` | Cliente de MSX Hub, para instalar programas desde internet | `HUBG` o `HUB` |
 | IA | `IA` | Cliente de chat con IA; tus claves van en `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` desactiva el mapeador de MSX-DOS 2 para programas antiguos | por su nombre |
+| Herramientas FPGA | `FPGA` | `MXUPDATE`: actualiza el core y el pack del MSXimus 60K/138K y del MSXnano (2.1.1 o posterior) desde MSX-DOS, con un `.UPD` de la tarjeta o por WiFi (`MXUPDATE /N`). El MSXimus Z (Zynq) se actualiza por su cuenta | `MXUPDATE` |
 
 Siempre que haya sistema se crean también estas carpetas vacías. **No las borres**:
 
@@ -193,6 +194,7 @@ A:\
 ├── MM\  FONTS\                    Multi Mente y sus fuentes
 ├── UTIL\  WIFI\  musica\          utilidades, red y música
 ├── hub\  IA\  mapper\  indev.com
+├── FPGA\                          MXUPDATE: actualizar el core del MSXimus y del MSXnano
 ├── FHUNT\                         descargas del File-Hunter (no borrar)
 └── TMP\                           temporal (no borrar)
 ```
@@ -204,7 +206,7 @@ Las **particiones 2, 3…** quedan vacías para tus juegos y programas.
 Se genera según lo que hayas elegido. Con todo marcado y tres particiones queda así:
 
 ```
-PATH A:\;%1\BIN;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\musica;%1\hub;%1\IA;%1\mapper
+PATH A:\;%1\BIN;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\musica;%1\hub;%1\IA;%1\mapper;%1\FPGA
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "
