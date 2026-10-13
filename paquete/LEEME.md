@@ -159,7 +159,7 @@ Se copian en la primera partición, cada uno en su carpeta. Marca los que quiera
 | HUB | `hub` | Cliente de MSX Hub, para instalar programas desde internet | `HUBG` o `HUB` |
 | IA | `IA` | Cliente de chat con IA; tus claves van en `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` desactiva el mapeador de MSX-DOS 2 para programas antiguos | por su nombre |
-| Herramientas FPGA | `FPGA` | `MXUPDATE`: actualiza el core y el pack del MSXimus 60K/138K y del MSXnano (2.1.1 o posterior) desde MSX-DOS, con un `.UPD` de la tarjeta o por WiFi (`MXUPDATE /N`); por WiFi se pone al día él mismo antes de nada. `MXUPDATE /?` enseña las órdenes. El MSXimus Z (Zynq) se actualiza por su cuenta. `MTVOL`: volumen del FM y del Wave del OPL4 (MSXimus y MoonTANG): `MTVOL FM 9`, `MTVOL WAVE 6`, `MTVOL FM M` (silencio); sin argumentos muestra los niveles | `MXUPDATE`, `MTVOL` |
+| Herramientas FPGA | `FPGA` | `MXUPDATE`: actualiza el core y el pack del MSXimus 60K/138K y del MSXnano (2.1.1 o posterior) desde MSX-DOS, con un `.UPD` de la tarjeta o por WiFi (`MXUPDATE /N`); por WiFi se pone al día él mismo antes de nada. `MXUPDATE /?` enseña las órdenes. El MSXimus Z (Zynq) se actualiza por su cuenta. `MTVOL`: volumen del FM y del Wave del OPL4 (MSXimus y MoonTANG): `MTVOL FM 9`, `MTVOL WAVE 6`, `MTVOL FM M` (silencio); el número va de 0 a 18 de 3 en 3 (18 = máximo, 0 dB; cada paso son 3 dB); sin argumentos muestra los niveles | `MXUPDATE`, `MTVOL` |
 
 Siempre que haya sistema se crean también estas carpetas vacías. **No las borres**:
 
