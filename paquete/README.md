@@ -161,7 +161,7 @@ They are copied to the first partition, each in its own folder. Tick the ones yo
 | HUB | `hub` | MSX Hub client, to install programs from the internet | `HUBG` or `HUB` |
 | IA | `IA` | AI chat client; your keys go in `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` disables the MSX-DOS 2 mapper routines for old software | by name |
-| Herramientas FPGA | `FPGA` | `MXUPDATE`: updates the core and the pack of the MSXimus 60K/138K and the MSXnano (2.1.1 or later) from MSX-DOS, from a `.UPD` on the card or over WiFi (`MXUPDATE /N`); over WiFi it first brings itself up to date. `MXUPDATE /?` shows the commands. The MSXimus Z (Zynq) updates itself | `MXUPDATE` |
+| Herramientas FPGA | `FPGA` | `MXUPDATE`: updates the core and the pack of the MSXimus 60K/138K and the MSXnano (2.1.1 or later) from MSX-DOS, from a `.UPD` on the card or over WiFi (`MXUPDATE /N`); over WiFi it first brings itself up to date. `MXUPDATE /?` shows the commands. The MSXimus Z (Zynq) updates itself. `MTVOL`: OPL4 FM and Wave volume (MSXimus and MoonTANG): `MTVOL FM 9`, `MTVOL WAVE 6`, `MTVOL FM M` (mute); with no arguments it shows the levels | `MXUPDATE`, `MTVOL` |
 
 Whenever a system is installed these empty folders are created too. **Do not delete them**:
 
@@ -199,7 +199,7 @@ A:\
 ├── MM\  FONTS\                    Multi Mente and its fonts
 ├── UTIL\  WIFI\  musica\          utilities, networking and music
 ├── hub\  IA\  mapper\  indev.com
-├── FPGA\                          MXUPDATE: updating the MSXimus and MSXnano core
+├── FPGA\                          MXUPDATE: updating the MSXimus and MSXnano core; MTVOL: OPL4 volume
 ├── FHUNT\                         File-Hunter downloads (do not delete)
 └── TMP\                           temporary (do not delete)
 ```
@@ -409,7 +409,7 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
    By default: MSX2+ with Nextor 2.1.4, Wi-Fi and the MSX++ logo, and a spare turboR.
 
    ![The MSXBOOK BIOS images](capturas/6_bios_msxbook.png)
-4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE and `indev` are left out. Music (MBWave, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
+4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE, MTVOL and `indev` are left out. Music (MBWave, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
 
 ### What ends up on the card
 

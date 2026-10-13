@@ -14,7 +14,8 @@ sd/
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
 ├── nextor-3.0.0-beta2/      NEXTOR.SYS + COMMAND3.COM + bin/ (las 25 herramientas oficiales)
 └── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09) y FPGA
-                             (MXUPDATE.COM 1.2 del MSXimus, md5 de9757601a04: se actualiza solo desde msx.barcelona)
+                             (MXUPDATE.COM 1.2 del MSXimus, md5 de9757601a04: se actualiza solo desde msx.barcelona;
+                             MTVOL.COM de MoonTANG, md5 b13640211ab1: volumen FM/Wave del OPL4, fuente tools/msx/mtvol.asm de MoonTANG)
 ```
 
 **Más fácil: MSX SD Maker** (este repositorio) particiona, formatea y copia todo esto a una tarjeta, con el
