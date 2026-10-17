@@ -91,12 +91,31 @@
 ;                  song uses the ROM tones. ESC ends a song, CTRL+STOP between
 ;                  two ends the list. RoboPlay uses 0xC000-0xD3FF: about 30
 ;                  tagged songs per RETURN; with more it goes back to DOS.
+;  .MID            ROBOPLAY: General MIDI on the OPL4 wave ROM (YRW801; the
+;                  MSXimus needs it in its flash). Without RoboPlay on the
+;                  card, MIDIPLAY (only with a MIDI-PAC).
+;  .RAD .DRO .D00  ROBOPLAY: PC AdLib music on the OPL4 FM: Reality AdLib
+;  .HSC .AMD .SA2  Tracker, DOSBox captures, EdLib, HSC, AMUSiC, Surprise!
+;  .SOP .ROL .IMS  AdLib Tracker 2, Note (SOP), AdLib Visual Composer, Iyagi,
+;  .IMF .WLF .RAW  id Software (.WLF at 700 Hz: IMF.PLY by name, about 22
+;                  songs per RETURN) and Rdos captures (a .RAW that is not
+;                  one goes straight back to MM). ROL takes only the tones
+;                  of RoboPlay's STANDARD.BNK, not the song's own .BNK, and
+;                  up to a minute to load; IMS takes SONG.BNK, else
+;                  STANDARD.BNK. A packed AMD and an IMS load in 15-30 s.
+;  .PRO            ROBOPLAY: Tyfoon Pro-Tracker (MSX-MUSIC) on the OPL4 FM
+;                  (on a built-in MSX-MUSIC: ROBOPLAY PRO_ORG.PLY SONG.PRO).
+;  .SBM .SNG       ROBOPLAY: SCC Blaffer NT (with the .SBK kit it names)
+;                  and SCC Musixx. They need an SCC in a slot: on the
+;                  MSXimus, Settings, Slot 1 = 2nd SCC.
 ;  .MWK            MWMPLAY (MUSICA): a USER song with a wavekit of another
 ;                  name: tag both, cursor on the .MWK, RETURN.
 ;  .MOD            MMP: OPL4 with sample RAM.     .PT3  PT3PLAY: PSG.
 ;  .MBM .MBK       MBMPLAY: MSX-MUSIC / MSX-AUDIO. .MCM MCDRV: MSX-MUSIC.
-;  .MUS            MGSC + MGSDRV (the AUTOEXEC sets MGSDRV to its path).
-;  .MID            MIDIPLAY: only with a MIDI-PAC.
+;  .MUS            MGSC + MGSDRV (the AUTOEXEC sets MGSDRV to its path). A
+;                  FAC SoundTracker .MUS has the same extension: type
+;                  ROBOPLAY SONG.MUS (an MBM too plays that way on the OPL4;
+;                  with their samples both take about 30 s to load).
 ;  .PCM .CRT       PCMPLAY (turbo R PCM, else PSG), CHRIS (turbo R PCM
 ;                  only: it hangs on a machine without it).
 ;  .TMU            TriloTracker (SCC); it starts empty.
@@ -129,7 +148,6 @@
 .LZH	PMEXT $C$K	list
 .MBK	MBMPLAY $C
 .MCM	MCDRV $C
-.MID	MIDIPLAY $C$K	;MIDRY $C /I31	;SMF $C
 .MUS	MGSC $C -P -N$K
 .PMA	PMEXT $C$K	list
 .ROM	SROM $C$K
@@ -171,6 +189,23 @@
 .MBM	MBMPLAY $T -D
 .MFM	ROBOPLAY $T
 .MWM	ROBOPLAY $T
+.MID	ROBOPLAY $T
+.AMD	ROBOPLAY $T
+.D00	ROBOPLAY $T
+.DRO	ROBOPLAY $T
+.HSC	ROBOPLAY $T
+.IMF	ROBOPLAY $T
+.IMS	ROBOPLAY $T
+.PRO	ROBOPLAY $T
+.RAD	ROBOPLAY $T
+.RAW	ROBOPLAY $T
+.ROL	ROBOPLAY $T
+.SA2	ROBOPLAY $T
+.SBM	ROBOPLAY $T
+.SNG	ROBOPLAY $T
+.SOP	ROBOPLAY $T
+.WLF	ROBOPLAY IMF.PLY $T
+.MID	MIDIPLAY $C$K	;MIDRY $C /I31	;SMF $C
 .???	$V	must stay the last line
 
 

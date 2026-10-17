@@ -171,7 +171,7 @@ desensamblando `MM.COM`, `MM.EXE` y `CS.COM` y probándolo en openMSX.
   MAYÚSCULAS; manda **la primera** que encaje, y `.???` va la última (el visor).
   Entre patrón y orden, un TAB: lo que va tras un espacio llega al programa.
   Una línea sin orden ejecuta la siguiente (le pasaba al `.RAM` de antes).
-- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 7,2 KB.
+- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 8,8 KB.
 - **`$T` y `$M` se expanden sobre el propio fichero**: una línea con `$T`
   tiene que estar más lejos del principio que (marcados × línea expandida).
   Por eso las notas van arriba y las líneas con `$T` al final.
@@ -234,6 +234,57 @@ Lo que cambió:
   20). Con 8 particiones la TPA es la misma. La línea del PATH pasa de 89 a
   108 caracteres con todo marcado y en openMSX entra entera (COMMAND2 lee
   hasta 127).
+- **Más formatos con `ROBOPLAY $T`**: `.MID`; la música de AdLib de PC
+  (`.RAD .DRO .D00 .HSC .AMD .SA2 .SOP .ROL .IMS .IMF .RAW`, y `.WLF` con
+  `ROBOPLAY IMF.PLY $T`: RoboPlay elige el `.PLY` por la extensión y no hay
+  `WLF.PLY`; `IMF.PLY` toca los `.WLF` a 700 Hz); `.PRO` (Pro-Tracker de
+  MSX-MUSIC, pasado al FM del OPL4); y `.SBM` y `.SNG` (SCC Blaffer NT y SCC
+  Musixx). Van al final, antes de `.???`.
+  - `.MID` suena en el OPL4 con la ROM de ondas YRW801, que el MSXimus tiene
+    si `yrw801.bin` está grabada en la flash. MIDIPLAY solo servía con un
+    MIDI-PAC. Su línea pasa detrás de la de RoboPlay: sin `musica`,
+    `ajustar_mmret` quita la de RoboPlay y manda MIDIPLAY (y sin `UTIL`, el
+    visor).
+  - `.RAW` es genérico, pero `RAW.PLY` mira la firma `RAWADATA` (Rdos): un
+    `.RAW` que no lo es da «Not a valid file» y se vuelve a MM al momento
+    (probado). `SNG.PLY` no mira nada (leído en `sng.c`): un `.SNG` que no
+    sea de SCC Musixx sonaría a ruido hasta ESC.
+  - `.SBM` y `.SNG` necesitan un SCC en un slot: en el MSXimus, Ajustes →
+    Slot 1 = 2º SCC (el del cartucho emulado solo está al lanzar una ROM).
+    Sin SCC, el SBM solo toca la batería del PSG.
+  - Lo que tarda en cargar a 3,58 MHz: un `.ROL` hasta un minuto (busca cada
+    instrumento en `STANDARD.BNK`), un `.AMD` empaquetado 26 s, un `.IMS` 16
+    s; los demás, de 3 a 7 s. Para los ROL, RoboPlay 2.1 solo lee el
+    `STANDARD.BNK` de su carpeta (en `rol.c` la búsqueda del `.BNK` de la
+    canción está comentada): las que traen banco propio suenan a medias o
+    mudas (JAM-YS2.ROL, que trae varios instrumentos que no están en el
+    banco, no suena; JAM-M1.ROL sí). Los IMS usan `CANCION.BNK` y, si no está,
+    `STANDARD.BNK`.
+  - Probado en openMSX como los MFM (con expansor de slots y SCC para SBM y
+    SNG): RETURN desde MM sobre una canción real de cada tipo, el audio
+    grabado con `record start -audioonly` y ESC de vuelta a MM. RAD v1, DRO
+    v2, D00 (19 subcanciones: izquierda y derecha), HSC, AMD empaquetado,
+    SA2 v9, SOP, ROL, IMS con su BNK, IMF tipo 0, WLF (IMF tipo 1), RAW, MID
+    (formato 0), PRO, SBM con su kit `.SBK` y SNG. Las canciones salieron de
+    una SD de MSXBOOK (carpeta `ROBOMUSI`), de la SD de Flashjacks y (HSC,
+    AMD e IMS) de las pruebas de AdPlug; no van en la tarjeta.
+  - A mano: un `.MUS` de FAC SoundTracker (misma extensión que el de MGS,
+    que sigue con MGSC) y un `.MBM` suenan en el OPL4 con `ROBOPLAY
+    CANCION.MUS` o `.MBM` (unos 27 s para cargar los samples: `.SM1`/`.SM2`
+    o `.MBK`). `ROBOPLAY PRO_ORG.PLY CANCION.PRO` toca un PRO en el
+    MSX-MUSIC si es interno (en un FS-A1WSX sí; con un FM-PAC en cartucho no
+    sonó).
+  - Siguen igual: `.MBM` con MBMPLAY (el MSXimus tiene MSX-AUDIO y
+    MSX-MUSIC, los chips de verdad), `.MOD` con MMP, `.PT3` con PT3PLAY (va
+    en cualquier MSX; RoboPlay pide OPL4 para el tiempo) y `.VGM` con
+    VGMPLAY. Fuera: `.ASC` (en MSX es BASIC en ASCII; el de RoboPlay es de
+    ZX Spectrum), `.MDX`, `.TFC` y `.ZSM` (piden un OPM, el SFG-01/05, que el
+    MSXimus no tiene), `.ETC`, `.COP` y `.SAA` (SoundStar, SAA1099), `.ADL`
+    (`SSY.PLY` es el de Petscii Robots: los `.ADL` de Westwood no los toca) y
+    `CSP.PLY` (el Sidplayer de COMPUTE!, sin fuente en el repositorio).
+  - La lista de marcados es la de antes: unas 30 canciones por RETURN. Con
+    `.WLF` la línea lleva 8 bytes más: unas 22 con nombres 8.3 enteros
+    (cuenta hecha con el mismo límite de 768 bytes, no medida).
 
 **Al hacer la tarjeta**, `contenido.ajustar_mmret` quita las líneas cuyo
 programa no va (por ejemplo, sin `UTIL` en un OCM o sin `bin\` con MSX-DOS;

@@ -153,7 +153,7 @@ They are copied to the first partition, each in its own folder. Tick the ones yo
 | Checkbox | Folder | What it is | How to start it |
 |---|---|---|---|
 | SofaRun | `SOFARUN` | ROM, DSK and CAS tape launcher with a menu, by Louthrax | `SR` |
-| Multi Mente | `MM` | Two-pane file manager. RETURN opens each file with its program: VGM and VGZ, ROM, DSK, ZIP, MWM and MFM (MoonBlaster Wave and FM), MOD, PT3, pictures…; files with no program open in the viewer | `MM` |
+| Multi Mente | `MM` | Two-pane file manager. RETURN opens each file with its program: VGM and VGZ, ROM, DSK, ZIP, MWM and MFM (MoonBlaster Wave and FM), MID, PC AdLib music (RAD, DRO, SOP…), MOD, PT3, pictures…; files with no program open in the viewer | `MM` |
 | Utilidades | `UTIL` | About 120 tools: `DI` (DIR with long names), `LOGIN`, players, copying… | by name |
 | Red WiFi / UNAPI | `WIFI` | TCP/IP networking: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | by name |
 | Fuentes de pantalla | `FONTS` | Fonts for Multi Mente (ISO Latin-1, Japanese, Russian…) | used by MM |

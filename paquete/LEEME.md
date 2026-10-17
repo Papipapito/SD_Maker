@@ -151,7 +151,7 @@ Se copian en la primera partición, cada uno en su carpeta. Marca los que quiera
 | Casilla | Carpeta | Qué es | Cómo se abre |
 |---|---|---|---|
 | SofaRun | `SOFARUN` | Lanzador de ROM, DSK y cintas CAS con menú, de Louthrax | `SR` |
-| Multi Mente | `MM` | Gestor de ficheros de dos paneles. RETURN abre cada fichero con su programa: VGM y VGZ, ROM, DSK, ZIP, MWM y MFM (MoonBlaster Wave y FM), MOD, PT3, imágenes…; los que no tienen programa, en el visor | `MM` |
+| Multi Mente | `MM` | Gestor de ficheros de dos paneles. RETURN abre cada fichero con su programa: VGM y VGZ, ROM, DSK, ZIP, MWM y MFM (MoonBlaster Wave y FM), MID, la música de AdLib de PC (RAD, DRO, SOP…), MOD, PT3, imágenes…; los que no tienen programa, en el visor | `MM` |
 | Utilidades | `UTIL` | Unas 120 herramientas: `DI` (DIR con nombres largos), `LOGIN`, reproductores, copias… | por su nombre |
 | Red WiFi / UNAPI | `WIFI` | Programas de red TCP/IP: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | por su nombre |
 | Fuentes de pantalla | `FONTS` | Tipos de letra para Multi Mente (ISO Latin-1, japonés, ruso…) | los usa MM |
