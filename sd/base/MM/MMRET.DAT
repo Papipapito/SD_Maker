@@ -132,7 +132,6 @@
 
 :AUTOEXEC.BAT	$V	run from MM it would get no %1 and break the PATH
 :XSYS.BAT	$V	swaps MSXDOS2.SYS and NEXTOR.SYS and resets
-:SETALIAS.BAT	$V	aliases of another machine
 :MBFM.CFG	$V	binary settings of MoonBlaster FM
 :MBWAVE.CFG	$V	binary settings of MoonBlaster Wave
 :EMUDSK.ROM	$V	disk emulator ROM for RUNIT, not a game

@@ -7,7 +7,7 @@ contenido de la carpeta de la versión de Nextor que lleve el pack flasheado**.
 sd/
 ├── base/     ← común a todo (va siempre)
 │   ├── AUTOEXEC.BAT         monta C:/D:/E: con MAPDRV y arma el PATH
-│   ├── UTIL/                135 utilidades (está en el PATH)
+│   ├── UTIL/                utilidades, 118 ficheros (está en el PATH)
 │   ├── WIFI/                cliente WiFi/UNAPI (está en el PATH)
 │   ├── musica/              MWMPLAY y VGMPLAY (está en el PATH) y los editores de OPL4: mbwave/ (MoonBlaster
 │   │                        Wave 1.17) y mbfm/ (MoonBlaster for MoonSound FM 1.03A, del MBFM.zip, 12 ficheros)
@@ -72,12 +72,14 @@ con nuestro driver **no se puede cambiar la SD en caliente**.
 
 ## Pendiente de decidir
 
-- **`SFTP.COM` está dos veces y son distintos**: `UTIL/` (24.239 B) y `WIFI/`
-  (13.704 B). Ambas carpetas están en el PATH, así que se ejecuta la que primero
-  aparezca. Conviene quedarse con una.
-- `SFTP.TXT` sí es idéntico en las dos (duplicado inofensivo).
-- `COMMAND2.COM` está en `UTIL/` y en `nextor-2.1.4/`: es correcto, cumplen
-  papeles distintos (uno en el PATH, otro como fichero de sistema de la raíz).
+Nada por ahora. Lo último se decidió el 17/10 (ver «Limpieza del 17/10» más
+abajo):
+
+- **`SFTP.COM` estaba dos veces y eran distintos**: el de `UTIL/` era el SofaFTP
+  1.3 (24.239 B) y el de `WIFI/`, el 1.4 (13.704 B). Ganaba el de `UTIL/`, que va
+  antes en el PATH. Se queda **solo el 1.4, en `WIFI/`**, con su `SFTP.TXT`.
+- Lo de `COMMAND2.COM` en `UTIL/` ya no aplica: se quitó de ahí el 02/09 (ver
+  «Criterio de `base/UTIL/`»).
 
 ## 🚨 DRVTEST no se puede redirigir a la SD
 
@@ -145,6 +147,41 @@ Nota: esas herramientas de KdL hablan por los **puertos SWIO del estándar OCM**
 (40h-43h), que este RTL también implementa (`switched_io_ports`) — o sea que no
 son del todo ajenas. Pero su sitio natural es el Onechipbook.
 
+## Limpieza del 17/10: restos rotos o ajenos
+
+Salieron al inventariar los programas de la tarjeta. Venían de las SD de otras
+máquinas y se decidieron uno a uno:
+
+- **`UTIL/MPCM.COM`** (Mapper memory PCM player 1.07, de Niga) **estaba
+  corrupto**: sus primeros 512 bytes eran el primer sector de `MIDRY.COM`
+  (`MIDRY106`), seguramente por un cruce de clústeres en una FAT vieja. Se
+  **repuso** con el original, el `MPCM.COM` de `MPCM107.zip` de su página
+  (niga2.sytes.net/msx/free.html). Mide lo mismo (2.411 B) y a partir del byte
+  512 es idéntico al que había; md5 `143a416b0524dd2e2c7c4f2325060a99`.
+- **`UTIL/PATCH32.COM`** (656 B, «Recovery RAM disk utility Ver.1.01», TSUYOSHI
+  1993) **estaba cortado**: empieza con `JP 0615h` y el fichero acaba en 0290h.
+  No se encontró publicado, y `RRAMDISK.COM` ya es la 2.01 (revisión de C.P.U.,
+  1995). **Borrado**.
+- **`UTIL/SETALIAS.BAT`**, de otra máquina: hacía `ALIAS /R`, que borra los alias
+  `.ROM`/`.DSK` del AUTOEXEC, y ponía alias a rutas que aquí no existen
+  (`A:\PROGS`, `A:\UTILS`, `A:\TED`, `A:\MULTI\MM`: con él, `MM` dejaba de
+  arrancar). Los guardaba en `A:\ALIAS.DAT`. **Borrado**, y también su línea
+  `:SETALIAS.BAT` de `MM/MMRET.DAT`.
+- **`UTIL/SFTP.COM`** (SofaFTP 1.3) y **`UTIL/SFTP.TXT`**: **borrados**, porque
+  `WIFI/` lleva el 1.4 (ver «Pendiente de decidir»). El 1.3 es el último que
+  publica Louthrax en su web, y el 1.4 no sale allí. Los dos `SFTP.TXT` eran
+  iguales y dicen «1.0».
+- **`WIFI/GET.BAT`, `PUT.BAT` y `update.bat`**: eran scripts de otra persona.
+  Llamaban a `a:\sftp\sftp.com`, que no existe, para sincronizar la carpeta
+  actual con un FTP en `192.168.31.172`, una IP de su red. **Borrados**.
+- **`MM/MM2.COM`**: era otra compilación de Multi Mente 2.07, la japonesa del
+  pack RC5 (23.738 B). No casa con el `MM.EXE` de la carpeta y en openMSX se
+  cuelga al pulsar F1. Nada la llamaba: `MM` arranca `MM.COM`, y el runner
+  vuelve a cargar `MM.COM` tras cada orden externa. **Borrado**.
+
+Con esto `UTIL/` pasa de 122 a 118 ficheros, `WIFI/` de 19 a 16 y `MM/` pierde
+uno.
+
 ## Programas que necesita Multi Mente (`MM/`)
 
 Los programas que llaman las teclas (`MM.CFG`, que CS.COM copia en `MM.COM`) y
@@ -199,8 +236,9 @@ Lo que cambió:
 - **Nuevas**: `.ARC .ARK .ARJ .GIF .BMP .GRA .MIG .SG .EMU .UPD .INI .ASC`,
   las pantallas `.SC5-.SC8 .SCA-.SCC .SR5-.SR8 .SRA .SRB` (antes `.SC?` y
   `.SR?` cogían también `.SRM`, `.SCR`...), y por nombre (al visor):
-  `:AUTOEXEC.BAT` (desde MM no tiene `%1`), `:XSYS.BAT`, `:SETALIAS.BAT`,
-  `:MBFM.CFG` y `:MBWAVE.CFG` (binarios) y `:EMUDSK.ROM`.
+  `:AUTOEXEC.BAT` (desde MM no tiene `%1`), `:XSYS.BAT`, `:MBFM.CFG` y
+  `:MBWAVE.CFG` (binarios) y `:EMUDSK.ROM`. Había también una `:SETALIAS.BAT`,
+  que se quitó con el fichero en la limpieza del 17/10.
 - **Fuera** por falta de programa o de datos: `.BGM` (falta `KINROU5.DRV`),
   `.0??`-`.9??` y `.FD?` (FDSK; además cogían los `MBFM.00x`), `.EVA`
   (`CIRCUIT.SCC`), `.GB?`, `.MDX`/`.PDX` (MXPV solo muestra parámetros),
@@ -362,5 +400,6 @@ monta el fichero en `G:` con `MAPDRV`: con 6 particiones o más, `G:` es una.
 
 Para `.MUS` (MGSC), el AUTOEXEC pone `set MGSDRV=%1\UTIL\MGSDRV.COM`.
 
-`MM2.COM` es otra compilación (la japonesa del pack RC5) y no casa con este
-`MM.EXE`: en openMSX se cuelga al pulsar F1. `MM` arranca `MM.COM`.
+Había también un `MM2.COM`, otra compilación (la japonesa del pack RC5) que no
+casa con este `MM.EXE`: en openMSX se colgaba al pulsar F1. Se borró en la
+limpieza del 17/10. `MM` arranca `MM.COM`.

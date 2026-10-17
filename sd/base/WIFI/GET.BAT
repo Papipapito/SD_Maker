@@ -1,1 +1,0 @@
-a:\sftp\sftp.com 192.168.31.172 user*anonymous!pass!getr*%_CWP%*%_CWP%!quit /U
