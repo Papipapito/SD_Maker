@@ -155,7 +155,7 @@ Se copian en la primera partición, cada uno en su carpeta. Marca los que quiera
 | Utilidades | `UTIL` | Unas 120 herramientas: `DI` (DIR con nombres largos), `LOGIN`, reproductores, copias… | por su nombre |
 | Red WiFi / UNAPI | `WIFI` | Programas de red TCP/IP: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | por su nombre |
 | Fuentes de pantalla | `FONTS` | Tipos de letra para Multi Mente (ISO Latin-1, japonés, ruso…) | los usa MM |
-| Música | `musica` | Los editores MoonBlaster Wave 1.17 (`mbwave\`) y MoonBlaster FM 1.03A (`mbfm\`), los dos de OPL4/MoonSound y con más de 128 KB de memoria; RoboPlay 2.1 (`roboplay\`, de ToriHino), que toca en el OPL4 las canciones de MoonBlaster FM y Wave (carga solo el wavekit) y muchos formatos más (MBM, MID, RAD, DRO, PRO, SBM…); y los reproductores de MWM y VGM | `ROBOPLAY canción`, `MWMPLAY`, `VGMPLAY`; los editores con su ruta: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
+| Música | `musica` | Los editores MoonBlaster Wave 1.17 (`mbwave\`) y MoonBlaster FM 1.03A (`mbfm\`), los dos de OPL4/MoonSound y con más de 128 KB de memoria; RoboPlay 2.1 (`roboplay\`, de ToriHino), que toca en el OPL4 las canciones de MoonBlaster FM y Wave (carga solo el wavekit) y muchos formatos más (MBM, MID, RAD, DRO, PRO, SBM…); `MUSPLAY` (nuestro), que toca un `.MUS` con el que le toca: el de MGS (texto) con MGSC y el de FAC SoundTracker (binario) con RoboPlay; y los reproductores de MWM y VGM | `ROBOPLAY canción`, `MUSPLAY canción.MUS`, `MWMPLAY`, `VGMPLAY`; los editores con su ruta: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
 | HUB | `hub` | Cliente de MSX Hub, para instalar programas desde internet | `HUBG` o `HUB` |
 | IA | `IA` | Cliente de chat con IA; tus claves van en `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` desactiva el mapeador de MSX-DOS 2 para programas antiguos | por su nombre |
@@ -237,7 +237,7 @@ mapdrv d: 3 1 0
 Qué hace cada parte:
 
 - **`PATH`**: puedes escribir el nombre de cualquier programa desde cualquier carpeta, sin la ruta. `%1` es la unidad de arranque. `musica` va delante de `SOFARUN` porque las dos llevan un `VGMPLAY` y el bueno es el de `musica` (SofaRun usa el suyo por su ruta). `musica\roboplay` está para poder escribir `ROBOPLAY` a secas: RoboPlay busca sus reproductores (`.PLY`) junto a `ROBOPLAY.COM`.
-- **`set MM`** y **`set MGSDRV`**: dónde están Multi Mente y el driver MGSDRV; MGSC, el reproductor de los `.MUS`, lo carga de ahí.
+- **`set MM`** y **`set MGSDRV`**: dónde están Multi Mente y el driver MGSDRV; MGSC, el reproductor de los `.MUS` de MGS, lo carga de ahí.
 - **`SET TIMEZONE`**: la zona horaria (+02:00, horario de verano peninsular). Cámbiala si hace falta.
 - **`mode 80`**: pantalla de 80 columnas.
 - **`ALIAS`**: escribiendo el nombre de un `.BAS` se abre en BASIC; el de un `.ROM` o un `.DSK`, se lanza con SofaRun.

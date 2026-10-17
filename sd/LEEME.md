@@ -171,7 +171,7 @@ desensamblando `MM.COM`, `MM.EXE` y `CS.COM` y probándolo en openMSX.
   MAYÚSCULAS; manda **la primera** que encaje, y `.???` va la última (el visor).
   Entre patrón y orden, un TAB: lo que va tras un espacio llega al programa.
   Una línea sin orden ejecuta la siguiente (le pasaba al `.RAM` de antes).
-- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 8,8 KB.
+- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 9,1 KB.
 - **`$T` y `$M` se expanden sobre el propio fichero**: una línea con `$T`
   tiene que estar más lejos del principio que (marcados × línea expandida).
   Por eso las notas van arriba y las líneas con `$T` al final.
@@ -268,12 +268,11 @@ Lo que cambió:
     (formato 0), PRO, SBM con su kit `.SBK` y SNG. Las canciones salieron de
     una SD de MSXBOOK (carpeta `ROBOMUSI`), de la SD de Flashjacks y (HSC,
     AMD e IMS) de las pruebas de AdPlug; no van en la tarjeta.
-  - A mano: un `.MUS` de FAC SoundTracker (misma extensión que el de MGS,
-    que sigue con MGSC) y un `.MBM` suenan en el OPL4 con `ROBOPLAY
-    CANCION.MUS` o `.MBM` (unos 27 s para cargar los samples: `.SM1`/`.SM2`
-    o `.MBK`). `ROBOPLAY PRO_ORG.PLY CANCION.PRO` toca un PRO en el
-    MSX-MUSIC si es interno (en un FS-A1WSX sí; con un FM-PAC en cartucho no
-    sonó).
+  - A mano: un `.MBM` suena en el OPL4 con `ROBOPLAY CANCION.MBM` (unos
+    27 s para cargar los samples del `.MBK`). El `.MUS` de FAC SoundTracker
+    va ya con RETURN (MUSPLAY, abajo). `ROBOPLAY PRO_ORG.PLY CANCION.PRO`
+    toca un PRO en el MSX-MUSIC si es interno (en un FS-A1WSX sí; con un
+    FM-PAC en cartucho no sonó).
   - Siguen igual: `.MBM` con MBMPLAY (el MSXimus tiene MSX-AUDIO y
     MSX-MUSIC, los chips de verdad), `.MOD` con MMP, `.PT3` con PT3PLAY (va
     en cualquier MSX; RoboPlay pide OPL4 para el tiempo) y `.VGM` con
@@ -285,10 +284,56 @@ Lo que cambió:
   - La lista de marcados es la de antes: unas 30 canciones por RETURN. Con
     `.WLF` la línea lleva 8 bytes más: unas 22 con nombres 8.3 enteros
     (cuenta hecha con el mismo límite de 768 bytes, no medida).
+- **`.MUS` → `MUSPLAY $T$K`** (`musica\MUSPLAY.COM`, nuestro; la fuente,
+  `fuentes/musplay/musplay.asm`, se ensambla con pasmo). Dos programas usan
+  la extensión: MGS (MGSDRV, de Ain), que es MML en texto y lo compila y toca
+  MGSC, y FAC SoundTracker, un volcado binario de 0x8000-0xBFFF que toca
+  RoboPlay en el OPL4 con sus samples (`.SM1` y `.SM2`). MM elige solo por
+  la extensión, así que RETURN lanza MUSPLAY, que lee los 256 primeros
+  bytes: si hay un carácter de control que no sea TAB, LF, FF, CR, ^Z ni ESC
+  es binario y ejecuta `ROBOPLAY CANCION.MUS`; si no, `MGSC CANCION.MUS -P
+  -N`. Lo que siga al nombre va detrás (`MUSPLAY CANCION.MUS /T 60`).
+  - No basta con mirar el `0xFE` de la cabecera de BSAVE: en la SD del
+    MSXBOOK hay 802 `.MUS` con ella, pero en su carpeta `ROBOMUSI\MUS` hay
+    también 18 FAC de 16.391 o 16.512 bytes con esos 7 bytes a cero (los de
+    FAC SoundTracker Pro, como `FSTPRO\WARLOCK.MUS`) o con basura (`80 80
+    08...`, `FF 0F...`); RoboPlay se los salta sin mirarlos (`mus.c`) y los
+    toca bien. Los 5 binarios que no son de FAC (3 con cabecera `MUSC`, un
+    programa y un `MENU.MUS`) van también a RoboPlay, que dice «Unknown
+    tracker version» y no suena hasta ESC; MGSC con ellos dice «*** End of
+    file». Ninguno de los 868 es texto (43 están vacíos): ahí no hay MML de
+    MGS.
+  - Un batch no sirve: COMMAND2 no tiene `IF` ni forma de leer el fichero.
+    MUSPLAY carga el reproductor como COMMAND2: lo busca en la carpeta
+    actual y en las del PATH; pone `PROGRAM` con la ruta completa (RoboPlay
+    saca de ahí la carpeta de sus `.PLY`) y `PARAMETERS` igual que lo que va
+    en 0x81, espacios del principio incluidos (MGSC lee de ahí la línea de
+    órdenes); los dos formatos, medidos con un programa de prueba en
+    COMMAND2; y lo lee en 0x100 desde un trozo de código copiado en
+    `(0006h)` − 0x200 (encima queda sitio para la pila mientras lee), y le
+    salta con la pila en `(0006h)` y 0 encima. Los errores (fichero que no
+    está, falta de memoria) los explica COMMAND2 (`_TERM`).
+  - `$K` como tenía la línea de MGSC: tras la lista pide una tecla antes de
+    volver a MM, y así se ven los errores de MGSC. Con `$T`, varios marcados
+    de los dos tipos suenan seguidos; ESC acaba cada uno. La línea de la
+    lista («`MUSPLAY CANCION.MUS`») es un carácter más corta que la de
+    RoboPlay: caben las mismas, unas 30 por RETURN.
+  - La línea `.MUS MGSC $C -P -N$K` pasa detrás, al final: sin `musica`,
+    `ajustar_mmret` quita la de MUSPLAY y manda MGSC, como antes; sin `UTIL`
+    queda MUSPLAY (los FAC suenan; un MGS da «MGSC.COM not found»); sin los
+    dos, el visor (comprobado con `contenido.arbol`).
+  - Probado en openMSX (NMS 8245 con 512 KB, MoonSound, Nextor 2.1.4 por
+    IDE; desde el DOS también con Nextor 3.0 beta 2), con el sonido grabado:
+    `POING.MUS` (FAC de Flying Bytes, con cabecera, de la SD del MSXBOOK),
+    `WARLOCK.MUS` (FAC SoundTracker Pro, cabecera a cero) y un `.MUS` de MGS
+    escrito para la prueba (tres voces de PSG). Desde el DOS (con ruta y con
+    `/T 3`) y con RETURN desde MM, uno a uno y los tres marcados en una
+    lista: RoboPlay tarda unos 27 s en cargar los samples y MGSC 2 s en
+    compilar. Sin `musica` en la tarjeta, RETURN sobre el MGS va a MGSC.
 
 **Al hacer la tarjeta**, `contenido.ajustar_mmret` quita las líneas cuyo
 programa no va (por ejemplo, sin `UTIL` en un OCM o sin `bin\` con MSX-DOS;
-sin `musica`, las de RoboPlay): esos ficheros caen en el visor y no en «***
+sin `musica`, las de RoboPlay y MUSPLAY): esos ficheros caen en el visor y no en «***
 Unrecognized command». Busca en las carpetas del PATH, `musica\roboplay`
 incluida.
 

@@ -112,10 +112,14 @@
 ;                  name: tag both, cursor on the .MWK, RETURN.
 ;  .MOD            MMP: OPL4 with sample RAM.     .PT3  PT3PLAY: PSG.
 ;  .MBM .MBK       MBMPLAY: MSX-MUSIC / MSX-AUDIO. .MCM MCDRV: MSX-MUSIC.
-;  .MUS            MGSC + MGSDRV (the AUTOEXEC sets MGSDRV to its path). A
-;                  FAC SoundTracker .MUS has the same extension: type
-;                  ROBOPLAY SONG.MUS (an MBM too plays that way on the OPL4;
-;                  with their samples both take about 30 s to load).
+;  .MUS            MUSPLAY (MUSICA) picks the player by the first 256
+;                  bytes: an MGS song (MML text) goes to MGSC -P -N with
+;                  MGSDRV (the AUTOEXEC sets MGSDRV to its path), a FAC
+;                  SoundTracker one (binary) to ROBOPLAY, on the OPL4 (with
+;                  its .SM1/.SM2 samples it takes about 30 s to load).
+;                  Tagged songs of both kinds play in turn; ESC ends each.
+;                  Without MUSICA, MGSC. ROBOPLAY SONG.MBM plays an MBM
+;                  on the OPL4 too.
 ;  .PCM .CRT       PCMPLAY (turbo R PCM, else PSG), CHRIS (turbo R PCM
 ;                  only: it hangs on a machine without it).
 ;  .TMU            TriloTracker (SCC); it starts empty.
@@ -148,7 +152,6 @@
 .LZH	PMEXT $C$K	list
 .MBK	MBMPLAY $C
 .MCM	MCDRV $C
-.MUS	MGSC $C -P -N$K
 .PMA	PMEXT $C$K	list
 .ROM	SROM $C$K
 .SG	SSMS $C$K
@@ -205,7 +208,9 @@
 .SNG	ROBOPLAY $T
 .SOP	ROBOPLAY $T
 .WLF	ROBOPLAY IMF.PLY $T
+.MUS	MUSPLAY $T$K
 .MID	MIDIPLAY $C$K	;MIDRY $C /I31	;SMF $C
+.MUS	MGSC $C -P -N$K
 .???	$V	must stay the last line
 
 

@@ -26,6 +26,7 @@
 | `WIFI\FH.COM` (File-Hunter) | See `WIFI\FH_LICENSE.TXT` | See that file |
 | `musica\mbwave\` (MoonBlaster for MoonSound Wave 1.17) and `musica\mbfm\` (MoonBlaster for MoonSound FM 1.03A) | Remco Schrijvers (Moonsoft); Wave 1.17 with Marcel Delorme | Distributed free of charge; no licence text ships with them |
 | `musica\roboplay\` (RoboPlay 2.1: `ROBOPLAY.COM`, the `.PLY` players, `WAVES.DAT`, `YRW801.DAT`, `STANDARD.BNK`), from https://gitlab.com/torihino/roboplay | ToriHino (RoboSoft Inc.) | Simplified BSD, below |
+| `musica\MUSPLAY.COM` | Albert (Papipapito), MSX SD Maker; fuente / source: `fuente/fuentes/musplay/musplay.asm` | GPL v3 |
 | `UTIL\`, `musica\`, `mapper\`, `indev.com` | Various authors of the MSX scene | Freeware |
 | `IA\` | Albert (Papipapito) | GPL v3 |
 | `FPGA\MXUPDATE.COM` | Albert (Papipapito), proyecto MSXimus | GPL v3 |
