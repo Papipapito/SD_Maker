@@ -143,6 +143,10 @@ son del todo ajenas. Pero su sitio natural es el Onechipbook.
 
 ## Programas que necesita Multi Mente (`MM/`)
 
+`MM.COM` lleva un parche de este proyecto: en **File info**, `Name:` enseña el nombre
+largo del fichero del cursor (la lista sigue en 8.3). Fuente, limitaciones y pruebas en
+`parches/mm-nombres-largos/LEEME.md`.
+
 `MM.CFG` asocia teclas y extensiones a programas externos. El 02/09 faltaban casi
 todos y se recuperaron de la SD de Flashjacks:
 

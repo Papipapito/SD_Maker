@@ -19,7 +19,7 @@
 | `MSXDOS.SYS`, `COMMAND.COM` (MSX-DOS 1) | ASCII Corporation / Microsoft; today The MSX Licensing Corporation | Non-commercial distribution |
 | `SOFARUN\` (SofaRun 8.1) | Louthrax | Freeware |
 | `SOFARUN\VGMPLAY.COM` | Laurens Holst (Grauw) | Freeware |
-| `MM\` (Multi Mente 2.07) | MOGU | Freeware |
+| `MM\` (Multi Mente 2.07) | MOGU; `MM.COM` patched by this project to show long names (`parches/mm-nombres-largos`) | Freeware |
 | `FONTS\` | Font pack for Multi Mente | Freeware |
 | `hub\` (`HUB.COM`, `HUBG.COM`) | Carles Amigó (fr3nd); HUBG by Oduvaldo Pavan Junior and Israel F. Araujo | Freeware |
 | `WIFI\` (`TELNET`, `HGET`, `FTP`, `SNTP`, `TCPIP`…) | Oduvaldo Pavan Junior (ducasp), Néstor Soriano (Konamiman) and others | Freeware; see `WIFI\README.TXT` |
