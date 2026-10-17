@@ -184,6 +184,13 @@ uno.
 
 ## Programas que necesita Multi Mente (`MM/`)
 
+`MM.COM` lleva un parche de este proyecto: la lista enseña los 12 primeros caracteres
+del nombre largo de cada fichero y **File info** (`Name:`) el nombre largo entero del
+fichero del cursor. Fuente, limitaciones y pruebas en `parches/mm-nombres-largos/LEEME.md`.
+El parche solo cambia código; los huecos de las herramientas (0x108-0x367, lo que
+copia CS.COM desde `MM.CFG`) son los de abajo. 🚨 `parchear.py` parte del `MM.COM`
+original: al rehacerlo, volver a poner esos huecos (o pasar `CS MM` en el MSX).
+
 Los programas que llaman las teclas (`MM.CFG`, que CS.COM copia en `MM.COM`) y
 RETURN (`MMRET.DAT`). El 02/09 faltaban casi todos y se recuperaron de la SD de
 Flashjacks:
