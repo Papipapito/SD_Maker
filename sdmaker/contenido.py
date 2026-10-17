@@ -33,7 +33,8 @@ GRUPOS = [
     ("util", "Utilidades (UTIL: 120 programas)", ["base/UTIL"], ["UTIL"], []),
     ("wifi", "Red WiFi / UNAPI (WIFI: hget, ftp, telnet, sntp...)", ["base/WIFI"], ["WIFI"], []),
     ("fonts", "Fuentes de pantalla (FONTS)", ["base/FONTS"], [], []),
-    ("musica", "Música (MoonBlaster Wave y FM, reproductores de MWM y VGM...)", ["base/musica"], ["musica"], []),
+    ("musica", "Música (MoonBlaster Wave y FM, RoboPlay, reproductores de MWM y VGM)", ["base/musica"],
+     ["musica", "musica\\roboplay"], []),
     ("hub", "HUB (gestor de paquetes msxhub.com)", ["extras/hub"], ["hub"], []),
     ("ia", "IA (cliente de chat con IA; las claves van en IA\\ia.cfg)", ["extras/IA"], ["IA"], []),
     ("varios", "mapper e indev", ["extras/mapper", "extras/indev.com"], ["mapper"], []),
@@ -66,7 +67,9 @@ def grupos_por_defecto(maquina):
 def grupos_en_path(maquina):
     """Los grupos en el orden de sus carpetas en el PATH: el de grupos_de, pero con musica delante. musica y SOFARUN
     llevan las dos un VGMPLAY.COM: el de musica es el 1.4 de Grauw y el de SOFARUN, un 1.2 parcheado que SR.COM llama
-    por su ruta; asi VGMPLAY a secas (la linea de ordenes y el .VGM/.VGZ de Multi Mente) es el 1.4."""
+    por su ruta; asi VGMPLAY a secas (la linea de ordenes y el .VGM/.VGZ de Multi Mente) es el 1.4. musica\\roboplay va
+    en el PATH porque RoboPlay busca sus .PLY junto a ROBOPLAY.COM: llamandolo a secas, la linea de Multi Mente es corta
+    y su lista de marcados ($T) baja menos la TPA (RoboPlay usa 0xC000-0xD3FF)."""
     return sorted(grupos_de(maquina), key=lambda g: g[0] != "musica")
 
 # Opciones del AUTOEXEC con Nextor 3 (beta 2, COMMAND3.COM); con Nextor 2.1.4 y MSX-DOS no se usan.
@@ -156,7 +159,7 @@ def ajustar_mmret(raiz, grupos, maquina):
     """Quita de MM\\MMRET.DAT las asociaciones cuyo programa no va en la tarjeta: con ellas RETURN solo daria "***
     Unrecognized command"; sin ellas, el fichero cae en la ultima, '.???' (el visor). Como lo lee Multi Mente 2.07: solo
     cuentan las lineas que empiezan por '.' o ':'; la orden va tras los blancos, hasta el primer caracter de control, y
-    su programa se busca en la raiz y en las carpetas del PATH."""
+    su programa se busca en la raiz y en las carpetas del PATH (musica\\roboplay incluida)."""
     mm = raiz.hijo("MM")
     nodo = mm.hijo("MMRET.DAT") if mm else None
     if nodo is None:
@@ -164,7 +167,13 @@ def ajustar_mmret(raiz, grupos, maquina):
     datos = nodo.datos if nodo.datos is not None else open(nodo.origen, "rb").read()
     carpetas = ["BIN"] + (["UTILS"] if maquina == "ocm" else [])
     carpetas += [c for clave, _, _, cs, _ in grupos_en_path(maquina) if clave in grupos for c in cs]
-    sitios = [raiz] + [d for d in (raiz.hijo(c) for c in carpetas) if d is not None]
+
+    def carpeta(ruta):
+        n = raiz
+        for p in ruta.split("\\"):
+            n = n.hijo(p) if n is not None else None
+        return n
+    sitios = [raiz] + [d for d in map(carpeta, carpetas) if d is not None]
 
     def esta(prog):
         if not prog or prog.startswith("$") or prog.upper() in INTERNAS_MM or any(c in prog for c in "%\\:"):

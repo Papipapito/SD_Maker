@@ -84,8 +84,15 @@
 ;  .VGM .VGZ       VGMPLAY: the 1.4 of MUSICA, first in the PATH (without
 ;                  MUSICA, the 1.2 of SofaRun). Tagged songs play in turn;
 ;                  CTRL+STOP stops the list.
-;  .MWM .MWK       MWMPLAY (MUSICA): OPL4, songs saved in USER mode. A song
-;                  with its wavekit: tag both, cursor on one of them, RETURN.
+;  .MFM .MWM       ROBOPLAY (MUSICA\ROBOPLAY, in the PATH: it loads its .PLY
+;                  from its own folder): OPL4, MoonBlaster FM and Wave songs,
+;                  USER and EDIT mode. It loads the wavekit named in the song
+;                  (else SONG.MWK) from the song's folder; with none an FM
+;                  song uses the ROM tones. ESC ends a song, CTRL+STOP between
+;                  two ends the list. RoboPlay uses 0xC000-0xD3FF: about 30
+;                  tagged songs per RETURN; with more it goes back to DOS.
+;  .MWK            MWMPLAY (MUSICA): a USER song with a wavekit of another
+;                  name: tag both, cursor on the .MWK, RETURN.
 ;  .MOD            MMP: OPL4 with sample RAM.     .PT3  PT3PLAY: PSG.
 ;  .MBM .MBK       MBMPLAY: MSX-MUSIC / MSX-AUDIO. .MCM MCDRV: MSX-MUSIC.
 ;  .MUS            MGSC + MGSDRV (the AUTOEXEC sets MGSDRV to its path).
@@ -95,9 +102,6 @@
 ;  .TMU            TriloTracker (SCC); it starts empty.
 ;  .EMU            EMUFILE (Nextor): resets into the disk image set.
 ;  .UPD            MXUPDATE: checks the file and asks before flashing.
-;  .MFM            MoonBlaster FM songs: no player on the card. The editor is
-;                  \MUSICA\MBFM\MBFM.COM (RETURN on it); it loads songs from
-;                  its own disk menu, not from the command line.
 ;  .MGS            MM plays it by itself once MGSDRV is resident: SHIFT+RETURN
 ;                  installs it and comes back to MM (pressed again, it removes
 ;                  MGSDRV).
@@ -145,7 +149,6 @@
 .MOD	MMP $T
 .MSA	MSA $T
 .MWK	MWMPLAY $M$K
-.MWM	MWMPLAY $M
 .PCM	PCMPLAY $T
 .PI	PI $T
 .PIC	BLS $T
@@ -166,6 +169,8 @@
 .VGM	VGMPLAY $T
 .VGZ	VGMPLAY $T
 .MBM	MBMPLAY $T -D
+.MFM	ROBOPLAY $T
+.MWM	ROBOPLAY $T
 .???	$V	must stay the last line
 
 

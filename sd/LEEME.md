@@ -11,6 +11,8 @@ sd/
 │   ├── WIFI/                cliente WiFi/UNAPI (está en el PATH)
 │   ├── musica/              MWMPLAY y VGMPLAY (está en el PATH) y los editores de OPL4: mbwave/ (MoonBlaster
 │   │                        Wave 1.17) y mbfm/ (MoonBlaster for MoonSound FM 1.03A, del MBFM.zip, 12 ficheros)
+│   │   └── roboplay/        RoboPlay 2.1 de ToriHino (también en el PATH): los 39 ficheros de dsk/ del commit
+│   │                        609add63 de gitlab.com/torihino/roboplay, iguales byte a byte
 │   ├── FHUNT/   ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 │   └── TMP/     ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
@@ -169,7 +171,7 @@ desensamblando `MM.COM`, `MM.EXE` y `CS.COM` y probándolo en openMSX.
   MAYÚSCULAS; manda **la primera** que encaje, y `.???` va la última (el visor).
   Entre patrón y orden, un TAB: lo que va tras un espacio llega al programa.
   Una línea sin orden ejecuta la siguiente (le pasaba al `.RAM` de antes).
-- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 6,8 KB.
+- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 7,2 KB.
 - **`$T` y `$M` se expanden sobre el propio fichero**: una línea con `$T`
   tiene que estar más lejos del principio que (marcados × línea expandida).
   Por eso las notas van arriba y las líneas con `$T` al final.
@@ -206,12 +208,38 @@ Lo que cambió:
   lo lee), `.PCK` y `.LDR` (los cargadores de cinta de SofaRun).
 - **`.???` → visor** (`$V`) en vez de `AKID`: los binarios desconocidos no se
   abren en el editor. [E] sigue editando.
-- **`.MFM`** (canciones de MoonBlaster FM): ningún programa de la tarjeta las
-  toca. El reproductor sería RoboPlay (BSD): `.MFM<TAB>ROBOPLAY $T`.
+- **`.MFM` y `.MWM` → `ROBOPLAY $T`** (RoboPlay 2.1, en `musica\roboplay`).
+  Las canciones de MoonBlaster FM no las tocaba nada (el editor no las abre
+  desde la línea de órdenes). RoboPlay toca en el OPL4 las FM y las Wave en
+  modo USER y EDIT, y carga solo el wavekit que nombra la canción (o
+  `CANCION.MWK`) de su carpeta; MWMPLAY solo leía USER y había que marcar
+  canción y wavekit. `.MWK` sigue con `MWMPLAY $M$K`, para una canción USER
+  con un wavekit de otro nombre (los dos marcados, cursor en el `.MWK`).
+  Probado en openMSX (NMS 8245 con 512 KB, MoonSound, Nextor 2.1.4 por IDE):
+  `.MFM` USER y EDIT guardados con MBFM (UMFDEMO.MBM importado), `.MWM` con
+  y sin wavekit, el `.MWK` con MWMPLAY, y el sonido grabado. ESC acaba una
+  canción y pasa a la siguiente marcada; CTRL+STOP entre dos da «Terminate
+  batch file» y acaba la lista.
+- **RoboPlay va en el PATH** (`musica\roboplay`, detrás de `musica`) porque
+  busca sus `.PLY`, `WAVES.DAT`, `YRW801.DAT` y `STANDARD.BNK` junto a
+  `ROBOPLAY.COM` (por la variable `PROGRAM`) y porque la lista de marcados
+  de MM es un batch en lo alto de la TPA: «`ROBOPLAY CANCION.MFM`» y CR LF
+  por canción, más unos 66 bytes. RoboPlay usa 0xC000-0xD3FF (búfer de
+  lectura y nombres) y su pila: con la TPA en 0xD306 pisa la lista y vuelve
+  al DOS sin tocar nada. Medido: MM deja la TPA en 0xD706; 30 canciones
+  marcadas (nombres de 7 caracteres) la bajan a 0xD406 y suenan las 30; 39
+  la bajan a 0xD306 y fallan. La lista tiene que quedar por debajo de 768
+  bytes: con nombres 8.3 enteros (23 bytes por canción) caben 30 por RETURN
+  (con `%MM%\..\MUSICA\ROBOPLAY\ROBOPLAY $T`, la primera prueba, fallaban ya
+  20). Con 8 particiones la TPA es la misma. La línea del PATH pasa de 89 a
+  108 caracteres con todo marcado y en openMSX entra entera (COMMAND2 lee
+  hasta 127).
 
 **Al hacer la tarjeta**, `contenido.ajustar_mmret` quita las líneas cuyo
-programa no va (por ejemplo, sin `UTIL` en un OCM o sin `bin\` con MSX-DOS):
-esos ficheros caen en el visor y no en «*** Unrecognized command».
+programa no va (por ejemplo, sin `UTIL` en un OCM o sin `bin\` con MSX-DOS;
+sin `musica`, las de RoboPlay): esos ficheros caen en el visor y no en «***
+Unrecognized command». Busca en las carpetas del PATH, `musica\roboplay`
+incluida.
 
 ### `MM.CFG` y `MM.COM`
 

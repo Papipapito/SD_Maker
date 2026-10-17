@@ -153,11 +153,11 @@ They are copied to the first partition, each in its own folder. Tick the ones yo
 | Checkbox | Folder | What it is | How to start it |
 |---|---|---|---|
 | SofaRun | `SOFARUN` | ROM, DSK and CAS tape launcher with a menu, by Louthrax | `SR` |
-| Multi Mente | `MM` | Two-pane file manager. RETURN opens each file with its program: VGM and VGZ, ROM, DSK, ZIP, MWM, MOD, PT3, pictures…; files with no program open in the viewer | `MM` |
+| Multi Mente | `MM` | Two-pane file manager. RETURN opens each file with its program: VGM and VGZ, ROM, DSK, ZIP, MWM and MFM (MoonBlaster Wave and FM), MOD, PT3, pictures…; files with no program open in the viewer | `MM` |
 | Utilidades | `UTIL` | About 120 tools: `DI` (DIR with long names), `LOGIN`, players, copying… | by name |
 | Red WiFi / UNAPI | `WIFI` | TCP/IP networking: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | by name |
 | Fuentes de pantalla | `FONTS` | Fonts for Multi Mente (ISO Latin-1, Japanese, Russian…) | used by MM |
-| Música | `musica` | The MoonBlaster Wave 1.17 (`mbwave\`) and MoonBlaster FM 1.03A (`mbfm\`) editors, both for the OPL4/MoonSound and needing more than 128 KB of memory, and the MWM and VGM players | `MWMPLAY`, `VGMPLAY`; the editors by their path: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
+| Música | `musica` | The MoonBlaster Wave 1.17 (`mbwave\`) and MoonBlaster FM 1.03A (`mbfm\`) editors, both for the OPL4/MoonSound and needing more than 128 KB of memory; RoboPlay 2.1 (`roboplay\`, by ToriHino), which plays MoonBlaster FM and Wave songs on the OPL4 (it loads the wavekit by itself) and many more formats (MBM, MID, RAD, DRO, PRO, SBM…); and the MWM and VGM players | `ROBOPLAY song`, `MWMPLAY`, `VGMPLAY`; the editors by their path: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
 | HUB | `hub` | MSX Hub client, to install programs from the internet | `HUBG` or `HUB` |
 | IA | `IA` | AI chat client; your keys go in `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` disables the MSX-DOS 2 mapper routines for old software | by name |
@@ -211,7 +211,7 @@ A:\
 It is generated from your choices. With everything ticked and three partitions it looks like this:
 
 ```
-PATH A:\;%1\BIN;%1\musica;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\hub;%1\IA;%1\mapper;%1\FPGA
+PATH A:\;%1\BIN;%1\musica;%1\musica\roboplay;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\hub;%1\IA;%1\mapper;%1\FPGA
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "
@@ -238,7 +238,7 @@ mapdrv d: 3 1 0
 
 What each part does:
 
-- **`PATH`**: you can type any program's name from any folder, without its path. `%1` is the boot drive. `musica` comes before `SOFARUN` because both hold a `VGMPLAY` and the good one is in `musica` (SofaRun runs its own by its path).
+- **`PATH`**: you can type any program's name from any folder, without its path. `%1` is the boot drive. `musica` comes before `SOFARUN` because both hold a `VGMPLAY` and the good one is in `musica` (SofaRun runs its own by its path). `musica\roboplay` is there so that you can type plain `ROBOPLAY`: RoboPlay looks for its players (`.PLY`) next to `ROBOPLAY.COM`.
 - **`set MM`** and **`set MGSDRV`**: where Multi Mente and the MGSDRV driver are; MGSC, the `.MUS` player, loads it from there.
 - **`SET TIMEZONE`**: the time zone (+02:00, Central European summer time). Change it if needed.
 - **`mode 80`**: 80-column screen.
@@ -411,7 +411,7 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
    By default: MSX2+ with Nextor 2.1.4, Wi-Fi and the MSX++ logo, and a spare turboR.
 
    ![The MSXBOOK BIOS images](capturas/6_bios_msxbook.png)
-4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE, MTVOL and `indev` are left out. Music (MBWave, MBFM, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
+4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE, MTVOL and `indev` are left out. Music (MBWave, MBFM, RoboPlay, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
 
 ### What ends up on the card
 

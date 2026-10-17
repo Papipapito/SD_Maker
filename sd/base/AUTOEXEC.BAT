@@ -1,4 +1,4 @@
-PATH A:\;%1\mm;%1\musica;%1\SOFARUN;%1\UTIL;%1\bin;%1\hub;%1\WIFI
+PATH A:\;%1\mm;%1\musica;%1\musica\roboplay;%1\SOFARUN;%1\UTIL;%1\bin;%1\hub;%1\WIFI
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "

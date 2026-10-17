@@ -25,6 +25,7 @@
 | `WIFI\` (`TELNET`, `HGET`, `FTP`, `SNTP`, `TCPIP`…) | Oduvaldo Pavan Junior (ducasp), Néstor Soriano (Konamiman) and others | Freeware; see `WIFI\README.TXT` |
 | `WIFI\FH.COM` (File-Hunter) | See `WIFI\FH_LICENSE.TXT` | See that file |
 | `musica\mbwave\` (MoonBlaster for MoonSound Wave 1.17) and `musica\mbfm\` (MoonBlaster for MoonSound FM 1.03A) | Remco Schrijvers (Moonsoft); Wave 1.17 with Marcel Delorme | Distributed free of charge; no licence text ships with them |
+| `musica\roboplay\` (RoboPlay 2.1: `ROBOPLAY.COM`, the `.PLY` players, `WAVES.DAT`, `YRW801.DAT`, `STANDARD.BNK`), from https://gitlab.com/torihino/roboplay | ToriHino (RoboSoft Inc.) | Simplified BSD, below |
 | `UTIL\`, `musica\`, `mapper\`, `indev.com` | Various authors of the MSX scene | Freeware |
 | `IA\` | Albert (Papipapito) | GPL v3 |
 | `FPGA\MXUPDATE.COM` | Albert (Papipapito), proyecto MSXimus | GPL v3 |
@@ -82,6 +83,37 @@ Reproducida tal cual, como exige la propia licencia. / Reproduced verbatim, as t
 
 ```
 Copyright (c) 2015, Laurens Holst
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+## Licencia de RoboPlay / RoboPlay license
+
+El proyecto (https://gitlab.com/torihino/roboplay) no trae fichero de licencia: su `README.md` dice «Created by RoboSoft Inc. in 2026. This work is free. You can redistribute it and/or modify it under the terms of the Simplified BSD License.» Abajo, el texto de esa licencia con su aviso, como pide para la distribución en binario.
+
+The project (https://gitlab.com/torihino/roboplay) ships no licence file: its `README.md` says "Created by RoboSoft Inc. in 2026. This work is free. You can redistribute it and/or modify it under the terms of the Simplified BSD License." Below is the text of that licence with its notice, as it requires for binary distribution.
+
+```
+Copyright (c) 2026, RoboSoft Inc. (ToriHino)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
