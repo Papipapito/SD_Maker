@@ -333,7 +333,7 @@ class Ventana:
             maximo = particiones.maximo_fat16(sectores, tam)
             self.spin.configure(to=max(1, maximo))
             self.max_txt["text"] = ("caben %d en esta tarjeta (máximo 8: %s)" % (
-                maximo, "C: a I: con MAPDRV" if self.maquina.get() == "ocm" else "el menú del MSXimus ve 8")
+                maximo, "C: a H: y B: con MAPDRV" if self.maquina.get() == "ocm" else "el menú del MSXimus ve 8")
                                     if maximo else "la tarjeta es más pequeña: una sola partición con toda ella")
             if maximo and int(self.cantidad.get() or 1) > maximo:
                 self.cantidad.set(maximo)
@@ -347,7 +347,7 @@ class Ventana:
             if p.numero == 1:
                 uso = "arranque (A:)" if self._sistema() != "ninguno" else ""
             else:
-                uso = "%s: (MAPDRV en el AUTOEXEC)" % "CDEFGHI"[p.numero - 2]
+                uso = "%s: (MAPDRV en el AUTOEXEC)" % contenido.UNIDADES[p.numero - 2]
             lineas.append("  %d: %s de %-10s %s" % (p.numero, "FAT32" if p.tipo == particiones.TIPO_FAT32 else "FAT16",
                                                    formato_tamano(p.bytes), uso))
         sobra = particiones.sin_usar(sectores, plan)

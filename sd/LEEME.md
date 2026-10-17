@@ -7,8 +7,12 @@ contenido de la carpeta de la versión de Nextor que lleve el pack flasheado**.
 sd/
 ├── base/     ← común a todo (va siempre)
 │   ├── AUTOEXEC.BAT         monta C:/D:/E: con MAPDRV y arma el PATH
-│   ├── UTIL/                135 utilidades (está en el PATH)
+│   ├── UTIL/                utilidades, 118 ficheros (está en el PATH)
 │   ├── WIFI/                cliente WiFi/UNAPI (está en el PATH)
+│   ├── musica/              MWMPLAY y VGMPLAY (está en el PATH) y los editores de OPL4: mbwave/ (MoonBlaster
+│   │                        Wave 1.17) y mbfm/ (MoonBlaster for MoonSound FM 1.03A, del MBFM.zip, 12 ficheros)
+│   │   └── roboplay/        RoboPlay 2.1 de ToriHino (también en el PATH): los 39 ficheros de dsk/ del commit
+│   │                        609add63 de gitlab.com/torihino/roboplay, iguales byte a byte
 │   ├── FHUNT/   ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 │   └── TMP/     ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
@@ -68,12 +72,14 @@ con nuestro driver **no se puede cambiar la SD en caliente**.
 
 ## Pendiente de decidir
 
-- **`SFTP.COM` está dos veces y son distintos**: `UTIL/` (24.239 B) y `WIFI/`
-  (13.704 B). Ambas carpetas están en el PATH, así que se ejecuta la que primero
-  aparezca. Conviene quedarse con una.
-- `SFTP.TXT` sí es idéntico en las dos (duplicado inofensivo).
-- `COMMAND2.COM` está en `UTIL/` y en `nextor-2.1.4/`: es correcto, cumplen
-  papeles distintos (uno en el PATH, otro como fichero de sistema de la raíz).
+Nada por ahora. Lo último se decidió el 17/10 (ver «Limpieza del 17/10» más
+abajo):
+
+- **`SFTP.COM` estaba dos veces y eran distintos**: el de `UTIL/` era el SofaFTP
+  1.3 (24.239 B) y el de `WIFI/`, el 1.4 (13.704 B). Ganaba el de `UTIL/`, que va
+  antes en el PATH. Se queda **solo el 1.4, en `WIFI/`**, con su `SFTP.TXT`.
+- Lo de `COMMAND2.COM` en `UTIL/` ya no aplica: se quitó de ahí el 02/09 (ver
+  «Criterio de `base/UTIL/`»).
 
 ## 🚨 DRVTEST no se puede redirigir a la SD
 
@@ -141,15 +147,266 @@ Nota: esas herramientas de KdL hablan por los **puertos SWIO del estándar OCM**
 (40h-43h), que este RTL también implementa (`switched_io_ports`) — o sea que no
 son del todo ajenas. Pero su sitio natural es el Onechipbook.
 
+## Limpieza del 17/10: restos rotos o ajenos
+
+Salieron al inventariar los programas de la tarjeta. Venían de las SD de otras
+máquinas y se decidieron uno a uno:
+
+- **`UTIL/MPCM.COM`** (Mapper memory PCM player 1.07, de Niga) **estaba
+  corrupto**: sus primeros 512 bytes eran el primer sector de `MIDRY.COM`
+  (`MIDRY106`), seguramente por un cruce de clústeres en una FAT vieja. Se
+  **repuso** con el original, el `MPCM.COM` de `MPCM107.zip` de su página
+  (niga2.sytes.net/msx/free.html). Mide lo mismo (2.411 B) y a partir del byte
+  512 es idéntico al que había; md5 `143a416b0524dd2e2c7c4f2325060a99`.
+- **`UTIL/PATCH32.COM`** (656 B, «Recovery RAM disk utility Ver.1.01», TSUYOSHI
+  1993) **estaba cortado**: empieza con `JP 0615h` y el fichero acaba en 0290h.
+  No se encontró publicado, y `RRAMDISK.COM` ya es la 2.01 (revisión de C.P.U.,
+  1995). **Borrado**.
+- **`UTIL/SETALIAS.BAT`**, de otra máquina: hacía `ALIAS /R`, que borra los alias
+  `.ROM`/`.DSK` del AUTOEXEC, y ponía alias a rutas que aquí no existen
+  (`A:\PROGS`, `A:\UTILS`, `A:\TED`, `A:\MULTI\MM`: con él, `MM` dejaba de
+  arrancar). Los guardaba en `A:\ALIAS.DAT`. **Borrado**, y también su línea
+  `:SETALIAS.BAT` de `MM/MMRET.DAT`.
+- **`UTIL/SFTP.COM`** (SofaFTP 1.3) y **`UTIL/SFTP.TXT`**: **borrados**, porque
+  `WIFI/` lleva el 1.4 (ver «Pendiente de decidir»). El 1.3 es el último que
+  publica Louthrax en su web, y el 1.4 no sale allí. Los dos `SFTP.TXT` eran
+  iguales y dicen «1.0».
+- **`WIFI/GET.BAT`, `PUT.BAT` y `update.bat`**: eran scripts de otra persona.
+  Llamaban a `a:\sftp\sftp.com`, que no existe, para sincronizar la carpeta
+  actual con un FTP en `192.168.31.172`, una IP de su red. **Borrados**.
+- **`MM/MM2.COM`**: era otra compilación de Multi Mente 2.07, la japonesa del
+  pack RC5 (23.738 B). No casa con el `MM.EXE` de la carpeta y en openMSX se
+  cuelga al pulsar F1. Nada la llamaba: `MM` arranca `MM.COM`, y el runner
+  vuelve a cargar `MM.COM` tras cada orden externa. **Borrado**.
+
+Con esto `UTIL/` pasa de 122 a 118 ficheros, `WIFI/` de 19 a 16 y `MM/` pierde
+uno.
+
 ## Programas que necesita Multi Mente (`MM/`)
 
-`MM.CFG` asocia teclas y extensiones a programas externos. El 02/09 faltaban casi
-todos y se recuperaron de la SD de Flashjacks:
+`MM.COM` lleva un parche de este proyecto: la lista enseña los 12 primeros caracteres
+del nombre largo de cada fichero y **File info** (`Name:`) el nombre largo entero del
+fichero del cursor. Fuente, limitaciones y pruebas en `parches/mm-nombres-largos/LEEME.md`.
+El parche solo cambia código; los huecos de las herramientas (0x108-0x367, lo que
+copia CS.COM desde `MM.CFG`) son los de abajo. 🚨 `parchear.py` parte del `MM.COM`
+original: al rehacerlo, volver a poner esos huecos (o pasar `CS MM` en el MSX).
+
+Los programas que llaman las teclas (`MM.CFG`, que CS.COM copia en `MM.COM`) y
+RETURN (`MMRET.DAT`). El 02/09 faltaban casi todos y se recuperaron de la SD de
+Flashjacks:
 
 - **`EDITOR = AKID $F`** ← es lo que corre al pulsar **[E]**. Faltaba `AKID.COM` y
   por eso daba error. Recuperado (24.576 B).
 - También se añadieron: `PLAYER`, `CHRIS`, `FDSK`, `MGSDRV`, `FROM`, `EVAFJ`,
   `JACKSBOY`, `JPD`, `MBMPLAY`, `MCDRV`, `MGSC`, `MIDIPLAY`, `MMP`, `MP`, `MSA`,
   `MXPV`, `PCMPLAY`, `PI`, `PT3PLAY`, `TT`.
-- **Siguen faltando** (no están ni en Flashjacks): `CGV` y `NV` (visores de
-  gráficos, tecla [V] con Shift) y `UNZIP2`.
+- Faltaban `CGV` y `NV` (visores de gráficos, tecla [V] con Shift) y `UNZIP2`.
+  Desde el 17/10 ya no se usan: SHIFT+V abre con `BLS` y los ZIP van con `SUZ`
+  (abajo).
+
+## Configuración de Multi Mente (17/10/2026)
+
+Rehecha con lo que hay en la tarjeta. Cómo lee MM 2.07 sus ficheros se sacó
+desensamblando `MM.COM`, `MM.EXE` y `CS.COM` y probándolo en openMSX.
+
+### `MMRET.DAT`: qué hace RETURN con cada fichero
+
+- **Solo cuentan las líneas que empiezan por `.` o `:`**, con el patrón en
+  MAYÚSCULAS; manda **la primera** que encaje, y `.???` va la última (el visor).
+  Entre patrón y orden, un TAB: lo que va tras un espacio llega al programa.
+  Una línea sin orden ejecuta la siguiente (le pasaba al `.RAM` de antes).
+- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 9,1 KB.
+- **`$T` y `$M` se expanden sobre el propio fichero**: una línea con `$T`
+  tiene que estar más lejos del principio que (marcados × línea expandida).
+  Por eso las notas van arriba y las líneas con `$T` al final.
+- **Las variables (`%MM%`...) se expanden** al ejecutar. `$d` es la unidad de
+  `TEMP`, no el arranque.
+- Lleva unas notas (en inglés) con lo que necesita cada tipo de fichero.
+
+Lo que cambió:
+
+- **`.VGM`/`.VGZ` → `VGMPLAY $T`** (lo que recomienda Grauw: con varios
+  marcados, los toca seguidos). MM buscaba `VGMPLAY` en el PATH y salía el
+  **1.2 parcheado de `SOFARUN\`** (comprobado en openMSX). Ahora `musica` va
+  delante de `SOFARUN` en el PATH (`contenido.grupos_en_path`, y también en
+  `base/AUTOEXEC.BAT`) y sale el **1.4 (dev)**; sin `musica` marcado y con
+  SofaRun (lo de un OCM por defecto), sigue el 1.2, que también lee VGZ.
+  `UTIL` no se adelanta a `SOFARUN`: cambiaría el AKID (el de SofaRun es
+  el 1.02, más nuevo). `UTIL\VGMPLAY.COM`, que era una compilación no oficial
+  marcada «1.4», es ahora ese mismo 1.4 (dev). El de SofaRun se queda: SR.COM
+  lo llama por su ruta con `/Q`, que el 1.4 no admite.
+- **`.ROM` → `SROM`** y **`.DSK` → `SRI`** (como los alias del AUTOEXEC):
+  `FROM` y `FDSK` son de Flashjacks. `.DSK` con `$C`: con `$M` y ficheros
+  marcados de antes, SRI arrancaría con lo que no es.
+- **`.ZIP` → `SUZ L`** (lista; `UNZIP2` no está y el `UNZIP` de UTIL no sabe
+  Deflate), **`.LZH` → `PMEXT`** (no hay `LHEXT`).
+- **Nuevas**: `.ARC .ARK .ARJ .GIF .BMP .GRA .MIG .SG .EMU .UPD .INI .ASC`,
+  las pantallas `.SC5-.SC8 .SCA-.SCC .SR5-.SR8 .SRA .SRB` (antes `.SC?` y
+  `.SR?` cogían también `.SRM`, `.SCR`...), y por nombre (al visor):
+  `:AUTOEXEC.BAT` (desde MM no tiene `%1`), `:XSYS.BAT`, `:MBFM.CFG` y
+  `:MBWAVE.CFG` (binarios) y `:EMUDSK.ROM`. Había también una `:SETALIAS.BAT`,
+  que se quitó con el fichero en la limpieza del 17/10.
+- **Fuera** por falta de programa o de datos: `.BGM` (falta `KINROU5.DRV`),
+  `.0??`-`.9??` y `.FD?` (FDSK; además cogían los `MBFM.00x`), `.EVA`
+  (`CIRCUIT.SCC`), `.GB?`, `.MDX`/`.PDX` (MXPV solo muestra parámetros),
+  `.MIO` (sin MIODRV), `.MIF` (`MV`), `.PAC` (`PACS`), `.RAM`, `.GRP` (BLS no
+  lo lee), `.PCK` y `.LDR` (los cargadores de cinta de SofaRun).
+- **`.???` → visor** (`$V`) en vez de `AKID`: los binarios desconocidos no se
+  abren en el editor. [E] sigue editando.
+- **`.MFM` y `.MWM` → `ROBOPLAY $T`** (RoboPlay 2.1, en `musica\roboplay`).
+  Las canciones de MoonBlaster FM no las tocaba nada (el editor no las abre
+  desde la línea de órdenes). RoboPlay toca en el OPL4 las FM y las Wave en
+  modo USER y EDIT, y carga solo el wavekit que nombra la canción (o
+  `CANCION.MWK`) de su carpeta; MWMPLAY solo leía USER y había que marcar
+  canción y wavekit. `.MWK` sigue con `MWMPLAY $M$K`, para una canción USER
+  con un wavekit de otro nombre (los dos marcados, cursor en el `.MWK`).
+  Probado en openMSX (NMS 8245 con 512 KB, MoonSound, Nextor 2.1.4 por IDE):
+  `.MFM` USER y EDIT guardados con MBFM (UMFDEMO.MBM importado), `.MWM` con
+  y sin wavekit, el `.MWK` con MWMPLAY, y el sonido grabado. ESC acaba una
+  canción y pasa a la siguiente marcada; CTRL+STOP entre dos da «Terminate
+  batch file» y acaba la lista.
+- **RoboPlay va en el PATH** (`musica\roboplay`, detrás de `musica`) porque
+  busca sus `.PLY`, `WAVES.DAT`, `YRW801.DAT` y `STANDARD.BNK` junto a
+  `ROBOPLAY.COM` (por la variable `PROGRAM`) y porque la lista de marcados
+  de MM es un batch en lo alto de la TPA: «`ROBOPLAY CANCION.MFM`» y CR LF
+  por canción, más unos 66 bytes. RoboPlay usa 0xC000-0xD3FF (búfer de
+  lectura y nombres) y su pila: con la TPA en 0xD306 pisa la lista y vuelve
+  al DOS sin tocar nada. Medido: MM deja la TPA en 0xD706; 30 canciones
+  marcadas (nombres de 7 caracteres) la bajan a 0xD406 y suenan las 30; 39
+  la bajan a 0xD306 y fallan. La lista tiene que quedar por debajo de 768
+  bytes: con nombres 8.3 enteros (23 bytes por canción) caben 30 por RETURN
+  (con `%MM%\..\MUSICA\ROBOPLAY\ROBOPLAY $T`, la primera prueba, fallaban ya
+  20). Con 8 particiones la TPA es la misma. La línea del PATH pasa de 89 a
+  108 caracteres con todo marcado y en openMSX entra entera (COMMAND2 lee
+  hasta 127).
+- **Más formatos con `ROBOPLAY $T`**: `.MID`; la música de AdLib de PC
+  (`.RAD .DRO .D00 .HSC .AMD .SA2 .SOP .ROL .IMS .IMF .RAW`, y `.WLF` con
+  `ROBOPLAY IMF.PLY $T`: RoboPlay elige el `.PLY` por la extensión y no hay
+  `WLF.PLY`; `IMF.PLY` toca los `.WLF` a 700 Hz); `.PRO` (Pro-Tracker de
+  MSX-MUSIC, pasado al FM del OPL4); y `.SBM` y `.SNG` (SCC Blaffer NT y SCC
+  Musixx). Van al final, antes de `.???`.
+  - `.MID` suena en el OPL4 con la ROM de ondas YRW801, que el MSXimus tiene
+    si `yrw801.bin` está grabada en la flash. MIDIPLAY solo servía con un
+    MIDI-PAC. Su línea pasa detrás de la de RoboPlay: sin `musica`,
+    `ajustar_mmret` quita la de RoboPlay y manda MIDIPLAY (y sin `UTIL`, el
+    visor).
+  - `.RAW` es genérico, pero `RAW.PLY` mira la firma `RAWADATA` (Rdos): un
+    `.RAW` que no lo es da «Not a valid file» y se vuelve a MM al momento
+    (probado). `SNG.PLY` no mira nada (leído en `sng.c`): un `.SNG` que no
+    sea de SCC Musixx sonaría a ruido hasta ESC.
+  - `.SBM` y `.SNG` necesitan un SCC en un slot: en el MSXimus, Ajustes →
+    Slot 1 = 2º SCC (el del cartucho emulado solo está al lanzar una ROM).
+    Sin SCC, el SBM solo toca la batería del PSG.
+  - Lo que tarda en cargar a 3,58 MHz: un `.ROL` hasta un minuto (busca cada
+    instrumento en `STANDARD.BNK`), un `.AMD` empaquetado 26 s, un `.IMS` 16
+    s; los demás, de 3 a 7 s. Para los ROL, RoboPlay 2.1 solo lee el
+    `STANDARD.BNK` de su carpeta (en `rol.c` la búsqueda del `.BNK` de la
+    canción está comentada): las que traen banco propio suenan a medias o
+    mudas (JAM-YS2.ROL, que trae varios instrumentos que no están en el
+    banco, no suena; JAM-M1.ROL sí). Los IMS usan `CANCION.BNK` y, si no está,
+    `STANDARD.BNK`.
+  - Probado en openMSX como los MFM (con expansor de slots y SCC para SBM y
+    SNG): RETURN desde MM sobre una canción real de cada tipo, el audio
+    grabado con `record start -audioonly` y ESC de vuelta a MM. RAD v1, DRO
+    v2, D00 (19 subcanciones: izquierda y derecha), HSC, AMD empaquetado,
+    SA2 v9, SOP, ROL, IMS con su BNK, IMF tipo 0, WLF (IMF tipo 1), RAW, MID
+    (formato 0), PRO, SBM con su kit `.SBK` y SNG. Las canciones salieron de
+    una SD de MSXBOOK (carpeta `ROBOMUSI`), de la SD de Flashjacks y (HSC,
+    AMD e IMS) de las pruebas de AdPlug; no van en la tarjeta.
+  - A mano: un `.MBM` suena en el OPL4 con `ROBOPLAY CANCION.MBM` (unos
+    27 s para cargar los samples del `.MBK`). El `.MUS` de FAC SoundTracker
+    va ya con RETURN (MUSPLAY, abajo). `ROBOPLAY PRO_ORG.PLY CANCION.PRO`
+    toca un PRO en el MSX-MUSIC si es interno (en un FS-A1WSX sí; con un
+    FM-PAC en cartucho no sonó).
+  - Siguen igual: `.MBM` con MBMPLAY (el MSXimus tiene MSX-AUDIO y
+    MSX-MUSIC, los chips de verdad), `.MOD` con MMP, `.PT3` con PT3PLAY (va
+    en cualquier MSX; RoboPlay pide OPL4 para el tiempo) y `.VGM` con
+    VGMPLAY. Fuera: `.ASC` (en MSX es BASIC en ASCII; el de RoboPlay es de
+    ZX Spectrum), `.MDX`, `.TFC` y `.ZSM` (piden un OPM, el SFG-01/05, que el
+    MSXimus no tiene), `.ETC`, `.COP` y `.SAA` (SoundStar, SAA1099), `.ADL`
+    (`SSY.PLY` es el de Petscii Robots: los `.ADL` de Westwood no los toca) y
+    `CSP.PLY` (el Sidplayer de COMPUTE!, sin fuente en el repositorio).
+  - La lista de marcados es la de antes: unas 30 canciones por RETURN. Con
+    `.WLF` la línea lleva 8 bytes más: unas 22 con nombres 8.3 enteros
+    (cuenta hecha con el mismo límite de 768 bytes, no medida).
+- **`.MUS` → `MUSPLAY $T$K`** (`musica\MUSPLAY.COM`, nuestro; la fuente,
+  `fuentes/musplay/musplay.asm`, se ensambla con pasmo). Dos programas usan
+  la extensión: MGS (MGSDRV, de Ain), que es MML en texto y lo compila y toca
+  MGSC, y FAC SoundTracker, un volcado binario de 0x8000-0xBFFF que toca
+  RoboPlay en el OPL4 con sus samples (`.SM1` y `.SM2`). MM elige solo por
+  la extensión, así que RETURN lanza MUSPLAY, que lee los 256 primeros
+  bytes: si hay un carácter de control que no sea TAB, LF, FF, CR, ^Z ni ESC
+  es binario y ejecuta `ROBOPLAY CANCION.MUS`; si no, `MGSC CANCION.MUS -P
+  -N`. Lo que siga al nombre va detrás (`MUSPLAY CANCION.MUS /T 60`).
+  - No basta con mirar el `0xFE` de la cabecera de BSAVE: en la SD del
+    MSXBOOK hay 802 `.MUS` con ella, pero en su carpeta `ROBOMUSI\MUS` hay
+    también 18 FAC de 16.391 o 16.512 bytes con esos 7 bytes a cero (los de
+    FAC SoundTracker Pro, como `FSTPRO\WARLOCK.MUS`) o con basura (`80 80
+    08...`, `FF 0F...`); RoboPlay se los salta sin mirarlos (`mus.c`) y los
+    toca bien. Los 5 binarios que no son de FAC (3 con cabecera `MUSC`, un
+    programa y un `MENU.MUS`) van también a RoboPlay, que dice «Unknown
+    tracker version» y no suena hasta ESC; MGSC con ellos dice «*** End of
+    file». Ninguno de los 868 es texto (43 están vacíos): ahí no hay MML de
+    MGS.
+  - Un batch no sirve: COMMAND2 no tiene `IF` ni forma de leer el fichero.
+    MUSPLAY carga el reproductor como COMMAND2: lo busca en la carpeta
+    actual y en las del PATH; pone `PROGRAM` con la ruta completa (RoboPlay
+    saca de ahí la carpeta de sus `.PLY`) y `PARAMETERS` igual que lo que va
+    en 0x81, espacios del principio incluidos (MGSC lee de ahí la línea de
+    órdenes); los dos formatos, medidos con un programa de prueba en
+    COMMAND2; y lo lee en 0x100 desde un trozo de código copiado en
+    `(0006h)` − 0x200 (encima queda sitio para la pila mientras lee), y le
+    salta con la pila en `(0006h)` y 0 encima. Los errores (fichero que no
+    está, falta de memoria) los explica COMMAND2 (`_TERM`).
+  - `$K` como tenía la línea de MGSC: tras la lista pide una tecla antes de
+    volver a MM, y así se ven los errores de MGSC. Con `$T`, varios marcados
+    de los dos tipos suenan seguidos; ESC acaba cada uno. La línea de la
+    lista («`MUSPLAY CANCION.MUS`») es un carácter más corta que la de
+    RoboPlay: caben las mismas, unas 30 por RETURN.
+  - La línea `.MUS MGSC $C -P -N$K` pasa detrás, al final: sin `musica`,
+    `ajustar_mmret` quita la de MUSPLAY y manda MGSC, como antes; sin `UTIL`
+    queda MUSPLAY (los FAC suenan; un MGS da «MGSC.COM not found»); sin los
+    dos, el visor (comprobado con `contenido.arbol`).
+  - Probado en openMSX (NMS 8245 con 512 KB, MoonSound, Nextor 2.1.4 por
+    IDE; desde el DOS también con Nextor 3.0 beta 2), con el sonido grabado:
+    `POING.MUS` (FAC de Flying Bytes, con cabecera, de la SD del MSXBOOK),
+    `WARLOCK.MUS` (FAC SoundTracker Pro, cabecera a cero) y un `.MUS` de MGS
+    escrito para la prueba (tres voces de PSG). Desde el DOS (con ruta y con
+    `/T 3`) y con RETURN desde MM, uno a uno y los tres marcados en una
+    lista: RoboPlay tarda unos 27 s en cargar los samples y MGSC 2 s en
+    compilar. Sin `musica` en la tarjeta, RETURN sobre el MGS va a MGSC.
+
+**Al hacer la tarjeta**, `contenido.ajustar_mmret` quita las líneas cuyo
+programa no va (por ejemplo, sin `UTIL` en un OCM o sin `bin\` con MSX-DOS;
+sin `musica`, las de RoboPlay y MUSPLAY): esos ficheros caen en el visor y no en «***
+Unrecognized command». Busca en las carpetas del PATH, `musica\roboplay`
+incluida.
+
+### `MM.CFG` y `MM.COM`
+
+MM **no lee `MM.CFG`**: `CS.COM` copia sus valores en huecos de 32 bytes de
+`MM.COM` (desde 0x108, `strcpy`, 31 caracteres como mucho). Se cambiaron los
+dos a la vez; pasar `CS MM` por el `MM.CFG` nuevo en openMSX da el mismo
+`MM.COM`, byte a byte. 🚨 El bloque de líneas con `!` del final de `MM.CFG` es
+la tabla de CS: no tocarlo ni guardarlo en UTF-8.
+
+| Clave | Antes | Ahora |
+|---|---|---|
+| `UNLHA` ([U] en .LZH) | `LHEXT /D$A $T$K` | `PMEXT $Z $A$J$K` |
+| `UNARC` | `UNARC /D$A $Z $J$K` (UNARC no tiene `/D`) | `UNARC $Z $A$J$K` |
+| `UNZIP` | `UNZIP2 $Z $A$J$K` | `SUZ X $Z$K` (descomprime en la carpeta del ZIP) |
+| `PMA` | `PMARC2 ...` | `PMARC $F/$D $M$K` |
+| `CHKPMA` (SHIFT+U) | `PMM $T` | `PMEXT $T$k` |
+| `PAGER2` (SHIFT+V) | `CGV $C` | `BLS $C` |
+| `SCSAVER` | `manbow` (no está) | vacío: el salvapantallas de MM |
+| `S_TOOL` (SHIFT+RET) | `MGSDRV /Z /S5` | `MGSDRV /Z %MM%\MM`: MGSDRV vuelve por BASIC y ejecuta lo que sigue a `/Z` (el `/S5` nunca fue la ranura del SCC). `/Z` instala o, si ya está, quita |
+| `C_TOOL` (CTRL+RET) | `FROM $C` | `SROM $C` |
+
+Siguen sin programa: `LHA` (`LHPACK`), `ISH` y `UNISH` (`ISH`). `SC_TOOL`
+monta el fichero en `G:` con `MAPDRV`: con 6 particiones o más, `G:` es una.
+
+Para `.MUS` (MGSC), el AUTOEXEC pone `set MGSDRV=%1\UTIL\MGSDRV.COM`.
+
+Había también un `MM2.COM`, otra compilación (la japonesa del pack RC5) que no
+casa con este `MM.EXE`: en openMSX se colgaba al pulsar F1. Se borró en la
+limpieza del 17/10. `MM` arranca `MM.COM`.

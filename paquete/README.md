@@ -153,11 +153,11 @@ They are copied to the first partition, each in its own folder. Tick the ones yo
 | Checkbox | Folder | What it is | How to start it |
 |---|---|---|---|
 | SofaRun | `SOFARUN` | ROM, DSK and CAS tape launcher with a menu, by Louthrax | `SR` |
-| Multi Mente | `MM` | Two-pane file manager | `MM` |
+| Multi Mente | `MM` | Two-pane file manager. RETURN opens each file with its program: VGM and VGZ, ROM, DSK, ZIP, MWM and MFM (MoonBlaster Wave and FM), MID, PC AdLib music (RAD, DRO, SOP…), MOD, PT3, pictures…; files with no program open in the viewer | `MM` |
 | Utilidades | `UTIL` | About 120 tools: `DI` (DIR with long names), `LOGIN`, players, copying… | by name |
 | Red WiFi / UNAPI | `WIFI` | TCP/IP networking: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | by name |
 | Fuentes de pantalla | `FONTS` | Fonts for Multi Mente (ISO Latin-1, Japanese, Russian…) | used by MM |
-| Música | `musica` | MoonBlaster Wave, VGM and other players | by name |
+| Música | `musica` | The MoonBlaster Wave 1.17 (`mbwave\`) and MoonBlaster FM 1.03A (`mbfm\`) editors, both for the OPL4/MoonSound and needing more than 128 KB of memory; RoboPlay 2.1 (`roboplay\`, by ToriHino), which plays MoonBlaster FM and Wave songs on the OPL4 (it loads the wavekit by itself) and many more formats (MBM, MID, RAD, DRO, PRO, SBM…); `MUSPLAY` (ours), which plays a `.MUS` with the right player: an MGS one (text) with MGSC and a FAC SoundTracker one (binary) with RoboPlay; and the MWM and VGM players | `ROBOPLAY song`, `MUSPLAY song.MUS`, `MWMPLAY`, `VGMPLAY`; the editors by their path: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
 | HUB | `hub` | MSX Hub client, to install programs from the internet | `HUBG` or `HUB` |
 | IA | `IA` | AI chat client; your keys go in `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` disables the MSX-DOS 2 mapper routines for old software | by name |
@@ -211,7 +211,7 @@ A:\
 It is generated from your choices. With everything ticked and three partitions it looks like this:
 
 ```
-PATH A:\;%1\BIN;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\musica;%1\hub;%1\IA;%1\mapper;%1\FPGA
+PATH A:\;%1\BIN;%1\musica;%1\musica\roboplay;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\hub;%1\IA;%1\mapper;%1\FPGA
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "
@@ -219,6 +219,7 @@ ALIAS .ASC = "BASIC "
 sntp pool.ntp.org /v
 set temp %1\TMP
 set MM=%1\MM
+set MGSDRV=%1\UTIL\MGSDRV.COM
 alias .ROM srom
 alias .DSK sri
 yenslash
@@ -237,12 +238,13 @@ mapdrv d: 3 1 0
 
 What each part does:
 
-- **`PATH`**: you can type any program's name from any folder, without its path. `%1` is the boot drive.
+- **`PATH`**: you can type any program's name from any folder, without its path. `%1` is the boot drive. `musica` comes before `SOFARUN` because both hold a `VGMPLAY` and the good one is in `musica` (SofaRun runs its own by its path). `musica\roboplay` is there so that you can type plain `ROBOPLAY`: RoboPlay looks for its players (`.PLY`) next to `ROBOPLAY.COM`.
+- **`set MM`** and **`set MGSDRV`**: where Multi Mente and the MGSDRV driver are; MGSC, the player of MGS `.MUS` songs, loads it from there.
 - **`SET TIMEZONE`**: the time zone (+02:00, Central European summer time). Change it if needed.
 - **`mode 80`**: 80-column screen.
 - **`ALIAS`**: typing the name of a `.BAS` opens it in BASIC; the name of a `.ROM` or `.DSK` launches it with SofaRun.
 - **`sntp`**: sets the clock from the internet if there is a network. Without one it prints an error and carries on: that is normal.
-- **`mapdrv c: 2 1 0`**: mounts partition 2 as drive C:, partition 3 as D:, and so on.
+- **`mapdrv c: 2 1 0`**: mounts partition 2 as drive C:, partition 3 as D:, and so on up to partition 7 on H:. MSX-DOS only has drives A: to H:, so with 8 partitions partition 8 goes on **B:** (`Maped Units C,D,E,F,G,H,B`). On the MSXimus and the MSXnano B: is free. On an MSX with a floppy drive, B: stops being the floppy drive until you reboot or type `mapdrv b: d`.
 
 With **Nextor 3**, instead of `yenslash` come the lines of its options (`YENSLASH ON`, plus `SET BUFINSERT=ON` and `SET DIRK=0` if ticked), and the file is `AUTOEXEC.BTM` if you choose that option.
 
@@ -281,7 +283,7 @@ Useful commands to start with:
 | Type | To |
 |---|---|
 | `SR` | SofaRun: pick and launch ROM, DSK and tapes |
-| `MM` | Multi Mente: copy, move and delete files |
+| `MM` | Multi Mente: copy, move and delete files, and open them with RETURN |
 | `DI` | List the folder with long names |
 | `DIR C:` | See what is on partition 2 |
 | `LOGIN` | System information |
@@ -304,7 +306,7 @@ A convenient way to organise it:
 
 Good to know:
 
-- **Long names.** The MSXimus menu and Windows show them in full, like "Aleste 2 (1988).rom". MSX-DOS and SofaRun see the 8+3 short name Windows generates, like `ALESTE~1.ROM`.
+- **Long names.** The MSXimus menu and Windows show them in full, like "Aleste 2 (1988).rom". MSX-DOS and SofaRun see the 8+3 short name Windows generates, like `ALESTE~1.ROM`. Multi Mente shows the first 12 characters of the long name in its file list, and the whole name of the file under the cursor in its "File info" box (with Nextor 2.1 or 3.0).
 - **The MSXimus menu** walks every partition with TAB and launches ROM and DSK files without going through MSX-DOS.
 - **Do not format the partitions from Windows.** Windows would change their format or cluster size. To start over, run the card through MSX SD Maker again.
 - **Do not delete `FHUNT` or `TMP`** from partition 1.
@@ -351,7 +353,7 @@ That is `SNTP` trying to set the clock from the internet with no network. It doe
 The card or the reader may be failing. Try again and, if it happens again, with another reader or another card.
 
 **Can I have more than 8 partitions?**
-No. The MSXimus menu sees 8, and Nextor only looks at the first 9 at boot.
+No. The MSXimus menu sees 8, and Nextor only looks at the first 9 at boot. Besides, MSX-DOS only has eight drives (A: to H:); with 8 partitions they are all in use and partition 8 goes on B:.
 
 **Windows says the card is smaller than its label.**
 That is normal: manufacturers count 1 GB as 1,000 million bytes and Windows as 1,073 million.
@@ -409,7 +411,7 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
    By default: MSX2+ with Nextor 2.1.4, Wi-Fi and the MSX++ logo, and a spare turboR.
 
    ![The MSXBOOK BIOS images](capturas/6_bios_msxbook.png)
-4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE, MTVOL and `indev` are left out. Music (MBWave, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
+4. **Programs**: the usual ones minus those that are no use on these machines. MXUPDATE, MTVOL and `indev` are left out. Music (MBWave, MBFM, RoboPlay, MWM) comes unticked: it is for the OPL4 and only plays with a MoonSound or similar cartridge. **Flasheo del FPGA** adds `PLDFLASH` and `SMXFLASH` to `UTILS`: they are separate because they rewrite the machine's firmware.
 
 ### What ends up on the card
 

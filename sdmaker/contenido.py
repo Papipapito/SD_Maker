@@ -13,6 +13,7 @@ El AUTOEXEC.BAT de base/ no se copia: se genera (PATH, alias y MAPDRV segun lo e
 Con la maquina "ocm" (MSXBOOK, OneChipBook, 1chipMSX...) la BIOS, el sistema, HELP y UTILS salen del OCM-SDBIOS Pack de
 KdL (ocm.py) y de sd/ los grupos que sirven en un OCM (sin MXUPDATE ni indev; la musica de OPL4, desmarcada)."""
 import os
+import re
 import sys
 
 from .fatfs import Nodo
@@ -32,7 +33,8 @@ GRUPOS = [
     ("util", "Utilidades (UTIL: 120 programas)", ["base/UTIL"], ["UTIL"], []),
     ("wifi", "Red WiFi / UNAPI (WIFI: hget, ftp, telnet, sntp...)", ["base/WIFI"], ["WIFI"], []),
     ("fonts", "Fuentes de pantalla (FONTS)", ["base/FONTS"], [], []),
-    ("musica", "Música (reproductores de MoonBlaster, VGM...)", ["base/musica"], ["musica"], []),
+    ("musica", "Música (MoonBlaster Wave y FM, RoboPlay, reproductores de MWM y VGM)", ["base/musica"],
+     ["musica", "musica\\roboplay"], []),
     ("hub", "HUB (gestor de paquetes msxhub.com)", ["extras/hub"], ["hub"], []),
     ("ia", "IA (cliente de chat con IA; las claves van en IA\\ia.cfg)", ["extras/IA"], ["IA"], []),
     ("varios", "mapper e indev", ["extras/mapper", "extras/indev.com"], ["mapper"], []),
@@ -42,8 +44,8 @@ SIEMPRE = ["FHUNT", "TMP"]      # FHUNT: el menu descarga del File-Hunter ahi y 
 
 # Maquinas: "fpga" = MSXimus, MSXnano, Goa'uld y MSX Pico (lo de siempre); "ocm" = MSXBOOK, OneChipBook, 1chipMSX y
 # demas con OCM-PLD, con el pack de KdL. En un OCM no van varios (indev es de la MSX Pico) ni fpga (MXUPDATE es de
-# nuestros cores); musica va desmarcado (MBWave y MWM son de OPL4: solo con un cartucho MoonSound o parecido) y util
-# tambien (UTILS de KdL ya trae las del OCM). flash = PLDFLASH y SMXFLASH de UTILS, que flashean el FPGA.
+# nuestros cores); musica va desmarcado (MBWave, MBFM y MWM son de OPL4: solo con un cartucho MoonSound o parecido) y
+# util tambien (UTILS de KdL ya trae las del OCM). flash = PLDFLASH y SMXFLASH de UTILS, que flashean el FPGA.
 MAQUINAS = {"fpga": "MSXimus, MSXnano, Goa'uld o MSX Pico",
             "ocm": "MSXBOOK, OneChipBook o 1chipMSX (OCM-PLD), con el OCM-SDBIOS Pack de KdL"}
 NO_EN_OCM = {"varios", "fpga"}
@@ -60,6 +62,20 @@ def grupos_de(maquina):
 
 def grupos_por_defecto(maquina):
     return {g[0] for g in grupos_de(maquina)} - (DESMARCADOS_OCM if maquina == "ocm" else set())
+
+
+def grupos_en_path(maquina):
+    """Los grupos en el orden de sus carpetas en el PATH: el de grupos_de, pero con musica delante. musica y SOFARUN
+    llevan las dos un VGMPLAY.COM: el de musica es el 1.4 de Grauw y el de SOFARUN, un 1.2 parcheado que SR.COM llama
+    por su ruta; asi VGMPLAY a secas (la linea de ordenes y el .VGM/.VGZ de Multi Mente) es el 1.4. musica\\roboplay va
+    en el PATH porque RoboPlay busca sus .PLY junto a ROBOPLAY.COM: llamandolo a secas, la linea de Multi Mente es corta
+    y su lista de marcados ($T) baja menos la TPA (RoboPlay usa 0xC000-0xD3FF)."""
+    return sorted(grupos_de(maquina), key=lambda g: g[0] != "musica")
+
+# Unidades del MAPDRV del AUTOEXEC para las particiones 2, 3... MSX-DOS 2 y Nextor solo tienen de la A: a la H:, asi
+# que la 8 va en B:. Probado en openMSX con Nextor 2.1.4: sin disquetera (como el MSXimus) B: esta libre ("Invalid
+# drive") y MAPDRV la monta; con disquetera, MAPDRV le quita la B: hasta reiniciar o hasta MAPDRV B: D.
+UNIDADES = "CDEFGHB"
 
 # Opciones del AUTOEXEC con Nextor 3 (beta 2, COMMAND3.COM); con Nextor 2.1.4 y MSX-DOS no se usan.
 #   yenslash: YENSLASH ON, la orden INTERNA de COMMAND3.COM (desde la beta 2): barra invertida en vez de yen. La
@@ -138,6 +154,56 @@ def meter_datos(padre, nombre, datos, mtime=None):
     padre.hijos.append(Nodo(nombre, datos=datos, mtime=mtime))
 
 
+# Ordenes internas de COMMAND2/COMMAND3: en MMRET.DAT no se buscan como programa.
+INTERNAS_MM = set("ALIAS ASSIGN ATDIR ATTRIB BASIC BUFFERS CD CHDIR CLS COPY DATE DEL DIR DISKCOPY ECHO ERA ERASE EXIT "
+                  "FIXDISK FORMAT HELP KMODE MD MKDIR MODE MOVE MVDIR PATH PAUSE RAMDISK RD REM REN RENAME RMDIR RNDIR "
+                  "SET TIME TYPE UNDEL VER VERIFY VOL YENSLASH".split())
+
+
+def ajustar_mmret(raiz, grupos, maquina):
+    """Quita de MM\\MMRET.DAT las asociaciones cuyo programa no va en la tarjeta: con ellas RETURN solo daria "***
+    Unrecognized command"; sin ellas, el fichero cae en la ultima, '.???' (el visor). Como lo lee Multi Mente 2.07: solo
+    cuentan las lineas que empiezan por '.' o ':'; la orden va tras los blancos, hasta el primer caracter de control, y
+    su programa se busca en la raiz y en las carpetas del PATH (musica\\roboplay incluida)."""
+    mm = raiz.hijo("MM")
+    nodo = mm.hijo("MMRET.DAT") if mm else None
+    if nodo is None:
+        return
+    datos = nodo.datos if nodo.datos is not None else open(nodo.origen, "rb").read()
+    carpetas = ["BIN"] + (["UTILS"] if maquina == "ocm" else [])
+    carpetas += [c for clave, _, _, cs, _ in grupos_en_path(maquina) if clave in grupos for c in cs]
+
+    def carpeta(ruta):
+        n = raiz
+        for p in ruta.split("\\"):
+            n = n.hijo(p) if n is not None else None
+        return n
+    sitios = [raiz] + [d for d in map(carpeta, carpetas) if d is not None]
+
+    def esta(prog):
+        if not prog or prog.startswith("$") or prog.upper() in INTERNAS_MM or any(c in prog for c in "%\\:"):
+            return True         # $V, $C (el propio .COM o .BAT), BASIC o una ruta: no se toca
+        nombres = [prog] if "." in prog else [prog + e for e in (".COM", ".BAT", ".BTM")]
+        return any(s.hijo(n) is not None for s in sitios for n in nombres)
+
+    def sin_orden(linea):       # un patron sin orden: MM ejecuta la orden de la linea siguiente
+        return linea[:1] in (b".", b":") and len(linea.split(None, 1)) == 1
+
+    lineas = []
+    for linea in datos.split(b"\n"):
+        partes = linea.split(None, 1)
+        if linea[:1] in (b".", b":") and len(partes) > 1:
+            orden = re.split(rb"[\x00-\x1f]", partes[1])[0]
+            if not esta(orden.split(b" ")[0].decode("ascii", "replace")):
+                while lineas and sin_orden(lineas[-1]):     # se van con ella los patrones que caian en esta
+                    lineas.pop()
+                continue
+        lineas.append(linea)
+    nuevo = b"\n".join(lineas)
+    if nuevo != datos:
+        meter_datos(mm, nodo.nombre, nuevo, nodo.mtime)
+
+
 def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None, ocm=None):
     """Nodo raiz de la particion de arranque. particiones = cuantas hay en la tarjeta (para el MAPDRV); opciones = las
     de Nextor 3 (OPCIONES_N3); ocm = {"pack": ocm.Pack, "bios": [(nombre, receta)]} para la maquina "ocm" (el
@@ -166,6 +232,8 @@ def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None, ocm=None):
             _meter(raiz, os.path.join(sd, *o.split("/")))
         for v in vacias:
             _asegurar_dir(raiz, v)
+    if "mm" in grupos and sistema != "ninguno":     # sin sistema no hay PATH con el que comparar
+        ajustar_mmret(raiz, grupos, maquina)
     if sistema != "ninguno":
         for v in (["TMP"] if ocm else SIEMPRE):
             _asegurar_dir(raiz, v)
@@ -193,7 +261,7 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", 
         path.append("%1\\BIN")
     if ocm:
         path.append("%1\\UTILS")
-    for clave, _, _, carpetas, _ in grupos_de(maquina):
+    for clave, _, _, carpetas, _ in grupos_en_path(maquina):
         if clave in grupos:
             path += ["%1\\" + c for c in carpetas]
     if not arranque:      # REBOOT.BAT: %1 no vale ahi; la de arranque es A:
@@ -205,6 +273,8 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", 
     L.append("set temp %1\\TMP")
     if "mm" in grupos:
         L.append("set MM=%1\\MM")
+    if hay("UTIL", "MGSDRV.COM"):       # MGSC (el .MUS de Multi Mente) carga MGSDRV solo si sabe donde esta
+        L.append("set MGSDRV=%1\\UTIL\\MGSDRV.COM")
     if "sofarun" in grupos:
         L += ["alias .ROM srom", "alias .DSK sri"]
     if n3:
@@ -238,7 +308,7 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", 
     mapdrv = hay("bin", "MAPDRV.COM") or hay("UTIL", "MAPDRV.COM") or hay("UTILS", "MAPDRV.COM")
     donde = "3-2" if ocm else "0"       # OCM: Nextor en el slot 3-2, como en el MAPDRIVE.BAT de KdL
     if particiones > 1:
-        letras = "CDEFGHI"[:particiones - 1]
+        letras = UNIDADES[:particiones - 1]
         L.append("echo")
         if ocm and sistema == "msxdos":         # MegaSDHC sin Nextor: no hay MAPDRV
             L.append("echo Partitions 2-%d: only with a Nextor BIOS (MAPDRV)" % particiones)

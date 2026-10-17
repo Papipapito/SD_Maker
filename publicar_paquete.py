@@ -7,7 +7,7 @@ import shutil
 import sys
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-FUENTE = ["MSXsdmaker.py", "construir_exe.bat", "LEEME.md", ".gitignore", "sdmaker", "pruebas"]
+FUENTE = ["MSXsdmaker.py", "construir_exe.bat", "LEEME.md", ".gitignore", "sdmaker", "pruebas", "fuentes"]
 
 
 def copiar(origen, destino):

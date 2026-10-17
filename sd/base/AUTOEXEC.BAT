@@ -1,4 +1,4 @@
-PATH A:\;%1\mm;%1\SOFARUN;%1\UTIL;%1\bin;%1\hub;%1\WIFI;%1\musica
+PATH A:\;%1\mm;%1\musica;%1\musica\roboplay;%1\SOFARUN;%1\UTIL;%1\bin;%1\hub;%1\WIFI
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "
@@ -7,6 +7,7 @@ sntp pool.ntp.org /v
 set temp %1\TMP
 set help %1\HELP
 set MM=%1\MM
+set MGSDRV=%1\UTIL\MGSDRV.COM
 alias .BAS basic
 alias .ROM srom
 alias .DSK sri

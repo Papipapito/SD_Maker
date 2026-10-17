@@ -151,11 +151,11 @@ Se copian en la primera partición, cada uno en su carpeta. Marca los que quiera
 | Casilla | Carpeta | Qué es | Cómo se abre |
 |---|---|---|---|
 | SofaRun | `SOFARUN` | Lanzador de ROM, DSK y cintas CAS con menú, de Louthrax | `SR` |
-| Multi Mente | `MM` | Gestor de ficheros de dos paneles | `MM` |
+| Multi Mente | `MM` | Gestor de ficheros de dos paneles. RETURN abre cada fichero con su programa: VGM y VGZ, ROM, DSK, ZIP, MWM y MFM (MoonBlaster Wave y FM), MID, la música de AdLib de PC (RAD, DRO, SOP…), MOD, PT3, imágenes…; los que no tienen programa, en el visor | `MM` |
 | Utilidades | `UTIL` | Unas 120 herramientas: `DI` (DIR con nombres largos), `LOGIN`, reproductores, copias… | por su nombre |
 | Red WiFi / UNAPI | `WIFI` | Programas de red TCP/IP: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | por su nombre |
 | Fuentes de pantalla | `FONTS` | Tipos de letra para Multi Mente (ISO Latin-1, japonés, ruso…) | los usa MM |
-| Música | `musica` | Reproductores de MoonBlaster Wave, VGM y más | por su nombre |
+| Música | `musica` | Los editores MoonBlaster Wave 1.17 (`mbwave\`) y MoonBlaster FM 1.03A (`mbfm\`), los dos de OPL4/MoonSound y con más de 128 KB de memoria; RoboPlay 2.1 (`roboplay\`, de ToriHino), que toca en el OPL4 las canciones de MoonBlaster FM y Wave (carga solo el wavekit) y muchos formatos más (MBM, MID, RAD, DRO, PRO, SBM…); `MUSPLAY` (nuestro), que toca un `.MUS` con el que le toca: el de MGS (texto) con MGSC y el de FAC SoundTracker (binario) con RoboPlay; y los reproductores de MWM y VGM | `ROBOPLAY canción`, `MUSPLAY canción.MUS`, `MWMPLAY`, `VGMPLAY`; los editores con su ruta: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
 | HUB | `hub` | Cliente de MSX Hub, para instalar programas desde internet | `HUBG` o `HUB` |
 | IA | `IA` | Cliente de chat con IA; tus claves van en `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` desactiva el mapeador de MSX-DOS 2 para programas antiguos | por su nombre |
@@ -209,7 +209,7 @@ Las **particiones 2, 3…** quedan vacías para tus juegos y programas.
 Se genera según lo que hayas elegido. Con todo marcado y tres particiones queda así:
 
 ```
-PATH A:\;%1\BIN;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\musica;%1\hub;%1\IA;%1\mapper;%1\FPGA
+PATH A:\;%1\BIN;%1\musica;%1\musica\roboplay;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\hub;%1\IA;%1\mapper;%1\FPGA
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "
@@ -217,6 +217,7 @@ ALIAS .ASC = "BASIC "
 sntp pool.ntp.org /v
 set temp %1\TMP
 set MM=%1\MM
+set MGSDRV=%1\UTIL\MGSDRV.COM
 alias .ROM srom
 alias .DSK sri
 yenslash
@@ -235,12 +236,13 @@ mapdrv d: 3 1 0
 
 Qué hace cada parte:
 
-- **`PATH`**: puedes escribir el nombre de cualquier programa desde cualquier carpeta, sin la ruta. `%1` es la unidad de arranque.
+- **`PATH`**: puedes escribir el nombre de cualquier programa desde cualquier carpeta, sin la ruta. `%1` es la unidad de arranque. `musica` va delante de `SOFARUN` porque las dos llevan un `VGMPLAY` y el bueno es el de `musica` (SofaRun usa el suyo por su ruta). `musica\roboplay` está para poder escribir `ROBOPLAY` a secas: RoboPlay busca sus reproductores (`.PLY`) junto a `ROBOPLAY.COM`.
+- **`set MM`** y **`set MGSDRV`**: dónde están Multi Mente y el driver MGSDRV; MGSC, el reproductor de los `.MUS` de MGS, lo carga de ahí.
 - **`SET TIMEZONE`**: la zona horaria (+02:00, horario de verano peninsular). Cámbiala si hace falta.
 - **`mode 80`**: pantalla de 80 columnas.
 - **`ALIAS`**: escribiendo el nombre de un `.BAS` se abre en BASIC; el de un `.ROM` o un `.DSK`, se lanza con SofaRun.
 - **`sntp`**: pone el reloj en hora por internet, si hay red. Sin red da un error y sigue: es normal.
-- **`mapdrv c: 2 1 0`**: monta la partición 2 como unidad C:, la 3 como D:, y así sucesivamente.
+- **`mapdrv c: 2 1 0`**: monta la partición 2 como unidad C:, la 3 como D:, y así sucesivamente hasta la 7 en H:. MSX-DOS solo tiene unidades de la A: a la H:, así que con 8 particiones la 8 va en **B:** (`Maped Units C,D,E,F,G,H,B`). En el MSXimus y el MSXnano B: está libre. En un MSX con disquetera, B: deja de ser la disquetera hasta que reinicies o escribas `mapdrv b: d`.
 
 Con **Nextor 3**, en lugar de `yenslash` van las líneas de sus opciones (`YENSLASH ON`, y `SET BUFINSERT=ON` y `SET DIRK=0` si las marcas), y el fichero se llama `AUTOEXEC.BTM` si eliges esa opción.
 
@@ -279,7 +281,7 @@ A:\>vol d:
 | Escribe | Para |
 |---|---|
 | `SR` | SofaRun: elegir y lanzar ROM, DSK y cintas |
-| `MM` | Multi Mente: copiar, mover y borrar ficheros |
+| `MM` | Multi Mente: copiar, mover y borrar ficheros, y abrirlos con RETURN |
 | `DI` | Listar la carpeta con los nombres largos |
 | `DIR C:` | Ver lo que hay en la partición 2 |
 | `LOGIN` | Información del sistema |
@@ -302,7 +304,7 @@ Una forma cómoda de organizarse:
 
 Hay que saber:
 
-- **Nombres largos.** El menú del MSXimus y Windows los ven completos, como «Aleste 2 (1988).rom». MSX-DOS y SofaRun ven el nombre corto de 8+3 letras que Windows genera, como `ALESTE~1.ROM`.
+- **Nombres largos.** El menú del MSXimus y Windows los ven completos, como «Aleste 2 (1988).rom». MSX-DOS y SofaRun ven el nombre corto de 8+3 letras que Windows genera, como `ALESTE~1.ROM`. Multi Mente enseña en la lista los 12 primeros caracteres del nombre largo y en «File info» el nombre entero del fichero que está bajo el cursor (con Nextor 2.1 o 3.0).
 - **El menú del MSXimus** recorre todas las particiones con TAB y lanza ROM y DSK sin pasar por MSX-DOS.
 - **No formatees las particiones desde Windows.** Windows les cambiaría el formato o el tamaño de cluster. Para empezar de cero, vuelve a pasar la tarjeta por MSX SD Maker.
 - **No borres `FHUNT` ni `TMP`** de la partición 1.
@@ -349,7 +351,7 @@ Es `SNTP`, que intenta poner la hora por internet y no hay red. No afecta a nada
 La tarjeta o el lector pueden estar fallando. Prueba otra vez y, si se repite, con otro lector u otra tarjeta.
 
 **¿Puedo tener más de 8 particiones?**
-No. El menú del MSXimus ve 8, y Nextor solo busca en las 9 primeras al arrancar.
+No. El menú del MSXimus ve 8, y Nextor solo busca en las 9 primeras al arrancar. Además, MSX-DOS solo tiene ocho unidades (de la A: a la H:); con 8 particiones están todas ocupadas y la 8 va en B:.
 
 **Windows dice que la tarjeta es más pequeña de lo que pone en la etiqueta.**
 Es normal: los fabricantes cuentan 1 GB como 1.000 millones de bytes y Windows como 1.073 millones.
@@ -410,7 +412,7 @@ Estas máquinas llevan el firmware **OCM-PLD** de KdL y cargan la BIOS desde la 
    Por defecto: MSX2+ con Nextor 2.1.4, WiFi y logo MSX++, y una turboR de reserva.
 
    ![Las BIOS del MSXBOOK](capturas/6_bios_msxbook.png)
-4. **Programas**: los mismos de siempre menos los que no sirven en estas máquinas. No van MXUPDATE, MTVOL ni `indev`. La música (MBWave, MWM) sale desmarcada: es de OPL4 y solo suena con un cartucho MoonSound o parecido. **Flasheo del FPGA** añade `PLDFLASH` y `SMXFLASH` a `UTILS`: van aparte porque reescriben el firmware de la máquina.
+4. **Programas**: los mismos de siempre menos los que no sirven en estas máquinas. No van MXUPDATE, MTVOL ni `indev`. La música (MBWave, MBFM, RoboPlay, MWM) sale desmarcada: es de OPL4 y solo suena con un cartucho MoonSound o parecido. **Flasheo del FPGA** añade `PLDFLASH` y `SMXFLASH` a `UTILS`: van aparte porque reescriben el firmware de la máquina.
 
 ### Qué queda en la tarjeta
 
