@@ -19,6 +19,8 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**Música y Multi Mente** (1.5): MoonBlaster FM, RoboPlay y MUSPLAY en `musica\`, y VGMPlay 1.4 delante del de SofaRun en el PATH. En Multi Mente, RETURN abre cada fichero con su programa (`MM\MMRET.DAT`, del que el programa quita al hacer la tarjeta las líneas cuyo programa no va) y la lista y File info enseñan los nombres largos (`MM.COM` parcheado, en `parches/mm-nombres-largos/`).
+
 **MSXBOOK, OneChipBook y 1chipMSX** (1.4): con el OCM-SDBIOS Pack de KdL, que el usuario deja tal cual (el `.7z`) en la
 carpeta `OCM-SDBIOS` junto al programa; no va en este repositorio porque sus BIOS llevan ROMs de sistema con derechos
 de terceros. El programa (`sdmaker/ocm.py`) monta las BIOS como `make-sdb.cmd` (MSX2+, turboR, MSX2, MSX1, OCM-PLD
