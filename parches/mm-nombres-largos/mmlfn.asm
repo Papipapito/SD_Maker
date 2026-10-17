@@ -48,7 +48,8 @@ TAILW           equ     8
 LFNSEQ          equ     20              ; 20 partes x 13 = 260 caracteres
 LFNSZ           equ     LFNSEQ*13+1
 FRAMESZ         equ     512+LFNSZ       ; sector + nombre, en la pila
-STKMIN          equ     0CCh            ; MM usa hasta CB92h: el marco no baja de CC00h
+STKMIN          equ     0CDh            ; MM usa hasta CB92h: el marco no baja de CD00h
+                                        ; (sitio para la pila de debajo e interrupciones)
 
 ; ================================================================ 3D07h
                 org     3D07h
@@ -65,6 +66,15 @@ hookfib:        ld      hl,(RECPTR)
                 ldir
                 ld      de,FIB+1        ; lo que habia en 3E88h
                 jp      3E8Bh
+
+; pinta A espacios
+spaces:         or      a
+                ret     z
+                ld      b,a
+spc1:           ld      a,' '
+                call    PRCHR
+                djnz    spc1
+                ret
 fin3d07:
 
 ; ================================================================ 3D60h
@@ -100,8 +110,14 @@ conv_q:         ld      a,'?'
 offs:           db      1,3,5,7,9,14,16,18,20,22,24,28,30
 latin1:         db      "AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTs"      ; C0h-DFh
                 db      "aaaaaaaceeeeiiiidnooooo/ouuuuyty"      ; E0h-FFh
-datestr:        db      "Date:"
+datestr:        db      "Date: "
 dotstr:         db      ".",0
+; variables de un byte (aqui por falta de sitio en 5CF4h)
+wide:           db      0               ; 1: el nombre largo tapa la fecha
+expect:         db      0               ; parte LFN que toca; FFh = ninguna
+chk:            db      0               ; checksum LFN del 8.3 buscado
+drive:          db      0               ; unidad actual (0 = A:)
+st:             db      0               ; bit 0: se llego a la entrada; bit 1: cadena cortada
 fin3d60:
 
 ; ================================================================ 3DDFh
@@ -128,14 +144,11 @@ prn1:           ld      a,(hl)
                 djnz    prn1
                 ret
 
-; pinta A espacios
-spaces:         or      a
-                ret     z
-                ld      b,a
-spc1:           ld      a,' '
-                call    PRCHR
-                djnz    spc1
-                ret
+; el DTA de siempre (lo que heredan los programas que lanza MM)
+dta80:          ld      de,80h
+                ld      c,_SETDTA
+                jp      BDOS
+target:         dw      0               ; el registro que se pinta
 fin3ddf:
 
 ; ================================================================ 5CF4h
@@ -151,6 +164,11 @@ name:           push    ix
                 ld      a,(hl)
                 cp      '.'
                 jr      z,no
+                ld      de,12           ; sin la marca de hookfib (el registro de
+                add     hl,de           ; relleno que hace MM tras abortar un error
+                ld      a,(hl)          ; de disco al listar) no se toca el disco
+                cp      MARCA
+                jr      nz,no
                 ld      hl,-FRAMESZ
                 add     hl,sp
                 ld      a,h
@@ -164,6 +182,11 @@ name:           push    ix
                 ld      hl,(frame)
                 ld      sp,hl
                 call    find            ; NC: encontrado
+                push    af
+                call    dta80
+                ld      hl,2059h        ; por si un error de disco movio el texto
+                ld      (POS),hl
+                pop     af
                 call    nc,show         ; se pinta con el marco aun reservado
                 ld      sp,(savesp)
                 pop     de
@@ -244,12 +267,10 @@ mydate:         ld      a,(wide)
                 ld      a,6             ; el color de las etiquetas
                 call    SETCOL
                 ld      hl,datestr
-                ld      b,5
+                ld      b,6
                 call    prn
                 pop     af
                 call    SETCOL
-                ld      a,1
-                call    spaces
                 pop     de
                 ld      hl,2098h
                 ld      (POS),hl
@@ -277,12 +298,9 @@ f_sum:          rrca
                 ld      a,0FFh
                 ld      (expect),a
                 ld      hl,(target)     ; atajo: la posicion que guardo hookfib
-                ld      de,12
+                ld      de,13           ; (name ya ha visto la marca)
                 add     hl,de
-                ld      a,(hl)
-                cp      MARCA
-                jr      nz,full
-                inc     hl
+                ld      c,(hl)          ; entradas que quedan en el sector
                 inc     hl
                 ld      b,(hl)          ; sectores que quedan en el cluster
                 inc     hl
@@ -298,6 +316,11 @@ f_sum:          rrca
                 jr      z,f_raiz
                 ld      a,(DPB+3)       ; sectores por cluster: si quedan todos
                 cp      b               ; es el primero del cluster
+                jr      nz,f_ant
+                ld      a,c             ; y si es su primera entrada, la cadena LFN
+                sub     16              ; esta en el cluster anterior: a recorrer
+                jr      z,full
+                xor     a               ; Z: sin sector anterior
                 jr      f_ant
 f_raiz:         sbc     hl,de           ; o el primero de la raiz
 f_ant:          ld      hl,1
@@ -332,9 +355,8 @@ full:           ld      a,0FFh          ; recorrer el directorio desde el princi
                 ld      b,10h
                 ld      c,_FFIRST
                 call    BDOS
-                ld      hl,0
                 or      a
-                jr      nz,f_root       ; sin "." -> raiz
+                jp      nz,nf           ; sin "." (disco cambiado...): el 8.3
                 ld      l,(ix+19)
                 ld      h,(ix+20)
 f_root:         ld      a,h
@@ -467,6 +489,7 @@ e_lfn:          ld      a,(ix+13)
                 ld      (hl),0          ; fin de cadena tras la ultima parte
                 ld      a,(ix+0)
 e_lfn2:         and     1Fh
+                jr      z,e_reset       ; parte 0: no existe (directorio estropeado)
                 ld      hl,expect
                 cp      (hl)
                 jr      nz,e_cont
@@ -512,13 +535,7 @@ mul13:          ld      l,a
 
 fincod:
 ; variables (no van en el fichero)
-wide            equ     fincod
-expect          equ     wide+1
-chk             equ     expect+1
-drive           equ     chk+1
-st              equ     drive+1
-target          equ     st+1
-frame           equ     target+2
+frame           equ     fincod
 lfnp            equ     frame+2
 savesp          equ     lfnp+2
 clus            equ     savesp+2

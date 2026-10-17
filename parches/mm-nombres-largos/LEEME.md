@@ -14,7 +14,7 @@ git show bd3beb9:sd/base/MM/MM.COM > MM.COM.original
 python parchear.py MM.COM.original MM.COM
 ```
 
-El original tiene 23.539 bytes (sha1 `db7316e2…`); el parcheado, 24.221 (sha1 `f5842063…`).
+El original tiene 23.539 bytes (sha1 `db7316e2…`); el parcheado, 24.239 (sha1 `0db617ad…`).
 
 ## Cómo se ve
 
@@ -46,6 +46,9 @@ El original tiene 23.539 bytes (sha1 `db7316e2…`); el parcheado, 24.221 (sha1 
   2 GB pasa muy poco).
 - Cada `_RDDRV` hace que Nextor vacíe e invalide sus búferes de esa unidad (es como está
   hecho Nextor); no se pierde nada, solo que el siguiente acceso al disco los vuelve a leer.
+- Antes File info no tocaba el disco y ahora sí: si el medio falla, el diálogo de error de
+  MM puede salir al mover el cursor. Con Abort se vuelve bien; con Retry, el nombre puede
+  salir con el color del diálogo hasta el siguiente movimiento.
 
 ## Cómo funciona
 
@@ -58,19 +61,22 @@ puntos de vigilancia en openMSX al listar, ordenar, marcar, árbol, copiar y bor
    y sectores que quedan, y el sector de 24 bits; mismo formato en Nextor 2.1.4 y 3.0.0).
 2. **Al pintar File info** (`34D5h`): con `_RDDRV` se leen ese sector y el anterior (si está
    en el mismo cluster), se busca la entrada 8.3 y se juntan las entradas LFN que la
-   preceden si su checksum es el del 8.3. Si la cadena empieza antes, se recorre el
-   directorio: `_FFIRST` de `.` da su cluster y `_GETCLUS` la cadena; la raíz, con el
-   `_DPARM` que hace MM al leer el directorio.
+   preceden si su checksum es el del 8.3. Si la cadena empieza antes (se ve una parte
+   suelta, o la 8.3 es la primera entrada de un cluster), se recorre el directorio:
+   `_FFIRST` de `.` da su cluster y `_GETCLUS` la cadena; la raíz, con el `_DPARM` que hace
+   MM al leer el directorio. Un registro sin la marca (el de relleno que pone MM tras
+   abortar un error de disco al listar) se pinta en 8.3 sin tocar el disco. Al acabar, el
+   DTA vuelve a `0080h`.
 3. El sector (512 bytes) y el nombre (261) van en la pila, que en MM tiene sitio entre
    CB92h (el final de sus datos) y la cima del TPA; si no hay 773 bytes libres por encima
-   de CC00h, se pinta el 8.3.
+   de CD00h, se pinta el 8.3.
 
 El código va en memoria que MM no usa:
 
 | Zona | Qué era | Qué va |
 | --- | --- | --- |
-| `5CF4h-5F9Ch` (+ variables hasta `5FB1h`) | detrás del final de MM.COM, sin usar (5FBFh son las marcas) | casi todo; se añade al fichero |
-| `3D07h-3D1Fh`, `3D60h-3DD7h`, `3DDFh-3E02h` | el lector de directorios por sectores de MM (solo FAT12), muerto: `3D5Dh` lo salta con un `JP 3E4Ah` | el gancho del listado, tablas y rutinas pequeñas |
+| `5CF4h-5FAEh` (+ variables hasta `5FBCh`) | detrás del final de MM.COM, sin usar (5FBFh son las marcas) | casi todo; se añade al fichero |
+| `3D07h-3D2Ah`, `3D60h-3DDDh`, `3DDFh-3E01h` | el lector de directorios por sectores de MM (solo FAT12), muerto: `3D5Dh` lo salta con un `JP 3E4Ah` | el gancho del listado, tablas, rutinas pequeñas y las variables de un byte |
 
 No se tocan `3DDEh` ni `3E3Eh` (MM y MM.EXE los reescriben) ni `3D2Bh`-`3D5Fh` y
 `3E03h`-`3E49h` (los llaman overlays de MM.EXE). Los cuatro sitios desviados:
@@ -93,4 +99,6 @@ imagen`:
 - F1 y sus páginas de ayuda, RETURN (`.TXT` → AKID), `$T` con dos ficheros marcados,
   ordenar, árbol, copiar y borrar, y la vuelta a MM tras ejecutar un programa;
 - un fichero renombrado con `REN` desde MSX-DOS (sale el 8.3 nuevo) y `fsck.fat` de la
-  partición después de copiar con MM: sin errores.
+  partición después de copiar con MM: sin errores;
+- una carpeta de 25 nombres de 23 caracteres en la que la 8.3 del 21.º es la primera
+  entrada del segundo cluster (la encontró un revisor: la primera versión enseñaba el 8.3).
