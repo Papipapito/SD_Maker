@@ -18,12 +18,13 @@
 | `COMMAND3.COM` and the Nextor 3.0 beta 2 tools | Néstor Soriano (Konamiman) | Nextor license, below |
 | `MSXDOS.SYS`, `COMMAND.COM` (MSX-DOS 1) | ASCII Corporation / Microsoft; today The MSX Licensing Corporation | Non-commercial distribution |
 | `SOFARUN\` (SofaRun 8.1) | Louthrax | Freeware |
-| `SOFARUN\VGMPLAY.COM` | Laurens Holst (Grauw) | Freeware |
+| VGMPlay: `musica\vgmplay.com` and `UTIL\VGMPLAY.COM` (1.4 dev), `SOFARUN\VGMPLAY.COM` (1.2, patched for SofaRun by Louthrax) | Laurens Holst (Grauw) | Simplified BSD, below |
 | `MM\` (Multi Mente 2.07) | MOGU | Freeware |
 | `FONTS\` | Font pack for Multi Mente | Freeware |
 | `hub\` (`HUB.COM`, `HUBG.COM`) | Carles Amigó (fr3nd); HUBG by Oduvaldo Pavan Junior and Israel F. Araujo | Freeware |
 | `WIFI\` (`TELNET`, `HGET`, `FTP`, `SNTP`, `TCPIP`…) | Oduvaldo Pavan Junior (ducasp), Néstor Soriano (Konamiman) and others | Freeware; see `WIFI\README.TXT` |
 | `WIFI\FH.COM` (File-Hunter) | See `WIFI\FH_LICENSE.TXT` | See that file |
+| `musica\mbwave\` (MoonBlaster for MoonSound Wave 1.17) and `musica\mbfm\` (MoonBlaster for MoonSound FM 1.03A) | Remco Schrijvers (Moonsoft); Wave 1.17 with Marcel Delorme | Distributed free of charge; no licence text ships with them |
 | `UTIL\`, `musica\`, `mapper\`, `indev.com` | Various authors of the MSX scene | Freeware |
 | `IA\` | Albert (Papipapito) | GPL v3 |
 | `FPGA\MXUPDATE.COM` | Albert (Papipapito), proyecto MSXimus | GPL v3 |
@@ -73,4 +74,33 @@ THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRI
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
+```
+
+## Licencia de VGMPlay / VGMPlay license
+
+Reproducida tal cual, como exige la propia licencia. / Reproduced verbatim, as the license itself requires.
+
+```
+Copyright (c) 2015, Laurens Holst
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```

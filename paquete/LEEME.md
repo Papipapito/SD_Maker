@@ -151,11 +151,11 @@ Se copian en la primera partición, cada uno en su carpeta. Marca los que quiera
 | Casilla | Carpeta | Qué es | Cómo se abre |
 |---|---|---|---|
 | SofaRun | `SOFARUN` | Lanzador de ROM, DSK y cintas CAS con menú, de Louthrax | `SR` |
-| Multi Mente | `MM` | Gestor de ficheros de dos paneles | `MM` |
+| Multi Mente | `MM` | Gestor de ficheros de dos paneles. RETURN abre cada fichero con su programa: VGM y VGZ, ROM, DSK, ZIP, MWM, MOD, PT3, imágenes…; los que no tienen programa, en el visor | `MM` |
 | Utilidades | `UTIL` | Unas 120 herramientas: `DI` (DIR con nombres largos), `LOGIN`, reproductores, copias… | por su nombre |
 | Red WiFi / UNAPI | `WIFI` | Programas de red TCP/IP: `HGET`, `FTP`, `TELNET`, `SNTP`, `FH` (File-Hunter)… | por su nombre |
 | Fuentes de pantalla | `FONTS` | Tipos de letra para Multi Mente (ISO Latin-1, japonés, ruso…) | los usa MM |
-| Música | `musica` | Reproductores de MoonBlaster Wave, VGM y más | por su nombre |
+| Música | `musica` | Los editores MoonBlaster Wave 1.17 (`mbwave\`) y MoonBlaster FM 1.03A (`mbfm\`), los dos de OPL4/MoonSound y con más de 128 KB de memoria, y los reproductores de MWM y VGM | `MWMPLAY`, `VGMPLAY`; los editores con su ruta: `\musica\mbwave\mbwave`, `\musica\mbfm\mbfm` |
 | HUB | `hub` | Cliente de MSX Hub, para instalar programas desde internet | `HUBG` o `HUB` |
 | IA | `IA` | Cliente de chat con IA; tus claves van en `IA\ia.cfg` | `IA` |
 | mapper e indev | `mapper`, `indev.com` | `MAPPER` desactiva el mapeador de MSX-DOS 2 para programas antiguos | por su nombre |
@@ -209,7 +209,7 @@ Las **particiones 2, 3…** quedan vacías para tus juegos y programas.
 Se genera según lo que hayas elegido. Con todo marcado y tres particiones queda así:
 
 ```
-PATH A:\;%1\BIN;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\musica;%1\hub;%1\IA;%1\mapper;%1\FPGA
+PATH A:\;%1\BIN;%1\musica;%1\SOFARUN;%1\MM;%1\UTIL;%1\WIFI;%1\hub;%1\IA;%1\mapper;%1\FPGA
 SET TIMEZONE=+02:00
 mode 80
 ALIAS .BAS = "BASIC "
@@ -217,6 +217,7 @@ ALIAS .ASC = "BASIC "
 sntp pool.ntp.org /v
 set temp %1\TMP
 set MM=%1\MM
+set MGSDRV=%1\UTIL\MGSDRV.COM
 alias .ROM srom
 alias .DSK sri
 yenslash
@@ -235,7 +236,8 @@ mapdrv d: 3 1 0
 
 Qué hace cada parte:
 
-- **`PATH`**: puedes escribir el nombre de cualquier programa desde cualquier carpeta, sin la ruta. `%1` es la unidad de arranque.
+- **`PATH`**: puedes escribir el nombre de cualquier programa desde cualquier carpeta, sin la ruta. `%1` es la unidad de arranque. `musica` va delante de `SOFARUN` porque las dos llevan un `VGMPLAY` y el bueno es el de `musica` (SofaRun usa el suyo por su ruta).
+- **`set MM`** y **`set MGSDRV`**: dónde están Multi Mente y el driver MGSDRV; MGSC, el reproductor de los `.MUS`, lo carga de ahí.
 - **`SET TIMEZONE`**: la zona horaria (+02:00, horario de verano peninsular). Cámbiala si hace falta.
 - **`mode 80`**: pantalla de 80 columnas.
 - **`ALIAS`**: escribiendo el nombre de un `.BAS` se abre en BASIC; el de un `.ROM` o un `.DSK`, se lanza con SofaRun.
@@ -279,7 +281,7 @@ A:\>vol d:
 | Escribe | Para |
 |---|---|
 | `SR` | SofaRun: elegir y lanzar ROM, DSK y cintas |
-| `MM` | Multi Mente: copiar, mover y borrar ficheros |
+| `MM` | Multi Mente: copiar, mover y borrar ficheros, y abrirlos con RETURN |
 | `DI` | Listar la carpeta con los nombres largos |
 | `DIR C:` | Ver lo que hay en la partición 2 |
 | `LOGIN` | Información del sistema |
@@ -410,7 +412,7 @@ Estas máquinas llevan el firmware **OCM-PLD** de KdL y cargan la BIOS desde la 
    Por defecto: MSX2+ con Nextor 2.1.4, WiFi y logo MSX++, y una turboR de reserva.
 
    ![Las BIOS del MSXBOOK](capturas/6_bios_msxbook.png)
-4. **Programas**: los mismos de siempre menos los que no sirven en estas máquinas. No van MXUPDATE, MTVOL ni `indev`. La música (MBWave, MWM) sale desmarcada: es de OPL4 y solo suena con un cartucho MoonSound o parecido. **Flasheo del FPGA** añade `PLDFLASH` y `SMXFLASH` a `UTILS`: van aparte porque reescriben el firmware de la máquina.
+4. **Programas**: los mismos de siempre menos los que no sirven en estas máquinas. No van MXUPDATE, MTVOL ni `indev`. La música (MBWave, MBFM, MWM) sale desmarcada: es de OPL4 y solo suena con un cartucho MoonSound o parecido. **Flasheo del FPGA** añade `PLDFLASH` y `SMXFLASH` a `UTILS`: van aparte porque reescriben el firmware de la máquina.
 
 ### Qué queda en la tarjeta
 

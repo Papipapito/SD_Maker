@@ -9,6 +9,8 @@ sd/
 │   ├── AUTOEXEC.BAT         monta C:/D:/E: con MAPDRV y arma el PATH
 │   ├── UTIL/                135 utilidades (está en el PATH)
 │   ├── WIFI/                cliente WiFi/UNAPI (está en el PATH)
+│   ├── musica/              MWMPLAY y VGMPLAY (está en el PATH) y los editores de OPL4: mbwave/ (MoonBlaster
+│   │                        Wave 1.17) y mbfm/ (MoonBlaster for MoonSound FM 1.03A, del MBFM.zip, 12 ficheros)
 │   ├── FHUNT/   ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 │   └── TMP/     ← 🚨 VACÍA A PROPÓSITO: NO BORRAR
 ├── nextor-2.1.4/            NEXTOR.SYS + COMMAND2.COM + MSXDOS2.SYS…
@@ -143,13 +145,98 @@ son del todo ajenas. Pero su sitio natural es el Onechipbook.
 
 ## Programas que necesita Multi Mente (`MM/`)
 
-`MM.CFG` asocia teclas y extensiones a programas externos. El 02/09 faltaban casi
-todos y se recuperaron de la SD de Flashjacks:
+Los programas que llaman las teclas (`MM.CFG`, que CS.COM copia en `MM.COM`) y
+RETURN (`MMRET.DAT`). El 02/09 faltaban casi todos y se recuperaron de la SD de
+Flashjacks:
 
 - **`EDITOR = AKID $F`** ← es lo que corre al pulsar **[E]**. Faltaba `AKID.COM` y
   por eso daba error. Recuperado (24.576 B).
 - También se añadieron: `PLAYER`, `CHRIS`, `FDSK`, `MGSDRV`, `FROM`, `EVAFJ`,
   `JACKSBOY`, `JPD`, `MBMPLAY`, `MCDRV`, `MGSC`, `MIDIPLAY`, `MMP`, `MP`, `MSA`,
   `MXPV`, `PCMPLAY`, `PI`, `PT3PLAY`, `TT`.
-- **Siguen faltando** (no están ni en Flashjacks): `CGV` y `NV` (visores de
-  gráficos, tecla [V] con Shift) y `UNZIP2`.
+- Faltaban `CGV` y `NV` (visores de gráficos, tecla [V] con Shift) y `UNZIP2`.
+  Desde el 17/10 ya no se usan: SHIFT+V abre con `BLS` y los ZIP van con `SUZ`
+  (abajo).
+
+## Configuración de Multi Mente (17/10/2026)
+
+Rehecha con lo que hay en la tarjeta. Cómo lee MM 2.07 sus ficheros se sacó
+desensamblando `MM.COM`, `MM.EXE` y `CS.COM` y probándolo en openMSX.
+
+### `MMRET.DAT`: qué hace RETURN con cada fichero
+
+- **Solo cuentan las líneas que empiezan por `.` o `:`**, con el patrón en
+  MAYÚSCULAS; manda **la primera** que encaje, y `.???` va la última (el visor).
+  Entre patrón y orden, un TAB: lo que va tras un espacio llega al programa.
+  Una línea sin orden ejecuta la siguiente (le pasaba al `.RAM` de antes).
+- **MM lee 16383 bytes** y lo relee en cada RETURN. Ahora mide 6,8 KB.
+- **`$T` y `$M` se expanden sobre el propio fichero**: una línea con `$T`
+  tiene que estar más lejos del principio que (marcados × línea expandida).
+  Por eso las notas van arriba y las líneas con `$T` al final.
+- **Las variables (`%MM%`...) se expanden** al ejecutar. `$d` es la unidad de
+  `TEMP`, no el arranque.
+- Lleva unas notas (en inglés) con lo que necesita cada tipo de fichero.
+
+Lo que cambió:
+
+- **`.VGM`/`.VGZ` → `VGMPLAY $T`** (lo que recomienda Grauw: con varios
+  marcados, los toca seguidos). MM buscaba `VGMPLAY` en el PATH y salía el
+  **1.2 parcheado de `SOFARUN\`** (comprobado en openMSX). Ahora `musica` va
+  delante de `SOFARUN` en el PATH (`contenido.grupos_en_path`, y también en
+  `base/AUTOEXEC.BAT`) y sale el **1.4 (dev)**; sin `musica` marcado y con
+  SofaRun (lo de un OCM por defecto), sigue el 1.2, que también lee VGZ.
+  `UTIL` no se adelanta a `SOFARUN`: cambiaría el AKID (el de SofaRun es
+  el 1.02, más nuevo). `UTIL\VGMPLAY.COM`, que era una compilación no oficial
+  marcada «1.4», es ahora ese mismo 1.4 (dev). El de SofaRun se queda: SR.COM
+  lo llama por su ruta con `/Q`, que el 1.4 no admite.
+- **`.ROM` → `SROM`** y **`.DSK` → `SRI`** (como los alias del AUTOEXEC):
+  `FROM` y `FDSK` son de Flashjacks. `.DSK` con `$C`: con `$M` y ficheros
+  marcados de antes, SRI arrancaría con lo que no es.
+- **`.ZIP` → `SUZ L`** (lista; `UNZIP2` no está y el `UNZIP` de UTIL no sabe
+  Deflate), **`.LZH` → `PMEXT`** (no hay `LHEXT`).
+- **Nuevas**: `.ARC .ARK .ARJ .GIF .BMP .GRA .MIG .SG .EMU .UPD .INI .ASC`,
+  las pantallas `.SC5-.SC8 .SCA-.SCC .SR5-.SR8 .SRA .SRB` (antes `.SC?` y
+  `.SR?` cogían también `.SRM`, `.SCR`...), y por nombre (al visor):
+  `:AUTOEXEC.BAT` (desde MM no tiene `%1`), `:XSYS.BAT`, `:SETALIAS.BAT`,
+  `:MBFM.CFG` y `:MBWAVE.CFG` (binarios) y `:EMUDSK.ROM`.
+- **Fuera** por falta de programa o de datos: `.BGM` (falta `KINROU5.DRV`),
+  `.0??`-`.9??` y `.FD?` (FDSK; además cogían los `MBFM.00x`), `.EVA`
+  (`CIRCUIT.SCC`), `.GB?`, `.MDX`/`.PDX` (MXPV solo muestra parámetros),
+  `.MIO` (sin MIODRV), `.MIF` (`MV`), `.PAC` (`PACS`), `.RAM`, `.GRP` (BLS no
+  lo lee), `.PCK` y `.LDR` (los cargadores de cinta de SofaRun).
+- **`.???` → visor** (`$V`) en vez de `AKID`: los binarios desconocidos no se
+  abren en el editor. [E] sigue editando.
+- **`.MFM`** (canciones de MoonBlaster FM): ningún programa de la tarjeta las
+  toca. El reproductor sería RoboPlay (BSD): `.MFM<TAB>ROBOPLAY $T`.
+
+**Al hacer la tarjeta**, `contenido.ajustar_mmret` quita las líneas cuyo
+programa no va (por ejemplo, sin `UTIL` en un OCM o sin `bin\` con MSX-DOS):
+esos ficheros caen en el visor y no en «*** Unrecognized command».
+
+### `MM.CFG` y `MM.COM`
+
+MM **no lee `MM.CFG`**: `CS.COM` copia sus valores en huecos de 32 bytes de
+`MM.COM` (desde 0x108, `strcpy`, 31 caracteres como mucho). Se cambiaron los
+dos a la vez; pasar `CS MM` por el `MM.CFG` nuevo en openMSX da el mismo
+`MM.COM`, byte a byte. 🚨 El bloque de líneas con `!` del final de `MM.CFG` es
+la tabla de CS: no tocarlo ni guardarlo en UTF-8.
+
+| Clave | Antes | Ahora |
+|---|---|---|
+| `UNLHA` ([U] en .LZH) | `LHEXT /D$A $T$K` | `PMEXT $Z $A$J$K` |
+| `UNARC` | `UNARC /D$A $Z $J$K` (UNARC no tiene `/D`) | `UNARC $Z $A$J$K` |
+| `UNZIP` | `UNZIP2 $Z $A$J$K` | `SUZ X $Z$K` (descomprime en la carpeta del ZIP) |
+| `PMA` | `PMARC2 ...` | `PMARC $F/$D $M$K` |
+| `CHKPMA` (SHIFT+U) | `PMM $T` | `PMEXT $T$k` |
+| `PAGER2` (SHIFT+V) | `CGV $C` | `BLS $C` |
+| `SCSAVER` | `manbow` (no está) | vacío: el salvapantallas de MM |
+| `S_TOOL` (SHIFT+RET) | `MGSDRV /Z /S5` | `MGSDRV /Z %MM%\MM`: MGSDRV vuelve por BASIC y ejecuta lo que sigue a `/Z` (el `/S5` nunca fue la ranura del SCC). `/Z` instala o, si ya está, quita |
+| `C_TOOL` (CTRL+RET) | `FROM $C` | `SROM $C` |
+
+Siguen sin programa: `LHA` (`LHPACK`), `ISH` y `UNISH` (`ISH`). `SC_TOOL`
+monta el fichero en `G:` con `MAPDRV`: con 6 particiones o más, `G:` es una.
+
+Para `.MUS` (MGSC), el AUTOEXEC pone `set MGSDRV=%1\UTIL\MGSDRV.COM`.
+
+`MM2.COM` es otra compilación (la japonesa del pack RC5) y no casa con este
+`MM.EXE`: en openMSX se cuelga al pulsar F1. `MM` arranca `MM.COM`.

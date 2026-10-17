@@ -27,66 +27,6 @@
 ;==============================================================================
 
 
-.BAS	BASIC $C
-.BAT	$C
-.BGM	PLAYER $C A:
-.COM	$C$K
-.CFG	AKID $C
-.CRT	CHRIS $C
-.DSK    FDSK $M
-.0??    FDSK $M
-.1??    FDSK $M
-.2??    FDSK $M
-.3??    FDSK $M
-.4??    FDSK $M
-.5??    FDSK $M
-.6??    FDSK $M
-.7??    FDSK $M
-.8??    FDSK $M
-.9??    FDSK $M
-.EVA	EVAFJ $C /B \BIN\CIRCUIT.SCC
-.FD?	FDSK $M
-.GB?	JACKSBOY $M /B \BIN\JACKSPAD.SC8
-.GE5	BLS $C
-.GRP	BLS $C
-.JPG	JPD $T
-.LDR	BASIC $C
-.LZH	LHEXT L $C$K
-.MAG	BLS $C
-.MAX	BLS $C
-.MBM	MBMPLAY $C -D
-.MBK	MBMPLAY $C
-.MCM	MCDRV $C
-.MDX	MXPV $M
-.MID	MIDIPLAY $C	;MIDRY $C /I31	;SMF $C
-.MIO	MP $C
-.MIF    MV $T
-.MKI	BLS $C
-.MOD	MMP $C
-.MSA	MSA $C
-.MUS	MGSC $C -P -N
-.MWM	MWMPLAY $C
-.MWK	MWMPLAY $C
-.PAC PACS $C$K/L12345678
-.PCK	PCMPLAY $C
-.PCM	PCMPLAY $C
-.PDX	MXPV $M
-.PI 	PI $C
-.PIC	BLS $C
-.PMA	PMEXT $C$K
-.PT3	PT3PLAY $C
-.RAM    
-.ROM	FROM $M
-.SC?	BLS $C
-.SR?	BLS $C
-.TXT	AKID $C
-.TMU	TT $C
-.VGM	VGMPLAY $C
-.VGZ	VGMPLAY $C
-.ZIP	UNZIP2 $C$K
-.???	AKID $C
-
-
 ; The following options can be used when executing an external program:
 ;
 ;	$A =	Drive input on commandline
@@ -97,7 +37,7 @@
 ;	$d =	Temporary drive (that is in environment item TEMP)
 ;	$J =	Execute program in Kanji-mode
 ;	$K =	Ask for any key before returning to Multi Mente
-;	$k =	
+;	$k =	Ask for any key after each command (inserts PAUSE)
 ;	$P =	Current path
 ;	$R =	Put a RETURN in the commandline
 ;	$T =	Filenames of selected files (one by one)
@@ -109,4 +49,123 @@
 ;	$Z =	Uncrunch file, dependant of file-extension
 ;
 ;-------------------------------------------------------------
+
+;==============================================================================
+;  MSX SD Maker: what RETURN does with each file type on this card
+;==============================================================================
+; How MM 2.07 reads this file (checked in MM.COM and in openMSX):
+;  - Only lines that start in column 0 with '.' (extension) or ':' (full
+;    name, e.g. :AUTOEXEC.BAT) count; anything else is a comment. Patterns
+;    in UPPERCASE; '?' matches any character. The FIRST matching line wins,
+;    so full names go first and '.???' last (nothing after it is ever used).
+;  - A TAB between pattern and command, and before a comment: text after a
+;    SPACE goes to the program. A pattern with no command runs the next line.
+;  - MM reads only the first 16383 bytes and re-reads the file on every
+;    RETURN: just save it. %VARIABLES% (%MM%...) are expanded when it runs.
+;  - $T runs the command once per tagged file; $M puts them all in one line
+;    (about 100 characters, the rest goes to a second command). With nothing
+;    tagged both take the file under the cursor. With files tagged, RETURN
+;    uses the line of the file UNDER THE CURSOR and gives it the TAGGED
+;    files: move the cursor onto one of them first (SPACE moves it down).
+;  - MM expands $T/$M in the buffer that holds this file: a $T/$M line must
+;    be further from the start than (tagged files x expanded line) bytes.
+;    That is why these notes go first and the $T/$M lines last.
+;  - While a $T list runs it stays in memory under MSX-DOS: about 11 tagged
+;    files take 256 bytes of TPA, and VGMPLAY needs about 53 KB of it: about
+;    30 songs per RETURN fit, about 10 with MGSDRV resident (more give
+;    "Insufficient TPA space"; measured in openMSX, Nextor 2.1.4, 7 drives).
+;  - MSX SD Maker leaves out the lines whose program is not on the card;
+;    those files open in the viewer ('.???').
+;
+; What the lines need:
+;  .ROM .DSK .ZIP  SofaRun: SROM picks the ROM device by itself, SRI boots the
+;  .MIG .SG        disk (write-protected: W in SRI changes it), SUZ lists the
+;                  ZIP ([U] extracts it here), MIGVIEW, SSMS (SG-1000).
+;  .VGM .VGZ       VGMPLAY: the 1.4 of MUSICA, first in the PATH (without
+;                  MUSICA, the 1.2 of SofaRun). Tagged songs play in turn;
+;                  CTRL+STOP stops the list.
+;  .MWM .MWK       MWMPLAY (MUSICA): OPL4, songs saved in USER mode. A song
+;                  with its wavekit: tag both, cursor on one of them, RETURN.
+;  .MOD            MMP: OPL4 with sample RAM.     .PT3  PT3PLAY: PSG.
+;  .MBM .MBK       MBMPLAY: MSX-MUSIC / MSX-AUDIO. .MCM MCDRV: MSX-MUSIC.
+;  .MUS            MGSC + MGSDRV (the AUTOEXEC sets MGSDRV to its path).
+;  .MID            MIDIPLAY: only with a MIDI-PAC.
+;  .PCM .CRT       PCMPLAY (turbo R PCM, else PSG), CHRIS (turbo R PCM
+;                  only: it hangs on a machine without it).
+;  .TMU            TriloTracker (SCC); it starts empty.
+;  .EMU            EMUFILE (Nextor): resets into the disk image set.
+;  .UPD            MXUPDATE: checks the file and asks before flashing.
+;  .MFM            MoonBlaster FM songs: no player on the card. The editor is
+;                  \MUSICA\MBFM\MBFM.COM (RETURN on it); it loads songs from
+;                  its own disk menu, not from the command line.
+;  .MGS            MM plays it by itself once MGSDRV is resident: SHIFT+RETURN
+;                  installs it and comes back to MM (pressed again, it removes
+;                  MGSDRV).
+;==============================================================================
+
+:AUTOEXEC.BAT	$V	run from MM it would get no %1 and break the PATH
+:XSYS.BAT	$V	swaps MSXDOS2.SYS and NEXTOR.SYS and resets
+:SETALIAS.BAT	$V	aliases of another machine
+:MBFM.CFG	$V	binary settings of MoonBlaster FM
+:MBWAVE.CFG	$V	binary settings of MoonBlaster Wave
+:EMUDSK.ROM	$V	disk emulator ROM for RUNIT, not a game
+.ARC	UNARC $C$K	list
+.ARJ	UNARJ L $C$K	list
+.ARK	UNARC $C$K	list
+.ASC	BASIC $C
+.BAS	BASIC $C
+.BAT	$C
+.CFG	AKID $C
+.COM	$C$K
+.CRT	CHRIS $C
+.DSK	SRI $C$K
+.EMU	EMUFILE SET $C$K
+.GIF	DAGIF $C
+.INI	AKID $C
+.LZH	PMEXT $C$K	list
+.MBK	MBMPLAY $C
+.MCM	MCDRV $C
+.MID	MIDIPLAY $C$K	;MIDRY $C /I31	;SMF $C
+.MUS	MGSC $C -P -N$K
+.PMA	PMEXT $C$K	list
+.ROM	SROM $C$K
+.SG	SSMS $C$K
+.TMU	TT $C
+.TXT	AKID $C
+.UPD	MXUPDATE $C$K
+.ZIP	SUZ L $C$K	list
+.BMP	BMP $T
+.GE5	BLS $T /S5
+.GRA	BLS $T
+.JPG	JPD $T
+.MAG	BLS $T
+.MAX	BLS $T
+.MIG	MIGVIEW $T
+.MKI	BLS $T
+.MOD	MMP $T
+.MSA	MSA $T
+.MWK	MWMPLAY $M$K
+.MWM	MWMPLAY $M
+.PCM	PCMPLAY $T
+.PI	PI $T
+.PIC	BLS $T
+.PT3	PT3PLAY $T
+.SC5	BLS $T
+.SC6	BLS $T
+.SC7	BLS $T
+.SC8	BLS $T
+.SCA	BLS $T
+.SCB	BLS $T
+.SCC	BLS $T
+.SR5	BLS $T
+.SR6	BLS $T
+.SR7	BLS $T
+.SR8	BLS $T
+.SRA	BLS $T
+.SRB	BLS $T
+.VGM	VGMPLAY $T
+.VGZ	VGMPLAY $T
+.MBM	MBMPLAY $T -D
+.???	$V	must stay the last line
+
 
