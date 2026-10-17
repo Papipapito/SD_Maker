@@ -240,7 +240,7 @@ Qué hace cada parte:
 - **`mode 80`**: pantalla de 80 columnas.
 - **`ALIAS`**: escribiendo el nombre de un `.BAS` se abre en BASIC; el de un `.ROM` o un `.DSK`, se lanza con SofaRun.
 - **`sntp`**: pone el reloj en hora por internet, si hay red. Sin red da un error y sigue: es normal.
-- **`mapdrv c: 2 1 0`**: monta la partición 2 como unidad C:, la 3 como D:, y así sucesivamente.
+- **`mapdrv c: 2 1 0`**: monta la partición 2 como unidad C:, la 3 como D:, y así sucesivamente hasta la 7 en H:. MSX-DOS solo tiene unidades de la A: a la H:, así que con 8 particiones la 8 va en **B:** (`Maped Units C,D,E,F,G,H,B`). En el MSXimus y el MSXnano B: está libre. En un MSX con disquetera, B: deja de ser la disquetera hasta que reinicies o escribas `mapdrv b: d`.
 
 Con **Nextor 3**, en lugar de `yenslash` van las líneas de sus opciones (`YENSLASH ON`, y `SET BUFINSERT=ON` y `SET DIRK=0` si las marcas), y el fichero se llama `AUTOEXEC.BTM` si eliges esa opción.
 
@@ -349,7 +349,7 @@ Es `SNTP`, que intenta poner la hora por internet y no hay red. No afecta a nada
 La tarjeta o el lector pueden estar fallando. Prueba otra vez y, si se repite, con otro lector u otra tarjeta.
 
 **¿Puedo tener más de 8 particiones?**
-No. El menú del MSXimus ve 8, y Nextor solo busca en las 9 primeras al arrancar.
+No. El menú del MSXimus ve 8, y Nextor solo busca en las 9 primeras al arrancar. Además, MSX-DOS solo tiene ocho unidades (de la A: a la H:); con 8 particiones están todas ocupadas y la 8 va en B:.
 
 **Windows dice que la tarjeta es más pequeña de lo que pone en la etiqueta.**
 Es normal: los fabricantes cuentan 1 GB como 1.000 millones de bytes y Windows como 1.073 millones.

@@ -242,7 +242,7 @@ What each part does:
 - **`mode 80`**: 80-column screen.
 - **`ALIAS`**: typing the name of a `.BAS` opens it in BASIC; the name of a `.ROM` or `.DSK` launches it with SofaRun.
 - **`sntp`**: sets the clock from the internet if there is a network. Without one it prints an error and carries on: that is normal.
-- **`mapdrv c: 2 1 0`**: mounts partition 2 as drive C:, partition 3 as D:, and so on.
+- **`mapdrv c: 2 1 0`**: mounts partition 2 as drive C:, partition 3 as D:, and so on up to partition 7 on H:. MSX-DOS only has drives A: to H:, so with 8 partitions partition 8 goes on **B:** (`Maped Units C,D,E,F,G,H,B`). On the MSXimus and the MSXnano B: is free. On an MSX with a floppy drive, B: stops being the floppy drive until you reboot or type `mapdrv b: d`.
 
 With **Nextor 3**, instead of `yenslash` come the lines of its options (`YENSLASH ON`, plus `SET BUFINSERT=ON` and `SET DIRK=0` if ticked), and the file is `AUTOEXEC.BTM` if you choose that option.
 
@@ -351,7 +351,7 @@ That is `SNTP` trying to set the clock from the internet with no network. It doe
 The card or the reader may be failing. Try again and, if it happens again, with another reader or another card.
 
 **Can I have more than 8 partitions?**
-No. The MSXimus menu sees 8, and Nextor only looks at the first 9 at boot.
+No. The MSXimus menu sees 8, and Nextor only looks at the first 9 at boot. Besides, MSX-DOS only has eight drives (A: to H:); with 8 partitions they are all in use and partition 8 goes on B:.
 
 **Windows says the card is smaller than its label.**
 That is normal: manufacturers count 1 GB as 1,000 million bytes and Windows as 1,073 million.

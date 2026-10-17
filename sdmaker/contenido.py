@@ -61,6 +61,11 @@ def grupos_de(maquina):
 def grupos_por_defecto(maquina):
     return {g[0] for g in grupos_de(maquina)} - (DESMARCADOS_OCM if maquina == "ocm" else set())
 
+# Unidades del MAPDRV del AUTOEXEC para las particiones 2, 3... MSX-DOS 2 y Nextor solo tienen de la A: a la H:, asi
+# que la 8 va en B:. Probado en openMSX con Nextor 2.1.4: sin disquetera (como el MSXimus) B: esta libre ("Invalid
+# drive") y MAPDRV la monta; con disquetera, MAPDRV le quita la B: hasta reiniciar o hasta MAPDRV B: D.
+UNIDADES = "CDEFGHB"
+
 # Opciones del AUTOEXEC con Nextor 3 (beta 2, COMMAND3.COM); con Nextor 2.1.4 y MSX-DOS no se usan.
 #   yenslash: YENSLASH ON, la orden INTERNA de COMMAND3.COM (desde la beta 2): barra invertida en vez de yen. La
 #             orden interna tiene preferencia sobre el YENSLASH.COM de UTIL, y sin parametros solo dice el estado.
@@ -238,7 +243,7 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", 
     mapdrv = hay("bin", "MAPDRV.COM") or hay("UTIL", "MAPDRV.COM") or hay("UTILS", "MAPDRV.COM")
     donde = "3-2" if ocm else "0"       # OCM: Nextor en el slot 3-2, como en el MAPDRIVE.BAT de KdL
     if particiones > 1:
-        letras = "CDEFGHI"[:particiones - 1]
+        letras = UNIDADES[:particiones - 1]
         L.append("echo")
         if ocm and sistema == "msxdos":         # MegaSDHC sin Nextor: no hay MAPDRV
             L.append("echo Partitions 2-%d: only with a Nextor BIOS (MAPDRV)" % particiones)
