@@ -21,6 +21,8 @@ import sys
 import tempfile
 import zipfile
 
+from . import carpeta_programa as _carpeta_programa
+
 K = 1024
 CARPETA = "OCM-SDBIOS"          # junto al programa: ahi se deja el pack de KdL
 
@@ -317,9 +319,7 @@ def _clave_version(nombre):
 
 
 def carpeta_programa():
-    if getattr(sys, "frozen", False):
-        return os.path.dirname(sys.executable)
-    return os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    return _carpeta_programa()
 
 
 def buscar():

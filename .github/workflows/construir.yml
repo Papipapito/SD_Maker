@@ -1,0 +1,78 @@
+name: Construir aplicaciones
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar dependencias
+        run: python -m pip install --upgrade pip pyinstaller py7zr
+      - name: Probar
+        run: python -m unittest -v pruebas.probar_macos
+      - name: Construir EXE y ZIP
+        shell: cmd
+        run: |
+          call construir_exe.bat
+          python hacer_zip.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MSX-SD-Maker-Windows-x64
+          path: dist/MSX_SD_Maker_*.zip
+          if-no-files-found: error
+
+  macos:
+    name: macOS Apple Silicon
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Python con Tk
+        run: brew install python@3.13 python-tk@3.13
+      - name: Instalar dependencias
+        run: "$(brew --prefix python@3.13)/bin/python3.13 -m pip install --upgrade pip pyinstaller py7zr"
+      - name: Probar
+        run: "$(brew --prefix python@3.13)/bin/python3.13 -m unittest -v pruebas.probar_macos"
+      - name: Construir aplicación y ZIP
+        run: PYTHON_BIN="$(brew --prefix python@3.13)/bin/python3.13" ./construir_macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MSX-SD-Maker-macOS-arm64
+          path: dist/MSX_SD_Maker_*_macOS_arm64.zip
+          if-no-files-found: error
+
+  release:
+    name: Publicar release
+    if: contains(github.event.head_commit.message, '[release]')
+    needs: [windows, macos]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MSX-SD-Maker-*
+          path: artefactos
+          merge-multiple: true
+      - name: Crear la release y adjuntar las dos versiones
+        shell: bash
+        run: |
+          version="$(python3 -c 'from sdmaker import VERSION; print(VERSION)')"
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" artefactos/*.zip --clobber
+          else
+            gh release create "$tag" artefactos/*.zip --target "$GITHUB_SHA" \
+              --title "MSX SD Maker ${version}" --generate-notes
+          fi

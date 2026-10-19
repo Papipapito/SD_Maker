@@ -1,4 +1,4 @@
-# MSX SD Maker 1.4 — preparing the SD card
+# MSX SD Maker 1.5.1 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -11,7 +11,7 @@
 5. Writes an `AUTOEXEC.BAT` that sets everything up at boot.
 6. Reads everything back to check that the card came out right.
 
-Nothing to install: it is a single file, `MSXsdmaker.exe`. The program itself is in Spanish; this guide explains every option.
+Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
 
 ---
 
@@ -33,7 +33,7 @@ Nothing to install: it is a single file, `MSXsdmaker.exe`. The program itself is
 
 ## 1. What you need
 
-- **A PC with Windows 10 or 11.**
+- **A PC with Windows 10/11 or a Mac running macOS 13 or later.**
 - **A card reader**: the laptop's own or a USB one.
 - **An SD or microSD card of 4 GB or more.** 8 to 32 GB is the most practical. Bigger cards work too, but with FAT16 only 8 partitions are used.
 - **To know which Nextor version your machine runs.** It depends on the BIOS pack or the `BOOT` file you flashed. See [step 3.3](#33-the-system).
@@ -44,14 +44,16 @@ Nothing to install: it is a single file, `MSXsdmaker.exe`. The program itself is
 
 ## 2. Opening the program
 
-1. Download the ZIP from the [latest MSX SD Maker release](https://github.com/Papipapito/SD_Maker/releases/latest) (`MSX_SD_Maker_<version>.zip`), in its own repository ([SD_Maker](https://github.com/Papipapito/SD_Maker)), and **unzip it** anywhere: inside there is `MSXsdmaker.exe` with this guide and the `sd` folder, with everything that is copied to the card (systems and programs). If you change or add a file in one of its folders, yours is copied; if you delete it, the program uses the copy it carries inside. The machines' repositories also carry a copy of the program in their `MSXsdmaker` folder.
+1. Download the ZIP for your system from the [latest MSX SD Maker release](https://github.com/Papipapito/SD_Maker/releases/latest) and **unzip it** anywhere. It contains `MSXsdmaker.exe` or `MSXsdmaker.app`, this guide, and the `sd` folder with everything copied to the card (systems and programs). If you change or add a file in one of its folders, yours is copied; if you delete it, the program uses its bundled copy.
 2. Put the card in the reader.
-3. Double-click `MSXsdmaker.exe`.
-4. Windows asks whether to allow it to make changes to the device: answer **Yes**. It needs this because it writes the whole card, partition table included.
+3. Open `MSXsdmaker.exe` on Windows or `MSXsdmaker.app` on macOS.
+4. On Windows, accept the permission prompt. On macOS, the app asks only after you click **Prepare the card**. This is necessary because it writes the whole card, partition table included.
 
 **New versions**: when it opens, the program checks GitHub for a newer MSX SD Maker; if there is one, it says so and offers to open the download page. Without internet nothing happens.
 
 **If Windows shows "Windows protected your PC"** (SmartScreen): click **More info** and then **Run anyway**. It appears because the program is not digitally signed.
+
+**If macOS blocks the app the first time**: Control-click `MSXsdmaker.app`, choose **Open**, and confirm. The app is locally signed but not notarized by Apple.
 
 **If your antivirus complains**: Python programs packed into a single `.exe` sometimes trigger false positives. The source code is in [SD_Maker](https://github.com/Papipapito/SD_Maker) (and a copy in the `fuente/` folder).
 
@@ -69,7 +71,7 @@ The list at the top shows the connected cards: drive letter, reader name, size a
 
 Below it you see the exact size and what is on the card now (*Ahora*), for example "FAT32 de 29,81 GB".
 
-> 🛡️ **Only SD card readers and removable USB sticks are listed.** The disk Windows lives on never appears, and neither do external hard disks. Still, check the size carefully before going on.
+> 🛡️ **Only SD card readers and removable USB sticks are listed.** The Windows or macOS system disk never appears, and neither do external hard disks. Still, check the size carefully before going on.
 
 ### 3.2 The partitions — *2. Particiones*
 
@@ -169,7 +171,7 @@ Whenever a system is installed these empty folders are created too. **Do not del
 - `TMP`: temporary folder for MSX-DOS and SofaRun.
 - `SAVES` and `SETTINGS`, if you ticked SofaRun: its saved games and its settings.
 
-**Nombre de la tarjeta** (*card name*): the name of partition 1 as shown in Windows and by `VOL` in MSX-DOS. The others get the same name with their number: "MSX 2", "MSX 3"…
+**Nombre de la tarjeta** (*card name*): the name of partition 1 as shown in Windows or Finder and by `VOL` in MSX-DOS. The others get the same name with their number: "MSX 2", "MSX 3"…
 
 ### 3.5 Preparing
 
@@ -177,11 +179,11 @@ Whenever a system is installed these empty folders are created too. **Do not del
 2. The program shows **what it is going to wipe** (the card's name, size and drives) and **what it will create**. Read it carefully. It only goes ahead if you answer **Sí** (*Yes*); the default button is No.
 3. The bar moves while it works. It takes a few seconds; somewhat longer with FAT32 on big cards.
 4. At the end it **verifies**: it reads back the partition table and every copied file and compares them with what it meant to write. If everything matches it says **"La tarjeta está lista y verificada"** (*the card is ready and verified*).
-5. Windows mounts the card again by itself. Each partition shows up with its own drive letter.
+5. The system mounts the card again. Each partition gets a drive letter on Windows or appears as a volume in Finder on macOS.
 
 ![Finished card](capturas/4_terminado.png)
 
-You can take the card out now. Use "Eject" in Windows first, as with any memory stick.
+You can take the card out now. Use "Eject" in Windows or Finder first, as with any memory stick.
 
 ---
 
@@ -336,7 +338,7 @@ Check it is properly inserted and press **Actualizar**. Only SD readers and remo
 Close the Explorer windows showing the card and any program with files open on it. Try again.
 
 **The program says it needs administrator rights.**
-Open it by double-clicking and answer **Yes** in the Windows prompt.
+On Windows, open it by double-clicking and answer **Yes**. On macOS, enter an administrator password when the app requests it at the start of the operation.
 
 **The MSX never reaches MSX-DOS.**
 - Does the system you chose match your machine's BIOS pack or `BOOT` file? See the table in [step 3.3](#33-the-system).
@@ -355,11 +357,11 @@ The card or the reader may be failing. Try again and, if it happens again, with 
 **Can I have more than 8 partitions?**
 No. The MSXimus menu sees 8, and Nextor only looks at the first 9 at boot. Besides, MSX-DOS only has eight drives (A: to H:); with 8 partitions they are all in use and partition 8 goes on B:.
 
-**Windows says the card is smaller than its label.**
-That is normal: manufacturers count 1 GB as 1,000 million bytes and Windows as 1,073 million.
+**The system says the card is smaller than its label.**
+That is normal: manufacturers count 1 GB as 1,000 million bytes, while the system may display units of 1,073 million.
 
 **Does it touch anything on my PC?**
-No. It only writes to the card you choose, and the Windows disk never appears in the list.
+No. It only writes to the card you choose, and the system disk never appears in the list.
 
 ---
 
@@ -371,7 +373,7 @@ No. It only writes to the card you choose, and the Windows disk never appears in
 - **Names**: it stores the 8+3 short name MSX-DOS reads and, when needed, also the long name Windows and the menu show.
 - **The partition table is written last**, once everything else is in place. Then everything is read back and every file is compared by its CRC32.
 
-The source code and the card contents are in [SD_Maker](https://github.com/Papipapito/SD_Maker); the machines' repositories carry a copy of the program in [`fuente/`](fuente/) (Python 3 with tkinter; `construir_exe.bat` builds the `.exe` with PyInstaller). To run it without the `.exe` you need the card contents in an `sd/` folder next to `MSXsdmaker.py`, with `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` and `extras/`. The `.exe` already carries them. From the command line it can also make images:
+The source code and the card contents are in [SD_Maker](https://github.com/Papipapito/SD_Maker); the machines' repositories carry a copy of the program in [`fuente/`](fuente/) (Python 3 with tkinter; `construir_exe.bat` builds the `.exe` and `construir_macos.sh` builds the `.app` with PyInstaller). To run it from source you need the card contents in an `sd/` folder next to `MSXsdmaker.py`, with `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` and `extras/`. The packaged applications already carry them. From the command line it can also make images:
 
 ```
 python MSXsdmaker.py imagen test.img --tamano 8G --esquema fat16-2g --n 3 --sistema nextor214 --programas todos
@@ -394,7 +396,7 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
 
 ### What else you need
 
-**KdL's OCM-SDBIOS Pack**, which you ask the author for. MSX SD Maker does not include it because its BIOS images hold third-party system ROMs. Leave it **as it comes** (the `.7z`, or the unpacked folder) in the `OCM-SDBIOS` folder next to `MSXsdmaker.exe`, or pick it with **Buscar el pack...**. Pack 3.8.3 has Nextor 2.1.4 and Nextor 3.0 beta 2; 3.8.1 only Nextor 2.1.4.
+**KdL's OCM-SDBIOS Pack**, which you ask the author for. MSX SD Maker does not include it because its BIOS images hold third-party system ROMs. Leave it **as it comes** (the `.7z`, or the unpacked folder) in the `OCM-SDBIOS` folder next to `MSXsdmaker.exe` or `MSXsdmaker.app`, or pick it with **Buscar el pack...**. Pack 3.8.3 has Nextor 2.1.4 and Nextor 3.0 beta 2; 3.8.1 only Nextor 2.1.4.
 
 ### Step by step
 

@@ -2,7 +2,7 @@
 de Nextor) o una FAT32, sistema (Nextor 2.1.4, Nextor 3 o MSX-DOS) y programas (SofaRun, Multi Mente...).
 
   MSXsdmaker                     abre la ventana
-  MSXsdmaker listar              tarjetas que se pueden preparar (Windows)
+  MSXsdmaker listar              tarjetas que se pueden preparar (Windows y macOS)
   MSXsdmaker version             esta version y la ultima publicada en GitHub
   MSXsdmaker imagen F.img --tamano 8G [opciones]     crea una imagen (para probar, o para grabarla con Rufus/dd)
   MSXsdmaker tarjeta N [opciones] --si               prepara el disco N de "listar" (BORRA TODO)
@@ -125,6 +125,9 @@ def _crear(dev, a):
 
 
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == "--ayudante-macos":
+        from sdmaker import ayudante_macos
+        return ayudante_macos.ejecutar(sys.argv[2])
     if len(sys.argv) == 1:
         from sdmaker import ventana
         ventana.main()
@@ -161,7 +164,11 @@ def main():
         if not a.si and input("Se BORRARA TODO el disco %d (%s, %s). Escribe SI: " % (
                 a.disco, t["modelo"], dispositivos.formato_tamano(t["bytes"]))).strip() != "SI":
             return 1
-        dev = dispositivos.DiscoWindows(a.disco)
+        if dispositivos.Disco is None:
+            sys.exit("la escritura directa de tarjetas no está disponible en este sistema")
+        if sys.platform == "darwin" and not dispositivos.es_admin():
+            sys.exit("en macOS, ejecuta esta orden con sudo o usa la ventana para obtener permisos de administrador")
+        dev = dispositivos.Disco(a.disco)
     try:
         return _crear(dev, a)
     finally:

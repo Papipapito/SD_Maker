@@ -16,6 +16,7 @@ import os
 import re
 import sys
 
+from . import carpeta_programa
 from .fatfs import Nodo
 
 SISTEMAS = {
@@ -106,7 +107,7 @@ def carpeta_sd():
     carpeta sd/ junto a MSXsdmaker.py."""
     candidatas = [os.environ.get("MSXSDMAKER_SD")]
     if getattr(sys, "frozen", False):
-        candidatas.append(os.path.join(os.path.dirname(sys.executable), "sd"))
+        candidatas.append(os.path.join(carpeta_programa(), "sd"))
     if getattr(sys, "_MEIPASS", None):
         candidatas.append(os.path.join(sys._MEIPASS, "sd"))
     candidatas.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sd"))

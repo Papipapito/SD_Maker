@@ -1,4 +1,4 @@
-# MSX SD Maker 1.4 — preparar la tarjeta SD
+# MSX SD Maker 1.5.1 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -11,7 +11,7 @@
 5. Escribe un `AUTOEXEC.BAT` que lo deja todo a mano al arrancar.
 6. Relee lo escrito para comprobar que la tarjeta ha quedado bien.
 
-No hay nada que instalar: es un solo fichero, `MSXsdmaker.exe`.
+No hay nada que instalar: en Windows es `MSXsdmaker.exe` y en macOS, `MSXsdmaker.app`.
 
 ---
 
@@ -33,25 +33,27 @@ No hay nada que instalar: es un solo fichero, `MSXsdmaker.exe`.
 
 ## 1. Qué necesitas
 
-- **Un PC con Windows 10 u 11.**
+- **Un PC con Windows 10/11 o un Mac con macOS 13 o posterior.**
 - **Un lector de tarjetas**: el del portátil o uno USB.
 - **Una tarjeta SD o microSD de 4 GB o más.** Lo más práctico es de 8 a 32 GB. Una de más de 32 GB también vale, pero con FAT16 solo se usan 8 particiones.
 - **Saber qué versión de Nextor lleva tu máquina.** Depende del pack de BIOS o del `BOOT` que grabaste. Lo verás en el [paso 3.3](#33-el-sistema).
 
-> ⚠️ **El programa borra la tarjeta entera.** Si tiene algo que quieras conservar, cópialo antes al PC.
+> ⚠️ **El programa borra la tarjeta entera.** Si tiene algo que quieras conservar, cópialo antes al ordenador.
 
 ---
 
 ## 2. Abrir el programa
 
-1. Descarga el ZIP de la [última versión de MSX SD Maker](https://github.com/Papipapito/SD_Maker/releases/latest) (`MSX_SD_Maker_<versión>.zip`), en su repositorio ([SD_Maker](https://github.com/Papipapito/SD_Maker)), y **descomprímelo** donde quieras: dentro está `MSXsdmaker.exe` con estas instrucciones y la carpeta `sd`, con todo lo que se copia a la tarjeta (sistemas y programas). Si cambias o añades un fichero en una de sus carpetas, se copia el tuyo; si la borras, el programa usa la copia que lleva dentro. En los repositorios de las máquinas también hay una copia del programa en la carpeta `MSXsdmaker`.
+1. Descarga el ZIP de la [última versión de MSX SD Maker](https://github.com/Papipapito/SD_Maker/releases/latest) para tu sistema y **descomprímelo** donde quieras. Dentro está `MSXsdmaker.exe` o `MSXsdmaker.app`, estas instrucciones y la carpeta `sd`, con todo lo que se copia a la tarjeta (sistemas y programas). Si cambias o añades un fichero en una de sus carpetas, se copia el tuyo; si la borras, el programa usa la copia que lleva dentro.
 2. Mete la tarjeta en el lector.
-3. Haz doble clic en `MSXsdmaker.exe`.
-4. Windows pregunta si permites que haga cambios en el equipo: responde **Sí**. Hace falta porque el programa escribe la tarjeta entera, tabla de particiones incluida.
+3. Abre `MSXsdmaker.exe` en Windows o `MSXsdmaker.app` en macOS.
+4. En Windows, acepta la petición de permisos. En macOS, la aplicación los pedirá únicamente al pulsar **Preparar la tarjeta**. Hacen falta porque se escribe la tarjeta entera, tabla de particiones incluida.
 
 **Versiones nuevas**: al abrirse, el programa mira en GitHub si hay una versión más nueva de MSX SD Maker; si la hay, lo dice y ofrece abrir la página de descarga. Sin internet no pasa nada.
 
 **Si Windows muestra «Windows protegió su PC»** (SmartScreen): pulsa **Más información** y después **Ejecutar de todas formas**. Sale porque el programa no está firmado digitalmente.
+
+**Si macOS impide abrir la aplicación la primera vez**: haz Control-clic sobre `MSXsdmaker.app`, elige **Abrir** y confirma. La aplicación está firmada localmente, pero no notarizada por Apple.
 
 **Si el antivirus se queja**: los programas hechos en Python y empaquetados en un solo `.exe` dan a veces falsos positivos. El código fuente está en [SD_Maker](https://github.com/Papipapito/SD_Maker) (y una copia en la carpeta `fuente/`).
 
@@ -65,11 +67,11 @@ Arriba, en **Máquina**, deja marcada la primera opción (MSXimus, MSXnano, Goa'
 
 ### 3.1 La tarjeta
 
-La lista de arriba muestra las tarjetas conectadas: letra de unidad, nombre del lector, tamaño y tipo. Si acabas de meter la tarjeta y no sale, pulsa **Actualizar**.
+La lista de arriba muestra las tarjetas conectadas: unidad, nombre del lector, tamaño y tipo. Si acabas de meter la tarjeta y no sale, pulsa **Actualizar**.
 
 Debajo se ve el tamaño exacto y cómo está la tarjeta ahora; por ejemplo «Ahora: FAT32 de 29,81 GB».
 
-> 🛡️ **Solo aparecen lectores de tarjetas SD y memorias USB extraíbles.** El disco donde está Windows no aparece nunca, y los discos duros externos tampoco. Aun así, fíjate bien en el tamaño antes de seguir.
+> 🛡️ **Solo aparecen lectores de tarjetas SD y memorias USB extraíbles.** El disco donde está Windows o macOS no aparece nunca, y los discos duros externos tampoco. Aun así, fíjate bien en el tamaño antes de seguir.
 
 ### 3.2 Las particiones
 
@@ -167,7 +169,7 @@ Siempre que haya sistema se crean también estas carpetas vacías. **No las borr
 - `TMP`: carpeta temporal de MSX-DOS y de SofaRun.
 - `SAVES` y `SETTINGS`, si marcaste SofaRun: sus partidas guardadas y su configuración.
 
-**Nombre de la tarjeta**: es el nombre de la partición 1 que verás en Windows y con `VOL` en MSX-DOS. Las demás se llaman igual con su número detrás: «MSX 2», «MSX 3»…
+**Nombre de la tarjeta**: es el nombre de la partición 1 que verás en Windows o Finder y con `VOL` en MSX-DOS. Las demás se llaman igual con su número detrás: «MSX 2», «MSX 3»…
 
 ### 3.5 Preparar
 
@@ -175,11 +177,11 @@ Siempre que haya sistema se crean también estas carpetas vacías. **No las borr
 2. El programa te enseña **qué va a borrar** (nombre, tamaño y unidades de la tarjeta) y **qué va a crear**. Léelo con calma. Solo sigue si respondes **Sí**; el botón por defecto es No.
 3. La barra avanza mientras trabaja. Tarda unos segundos; con FAT32 en tarjetas grandes, algo más.
 4. Al final, **verifica**: vuelve a leer la tabla de particiones y cada fichero copiado, y los compara con lo que quería escribir. Si todo cuadra, dice **«La tarjeta está lista y verificada»**.
-5. Windows vuelve a montar la tarjeta solo. Cada partición aparece con su propia letra de unidad.
+5. El sistema vuelve a montar la tarjeta. En Windows cada partición aparece con su letra de unidad; en macOS aparece como un volumen en Finder.
 
 ![Tarjeta terminada](capturas/4_terminado.png)
 
-Ya puedes sacar la tarjeta. Usa «Expulsar» en Windows antes de quitarla, como con cualquier memoria.
+Ya puedes sacar la tarjeta. Usa «Expulsar» en Windows o Finder antes de quitarla, como con cualquier memoria.
 
 ---
 
@@ -334,7 +336,7 @@ Comprueba que está bien metida y pulsa **Actualizar**. Solo salen lectores SD y
 Cierra las ventanas del Explorador que muestren la tarjeta y los programas que tengan ficheros suyos abiertos. Vuelve a intentarlo.
 
 **El programa dice que hacen falta permisos de administrador.**
-Ábrelo con doble clic y responde **Sí** en la ventana de Windows.
+En Windows, ábrelo con doble clic y responde **Sí**. En macOS, introduce la contraseña de un administrador cuando la aplicación la solicite al comenzar la preparación.
 
 **El MSX no llega a MSX-DOS.**
 - ¿El sistema que elegiste coincide con el pack de BIOS o el `BOOT` de tu máquina? Mira la tabla del [paso 3.3](#33-el-sistema).
@@ -353,11 +355,11 @@ La tarjeta o el lector pueden estar fallando. Prueba otra vez y, si se repite, c
 **¿Puedo tener más de 8 particiones?**
 No. El menú del MSXimus ve 8, y Nextor solo busca en las 9 primeras al arrancar. Además, MSX-DOS solo tiene ocho unidades (de la A: a la H:); con 8 particiones están todas ocupadas y la 8 va en B:.
 
-**Windows dice que la tarjeta es más pequeña de lo que pone en la etiqueta.**
-Es normal: los fabricantes cuentan 1 GB como 1.000 millones de bytes y Windows como 1.073 millones.
+**El sistema dice que la tarjeta es más pequeña de lo que pone en la etiqueta.**
+Es normal: los fabricantes cuentan 1 GB como 1.000 millones de bytes y el sistema puede mostrarlo en unidades de 1.073 millones.
 
 **¿Toca algo de mi PC?**
-No. Solo escribe en la tarjeta que elijas, y el disco de Windows nunca aparece en la lista.
+No. Solo escribe en la tarjeta que elijas, y el disco del sistema nunca aparece en la lista.
 
 ---
 
@@ -369,7 +371,7 @@ No. Solo escribe en la tarjeta que elijas, y el disco de Windows nunca aparece e
 - **Nombres**: guarda el nombre corto de 8+3 que lee MSX-DOS y, si hace falta, también el nombre largo que ven Windows y el menú.
 - **La tabla de particiones se escribe al final**, cuando todo lo demás ya está en su sitio. Luego se relee y se compara cada fichero con su CRC32.
 
-El código fuente y el contenido de la tarjeta están en [SD_Maker](https://github.com/Papipapito/SD_Maker); en los repositorios de las máquinas hay una copia del programa en [`fuente/`](fuente/) (Python 3 con tkinter; `construir_exe.bat` hace el `.exe` con PyInstaller). Para usarlo sin el `.exe` hace falta el contenido de la tarjeta en una carpeta `sd/` junto a `MSXsdmaker.py`, con `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/`. El `.exe` ya lo lleva dentro. Desde la línea de órdenes también se pueden hacer imágenes:
+El código fuente y el contenido de la tarjeta están en [SD_Maker](https://github.com/Papipapito/SD_Maker); en los repositorios de las máquinas hay una copia del programa en [`fuente/`](fuente/) (Python 3 con tkinter; `construir_exe.bat` hace el `.exe` y `construir_macos.sh` hace la `.app` con PyInstaller). Para usarlo desde el código fuente hace falta el contenido de la tarjeta en una carpeta `sd/` junto a `MSXsdmaker.py`, con `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/`. Las aplicaciones empaquetadas ya lo llevan dentro. Desde la línea de órdenes también se pueden hacer imágenes:
 
 ```
 python MSXsdmaker.py imagen prueba.img --tamano 8G --esquema fat16-2g --n 3 --sistema nextor214 --programas todos
@@ -395,7 +397,7 @@ Estas máquinas llevan el firmware **OCM-PLD** de KdL y cargan la BIOS desde la 
 
 ### Qué necesitas además
 
-**El OCM-SDBIOS Pack de KdL**, que se le pide al autor. MSX SD Maker no lo trae porque sus BIOS llevan ROMs de sistema con derechos de terceros. Déjalo **tal cual** (el `.7z`, o la carpeta descomprimida) en la carpeta `OCM-SDBIOS` que hay junto a `MSXsdmaker.exe`, o elígelo con **Buscar el pack...**. Con el pack 3.8.3 hay Nextor 2.1.4 y Nextor 3.0 beta 2; con el 3.8.1, solo Nextor 2.1.4.
+**El OCM-SDBIOS Pack de KdL**, que se le pide al autor. MSX SD Maker no lo trae porque sus BIOS llevan ROMs de sistema con derechos de terceros. Déjalo **tal cual** (el `.7z`, o la carpeta descomprimida) en la carpeta `OCM-SDBIOS` situada junto a `MSXsdmaker.exe` o `MSXsdmaker.app`, o elígelo con **Buscar el pack...**. Con el pack 3.8.3 hay Nextor 2.1.4 y Nextor 3.0 beta 2; con el 3.8.1, solo Nextor 2.1.4.
 
 ### Paso a paso
 

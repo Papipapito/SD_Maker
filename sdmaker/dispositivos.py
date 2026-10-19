@@ -1,11 +1,16 @@
-"""dispositivos.py — donde se escribe: una imagen (pruebas, o para grabarla despues con Rufus/dd) o una tarjeta
-en Windows por acceso directo al disco (\\\\.\\PhysicalDriveN).
+"""Dispositivos de salida: imágenes y tarjetas físicas de Windows o macOS.
 
-Seguridad (Windows): solo se listan discos de lectores SD/MMC y USB de medio extraible, NUNCA el disco donde esta
-Windows. Antes de escribir se bloquean y desmontan todos los volumenes de esa tarjeta; al acabar se pide a Windows que
-relea la tabla de particiones (IOCTL_DISK_UPDATE_PROPERTIES) y monta las unidades nuevas solo."""
+En Windows se usa ``\\\\.\\PhysicalDriveN``. En macOS se enumeran medios físicos externos con ``diskutil`` y se
+escribe el dispositivo de caracteres ``/dev/rdiskN`` después de desmontarlo. En los dos sistemas se excluye el disco
+del sistema, se aceptan por defecto sólo lectores SD/MMC y memorias USB extraíbles y se vuelve a validar el dispositivo
+justo antes de abrirlo: esta es la barrera de seguridad de la operación que borra la tarjeta entera.
+"""
 import os
+import plistlib
+import re
+import stat
 import struct
+import subprocess
 import sys
 import time
 
@@ -257,6 +262,236 @@ if sys.platform == "win32":
                 pass
             k32.CloseHandle(self.h)
             self._soltar()
+
+    Disco = DiscoWindows
+
+elif sys.platform == "darwin":
+    DISKUTIL = "/usr/sbin/diskutil"
+
+    def _diskutil_plist(*args):
+        p = subprocess.run([DISKUTIL, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        if p.returncode:
+            detalle = p.stderr.decode("utf-8", "replace").strip() or p.stdout.decode("utf-8", "replace").strip()
+            raise OSError("diskutil %s: %s" % (" ".join(args), detalle or "error %d" % p.returncode))
+        try:
+            return plistlib.loads(p.stdout)
+        except Exception as e:
+            raise OSError("diskutil %s no devolvio una lista valida: %s" % (" ".join(args), e))
+
+    def _diskutil(*args):
+        p = subprocess.run([DISKUTIL, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+        texto = (p.stderr or p.stdout).strip()
+        if p.returncode:
+            raise OSError("diskutil %s: %s" % (" ".join(args), texto or "error %d" % p.returncode))
+        return (p.stdout or "").strip()
+
+    def _identificadores(nodo):
+        """Identificadores BSD mencionados en un plist (disk3s1 -> disk3)."""
+        out = set()
+        if isinstance(nodo, dict):
+            for v in nodo.values():
+                out.update(_identificadores(v))
+        elif isinstance(nodo, (list, tuple)):
+            for v in nodo:
+                out.update(_identificadores(v))
+        elif isinstance(nodo, str):
+            m = re.fullmatch(r"(?:/dev/)?(disk\d+)(?:s\d+)*", nodo)
+            if m:
+                out.add(m.group(1))
+        return out
+
+    def _discos_sistema():
+        """Todos los discos, incluidos Physical Stores de APFS, de los que depende el volumen raíz."""
+        return _identificadores(_diskutil_plist("info", "-plist", "/"))
+
+    def disco_del_sistema():
+        discos = sorted(_discos_sistema(), key=lambda x: int(x[4:]))
+        return int(discos[0][4:]) if discos else None
+
+    def _particiones(entrada):
+        out = []
+
+        def recorrer(nodo):
+            if isinstance(nodo, dict):
+                ident = nodo.get("DeviceIdentifier")
+                if ident and re.fullmatch(r"disk\d+s\d+(?:s\d+)?", ident):
+                    out.append({"identificador": ident, "bytes": int(nodo.get("Size") or 0),
+                                "tipo": nodo.get("Content") or nodo.get("FilesystemType") or "desconocido",
+                                "nombre": nodo.get("VolumeName") or "", "montaje": nodo.get("MountPoint") or ""})
+                for v in nodo.values():
+                    recorrer(v)
+            elif isinstance(nodo, list):
+                for v in nodo:
+                    recorrer(v)
+
+        recorrer(entrada.get("Partitions", []))
+        # Un volumen APFS puede aparecer varias veces en el árbol del plist.
+        unicas = {}
+        for p in out:
+            unicas[p["identificador"]] = p
+        return [unicas[k] for k in sorted(unicas)]
+
+    def _entrada_por_disco(lista, identificador):
+        for entrada in lista.get("AllDisksAndPartitions", []):
+            if entrada.get("DeviceIdentifier") == identificador:
+                return entrada
+        return {}
+
+    def _tarjeta_desde_info(identificador, info, entrada, incluir_usb_fijos=False):
+        if not re.fullmatch(r"disk\d+", identificador) or not info.get("WholeDisk"):
+            return None
+        if info.get("Internal") or info.get("OSInternalMedia"):
+            return None
+        if not info.get("WritableMedia", info.get("Writable", False)):
+            return None
+        if int(info.get("DeviceBlockSize") or 0) != SECTOR:
+            return None
+        bus = str(info.get("BusProtocol") or "externo")
+        extraible = bool(info.get("RemovableMedia") or info.get("Removable") or info.get("Ejectable"))
+        if not extraible and not (incluir_usb_fijos and bus.upper() == "USB"):
+            return None
+        nbytes = int(info.get("TotalSize") or info.get("Size") or 0)
+        if nbytes <= 0 or nbytes % SECTOR:
+            return None
+        partes = _particiones(entrada)
+        montajes = [p["montaje"] or p["nombre"] for p in partes if p["montaje"] or p["nombre"]]
+        modelo = (info.get("MediaName") or info.get("IORegistryEntryName") or "sin nombre").strip()
+        identidad = "|".join(str(info.get(k) or "") for k in
+                              ("DeviceTreePath", "IORegistryEntryName", "MediaUUID", "DiskUUID"))
+        return {"numero": int(identificador[4:]), "identificador": identificador, "sectores": nbytes // SECTOR,
+                "bytes": nbytes, "modelo": modelo, "bus": bus, "extraible": extraible, "letras": montajes,
+                "particiones": partes, "identidad": identidad}
+
+    def listar_tarjetas(incluir_usb_fijos=False):
+        """Tarjetas físicas externas y extraíbles; nunca un disco del que dependa el volumen raíz."""
+        lista = _diskutil_plist("list", "-plist", "external", "physical")
+        sistema = _discos_sistema()
+        out = []
+        for identificador in lista.get("WholeDisks", []):
+            if identificador in sistema:
+                continue
+            info = _diskutil_plist("info", "-plist", "/dev/" + identificador)
+            t = _tarjeta_desde_info(identificador, info, _entrada_por_disco(lista, identificador),
+                                    incluir_usb_fijos)
+            if t is not None:
+                out.append(t)
+        return out
+
+    def es_admin():
+        return os.geteuid() == 0
+
+    def _misma_tarjeta(actual, esperada):
+        if not esperada:
+            return True
+        if actual["bytes"] != int(esperada.get("bytes") or 0):
+            return False
+        identidad = esperada.get("identidad")
+        if identidad and actual.get("identidad") != identidad:
+            return False
+        modelo = esperada.get("modelo")
+        return not modelo or actual.get("modelo") == modelo
+
+    def _buscar_tarjeta(numero):
+        for t in listar_tarjetas():
+            if t["numero"] == numero:
+                return t
+        return None
+
+    class DiscoLectura:
+        """Lectura directa para la línea de órdenes cuando ya se ejecuta como root."""
+
+        def __init__(self, numero):
+            self.f = os.open("/dev/rdisk%d" % numero, os.O_RDONLY)
+
+        def leer(self, lba, n=1):
+            return os.pread(self.f, n * SECTOR, lba * SECTOR)
+
+        def cerrar(self):
+            os.close(self.f)
+
+    class DiscoMacOS:
+        """Tarjeta completa: valida, desmonta, escribe por rdisk y vuelve a montar al cerrar."""
+
+        def __init__(self, numero, esperada=None):
+            self.numero = int(numero)
+            self.identificador = "disk%d" % self.numero
+            self.nombre = "/dev/" + self.identificador
+            self.f = None
+            self.aviso_cierre = None
+            if self.identificador in _discos_sistema():
+                raise PermissionError("ese disco contiene el sistema de macOS")
+            actual = _buscar_tarjeta(self.numero)
+            if actual is None:
+                raise PermissionError("%s ya no es una tarjeta externa y extraible valida" % self.nombre)
+            if not _misma_tarjeta(actual, esperada):
+                raise PermissionError("la tarjeta de %s ha cambiado desde que se eligio; pulsa Actualizar" % self.nombre)
+            _diskutil("unmountDisk", self.nombre)
+            try:
+                # Entre la confirmación y este punto la tarjeta puede haberse extraído o sustituido.
+                actual = _buscar_tarjeta(self.numero)
+                if actual is None or not _misma_tarjeta(actual, esperada or actual):
+                    raise PermissionError("la tarjeta de %s ha cambiado durante el desmontaje" % self.nombre)
+                ruta = "/dev/r" + self.identificador
+                modo = os.stat(ruta).st_mode
+                if not stat.S_ISCHR(modo):
+                    raise PermissionError("%s no es un dispositivo de caracteres" % ruta)
+                self.f = os.open(ruta, os.O_RDWR)
+                self.sectores = actual["sectores"]
+            except Exception:
+                try:
+                    _diskutil("mountDisk", self.nombre)
+                except OSError:
+                    pass
+                raise
+
+        def escribir(self, lba, datos):
+            assert len(datos) % SECTOR == 0, "escritura no alineada"
+            if lba < 0 or lba + len(datos) // SECTOR > self.sectores:
+                raise OSError("escritura fuera de la tarjeta en el sector %d" % lba)
+            vista = memoryview(datos)
+            posicion = lba * SECTOR
+            while vista:
+                n = os.pwrite(self.f, vista, posicion)
+                if n <= 0:
+                    raise OSError("error de escritura en el sector %d" % lba)
+                vista = vista[n:]
+                posicion += n
+
+        def leer(self, lba, n=1):
+            if lba < 0 or n < 0 or lba + n > self.sectores:
+                raise OSError("lectura fuera de la tarjeta en el sector %d" % lba)
+            faltan = n * SECTOR
+            posicion = lba * SECTOR
+            partes = []
+            while faltan:
+                datos = os.pread(self.f, faltan, posicion)
+                if not datos:
+                    raise OSError("lectura incompleta en el sector %d" % lba)
+                partes.append(datos)
+                faltan -= len(datos)
+                posicion += len(datos)
+            return b"".join(partes)
+
+        def cerrar(self):
+            error = None
+            if self.f is not None:
+                try:
+                    os.fsync(self.f)
+                except OSError as e:
+                    error = e
+                finally:
+                    os.close(self.f)
+                    self.f = None
+            try:
+                _diskutil("mountDisk", self.nombre)
+            except OSError as e:
+                self.aviso_cierre = ("La tarjeta esta preparada, pero macOS no ha podido montar sus particiones: %s. "
+                                      "Extraela y vuelve a insertarla." % e)
+            if error:
+                raise error
+
+    Disco = DiscoMacOS
+
 else:
     def listar_tarjetas(incluir_usb_fijos=False):
         return []
@@ -266,6 +501,8 @@ else:
 
     def disco_del_sistema():
         return None
+
+    Disco = None
 
 
 def formato_tamano(nbytes):

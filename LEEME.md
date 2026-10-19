@@ -6,9 +6,9 @@
 
 ## Uso
 
-Se reparte en un ZIP (`MSX_SD_Maker_<versión>.zip`, en las [releases](https://github.com/Papipapito/SD_Maker/releases/latest)): descomprimir y ejecutar `MSXsdmaker.exe`. Pide permisos de administrador (hacen falta para escribir la tarjeta entera).
+Se reparte en un ZIP para Windows y otro para macOS, en las [releases](https://github.com/Papipapito/SD_Maker/releases/latest): descomprimir y ejecutar `MSXsdmaker.exe` o abrir `MSXsdmaker.app`. Pide permisos de administrador sólo al empezar a escribir la tarjeta entera.
 
-1. **Tarjeta**: solo aparecen lectores SD/MMC y memorias USB extraíbles, nunca el disco de Windows. Se ve el tamaño y las particiones que tiene ahora.
+1. **Tarjeta**: solo aparecen lectores SD/MMC y memorias USB extraíbles, nunca el disco del sistema. Se ve el tamaño y las particiones que tiene ahora.
 2. **Particiones**:
    - FAT16 de 2 GB o de 4 GB, tantas como quepan (hasta 8, las que ve el menú del MSXimus). Opcionalmente, una última con lo que sobre.
    - O una FAT32 con toda la tarjeta. Nextor 2.1.4 y 3.0 no leen FAT32: sirve para el menú del MSXimus (ROM y DSK) y la MSX Pico, no para arrancar MSX-DOS.
@@ -38,7 +38,7 @@ Igual que el `FDISK` de Nextor (`kernel/bank5/fdisk2.c`): partición 1 primaria,
 
 ## Contenido
 
-Sale de `sd/` y va dentro del `.exe`: `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/` (SOFARUN, hub, mapper, IA e indev de la SD de la MSX Pico, y FPGA con MXUPDATE.COM y MTVOL.COM); [`sd/LEEME.md`](sd/LEEME.md) explica cada carpeta. Para cambiar lo que se copia, se cambian esas carpetas y se vuelve a construir.
+Sale de `sd/` y va dentro de la aplicación empaquetada: `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/` (SOFARUN, hub, mapper, IA e indev de la SD de la MSX Pico, y FPGA con MXUPDATE.COM y MTVOL.COM); [`sd/LEEME.md`](sd/LEEME.md) explica cada carpeta. Para cambiar lo que se copia, se cambian esas carpetas y se vuelve a construir.
 
 Casi todo lo de `sd/` es de terceros (Nextor, MSX-DOS, SofaRun, Multi Mente, las herramientas UNAPI...) y va bajo la responsabilidad del autor de este proyecto: autores y licencias en [`paquete/LICENCIAS.md`](paquete/LICENCIAS.md), con la licencia de Nextor. El programa es GPL v3 ([`LICENSE`](LICENSE)).
 
@@ -48,7 +48,7 @@ Casi todo lo de `sd/` es de terceros (Nextor, MSX-DOS, SofaRun, Multi Mente, las
 construir_exe.bat
 ```
 
-Hace `dist\MSXsdmaker.exe` con PyInstaller. `python hacer_zip.py` hace el ZIP de la release (`dist\MSX_SD_Maker_<versión>.zip`: el `.exe`, la carpeta `sd/` (los ficheros de `sd/` que están en git; el programa usa la que tiene al lado y, si falta, la copia que lleva dentro), LEEME, README y LICENCIAS, con las imágenes enlazadas a GitHub, y `OCM-SDBIOS/` con su LEEME).
+En Windows, `construir_exe.bat` hace `dist\MSXsdmaker.exe`. En macOS, `construir_macos.sh` hace `dist/MSXsdmaker.app` y su ZIP. Los dos llevan una copia interna de `sd/` y el paquete añade también la carpeta externa para poder personalizar su contenido.
 
 Línea de órdenes (con Python), útil para probar con imágenes:
 
@@ -82,15 +82,10 @@ python publicar_paquete.py ../MSXimus_zynq ../MSXimus
 
 Copia a la carpeta `MSXsdmaker/` de cada repo el `.exe` (antes, `construir_exe.bat`), las instrucciones, `LICENCIAS.md` y las capturas de `paquete/`, y el código en `fuente/`. No hace commit.
 
-## Próxima versión: Linux y macOS
+## Seguridad en macOS
 
-Hoy MSX SD Maker es un programa de Windows. Solo la parte que habla con el lector de tarjetas depende de Windows (listar
-las tarjetas, escribir el disco entero y pedir permisos de administrador, en `sdmaker/dispositivos.py`); particionar,
-formatear, copiar, el `AUTOEXEC.BAT` y las imágenes ya funcionan en Linux (las pruebas corren ahí). El plan:
-
-1. **La ventana y «Guardar como imagen» en Linux y macOS**, y la imagen se graba luego con balenaEtcher o `dd`. Un ZIP por
-   sistema (`windows`, `linux`, `macos`), hecho por GitHub Actions en cada release: descomprimir y ejecutar.
-2. **Escribir la tarjeta directamente**: en Linux, los lectores SD y USB de `lsblk`, desmontarlos y escribir `/dev/sdX`
-   con `sudo`; en macOS, `diskutil` para los discos externos, `unmountDisk` y `/dev/rdiskN` con permisos de
-   administrador. Borra discos enteros, así que solo sale después de probarlo con tarjetas reales en cada sistema (Linux
-   con un lector de verdad, no desde WSL; macOS en el Mac de Albert).
+La aplicación enumera con `diskutil` sólo medios físicos, externos y extraíbles de 512 bytes por sector. Excluye de
+forma explícita todos los discos físicos de los que depende el volumen raíz de macOS, y vuelve a comprobar identidad y
+tamaño justo antes de borrar. Desmonta la tarjeta, pide autorización de administrador para la operación y escribe por
+`/dev/rdiskN`; la ventana nunca se ejecuta como root. La ruta de Windows no cambia. En Linux se pueden crear imágenes,
+pero todavía no escribir la tarjeta directamente.
