@@ -40,11 +40,13 @@ jobs:
       - name: Instalar Python con Tk
         run: brew install python@3.13 python-tk@3.13
       - name: Instalar dependencias
-        run: "$(brew --prefix python@3.13)/bin/python3.13 -m pip install --upgrade pip pyinstaller py7zr"
+        run: |
+          "$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv-macos
+          .venv-macos/bin/python -m pip install --upgrade pip pyinstaller py7zr
       - name: Probar
-        run: "$(brew --prefix python@3.13)/bin/python3.13 -m unittest -v pruebas.probar_macos"
+        run: .venv-macos/bin/python -m unittest -v pruebas.probar_macos
       - name: Construir aplicación y ZIP
-        run: PYTHON_BIN="$(brew --prefix python@3.13)/bin/python3.13" ./construir_macos.sh
+        run: PYTHON_BIN="$PWD/.venv-macos/bin/python" ./construir_macos.sh
       - uses: actions/upload-artifact@v4
         with:
           name: MSX-SD-Maker-macOS-arm64
