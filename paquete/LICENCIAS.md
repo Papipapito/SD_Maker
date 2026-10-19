@@ -27,6 +27,7 @@
 | `musica\mbwave\` (MoonBlaster for MoonSound Wave 1.17) and `musica\mbfm\` (MoonBlaster for MoonSound FM 1.03A) | Remco Schrijvers (Moonsoft); Wave 1.17 with Marcel Delorme | Distributed free of charge; no licence text ships with them |
 | `musica\roboplay\` (RoboPlay 2.1: `ROBOPLAY.COM`, the `.PLY` players, `WAVES.DAT`, `YRW801.DAT`, `STANDARD.BNK`), from https://gitlab.com/torihino/roboplay | ToriHino (RoboSoft Inc.) | Simplified BSD, below |
 | `musica\MUSPLAY.COM` | Albert (Papipapito), MSX SD Maker; fuente / source: `fuente/fuentes/musplay/musplay.asm` | GPL v3 |
+| `UTIL\Z80BENCH.COM` (1.5.1), from https://github.com/nataliapc/msx_z80bench | Natalia Pujol Cremades (NataliaPC), with contributions by Marcellus Pereira and Pax-nl | MIT, below |
 | `UTIL\`, `musica\`, `mapper\`, `indev.com` | Various authors of the MSX scene | Freeware |
 | `IA\` | Albert (Papipapito) | GPL v3 |
 | `FPGA\MXUPDATE.COM` | Albert (Papipapito), proyecto MSXimus | GPL v3 |
@@ -41,6 +42,32 @@ MSX-DOS 1 (`MSXDOS.SYS`, `COMMAND.COM`) is not part of the Nextor source code an
 `MSXsdmaker.exe` **no** lleva el OCM-SDBIOS Pack de KdL: lo pone el usuario en la carpeta `OCM-SDBIOS` (se le pide al autor). Las BIOS, el sistema, `HELP` y `UTILS` de esas tarjetas salen de ese pack, como hacen sus `make-sdb.cmd` y `sdcreate.cmd`; sus ROMs y programas son de sus autores (KdL y los que cita el pack) y están bajo las condiciones del pack: uso personal, no comercial.
 
 `MSXsdmaker.exe` does **not** include KdL's OCM-SDBIOS Pack: the user puts it in the `OCM-SDBIOS` folder (ask the author for it). The BIOS images, the system, `HELP` and `UTILS` on those cards come from that pack, the way its `make-sdb.cmd` and `sdcreate.cmd` do it; its ROMs and programs belong to their authors (KdL and those credited in the pack) and are under the pack's terms: personal, non-commercial use.
+
+## Licencia de Z80BENCH / Z80BENCH license
+
+```
+MIT License
+
+Copyright (c) 2024 Natalia Pujol Cremades (NataliaPC)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ## Licencia de Nextor / Nextor license
 

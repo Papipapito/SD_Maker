@@ -19,6 +19,8 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**Z80BENCH 1.5.1** (SD Maker 1.5.2): incluye las pruebas de velocidad de memoria con F5 y soporte para Z380.
+
 **Música y Multi Mente** (1.5): MoonBlaster FM, RoboPlay y MUSPLAY en `musica\`, y VGMPlay 1.4 delante del de SofaRun en el PATH. En Multi Mente, RETURN abre cada fichero con su programa (`MM\MMRET.DAT`, del que el programa quita al hacer la tarjeta las líneas cuyo programa no va) y la lista y File info enseñan los nombres largos (`MM.COM` parcheado, en `parches/mm-nombres-largos/`).
 
 **MSXBOOK, OneChipBook y 1chipMSX** (1.4): con el OCM-SDBIOS Pack de KdL, que el usuario deja tal cual (el `.7z`) en la

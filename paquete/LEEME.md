@@ -1,4 +1,4 @@
-# MSX SD Maker 1.5.1 — preparar la tarjeta SD
+# MSX SD Maker 1.5.2 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -12,6 +12,8 @@
 6. Relee lo escrito para comprobar que la tarjeta ha quedado bien.
 
 No hay nada que instalar: en Windows es `MSXsdmaker.exe` y en macOS, `MSXsdmaker.app`.
+
+La versión 1.5.2 incluye Z80BENCH 1.5.1, con pruebas de velocidad de memoria mediante F5 y soporte para Z380.
 
 ---
 

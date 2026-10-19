@@ -8,6 +8,7 @@
 - copies the system: Nextor 2.1.4, Nextor 3.0 beta 2 or MSX-DOS;
 - copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music (the MoonBlaster Wave and MoonBlaster FM editors for the OPL4, RoboPlay and the MWM and VGM players)…, and the FPGA tools (`MXUPDATE`, which updates the MSXimus and MSXnano core from MSX-DOS, and `MTVOL`, which sets the OPL4 FM and Wave volume), and writes the `AUTOEXEC.BAT`;
 - reads everything back and checks it by CRC. It can also write a card image instead of a card;
+- (1.5.2) includes Z80BENCH 1.5.1, with memory-speed tests and Z380 support;
 - (1.5) sets up Multi Mente so that RETURN opens each file with its program (VGM/VGZ with VGMPlay 1.4; MFM, MWM, MID and the AdLib formats with RoboPlay; ROM, DSK and ZIP with SofaRun…) and shows long file names (patched `MM.COM`, in `parches/mm-nombres-largos/`);
 - for the MSXBOOK, OneChipBook and 1chipMSX it builds the `OCM-BIOS.DAT` BIOS images from KdL's OCM-SDBIOS Pack, with
   the same options as his `make-sdb.cmd`. The pack is not included (its BIOS images hold third-party system ROMs): the

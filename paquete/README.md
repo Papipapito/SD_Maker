@@ -1,4 +1,4 @@
-# MSX SD Maker 1.5.1 — preparing the SD card
+# MSX SD Maker 1.5.2 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -12,6 +12,8 @@
 6. Reads everything back to check that the card came out right.
 
 Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
+
+Version 1.5.2 includes Z80BENCH 1.5.1, with memory-speed tests selected with F5 and Z380 support.
 
 ---
 

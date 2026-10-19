@@ -25,6 +25,9 @@ sd/
 **Más fácil: MSX SD Maker** (este repositorio) particiona, formatea y copia todo esto a una tarjeta, con el
 `AUTOEXEC.BAT` hecho según lo que se elija. Ver [`../LEEME.md`](../LEEME.md).
 
+`base/UTIL/Z80BENCH.COM` es Z80 Frequency Benchmark 1.5.1 de NataliaPC: añade pruebas de velocidad de memoria con F5
+y soporte para Z380. Procede de https://github.com/nataliapc/msx_z80bench y se distribuye bajo licencia MIT.
+
 ## 🚨 FHUNT y TMP tienen que existir aunque estén vacías
 
 El menú **ya no puede crear carpetas**: se le quitó esa capacidad el 01/09/2026
