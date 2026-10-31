@@ -31,6 +31,7 @@ jobs:
           name: MSX-SD-Maker-Windows-x64
           path: dist/MSX_SD_Maker_*.zip
           if-no-files-found: error
+          retention-days: 3
 
   macos:
     name: macOS Apple Silicon
@@ -52,6 +53,7 @@ jobs:
           name: MSX-SD-Maker-macOS-arm64
           path: dist/MSX_SD_Maker_*_macOS_arm64.zip
           if-no-files-found: error
+          retention-days: 3
 
   release:
     name: Publicar release
