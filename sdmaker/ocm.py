@@ -38,6 +38,8 @@ CARPETA = "OCM-SDBIOS"          # junto al programa: ahi se deja el pack de KdL
 #   wifi     BIOS del ESP8266 en la Option-ROM (MSX2+ y turboR)
 #   logo_tr  logo del turboR en la Option-ROM (solo turboR)
 #   extra    3 BASIC'n turbo 2.1, 2 BASIC'n plus 2.0, 1 ninguna
+#   modulos  ROMs de 16 KB que sustituyen los bloques extra, music u option. Cada valor es
+#            {"origen": "pack", "nombre": "UTIL.ROM"} o {"origen": "archivo", "ruta": "/.../UTIL.ROM"}.
 # Los bloques (firmware 2 y 3, y MSX1/MSX2): DISK 128K + MAIN 32K + EXTRA 16K + MUSIC 16K + SUB 16K + KANJI 32K +
 # OPTION 16K + JIS1 128K + JIS2 128K. Firmware 1: DISK 64K + MAIN + SUB + MUSIC + JIS1 + FREE + KANJI + FREE*2 + EXTRA
 # + FREE*2 + 128K de FF.
@@ -64,8 +66,10 @@ LOGOS = [("2", "MSX++ (el oficial)", "KNMSXPPL.ROM"), ("1", "MSX2+", "KNMFIXV2.R
          ("C", "u2-SX (Denjhang)", "KNU2SXV3.ROM"), ("propio", "propio (KNCUSTOM.ROM del ++Logo Toolkit)", "KNCUSTOM.ROM")]
 TAMANOS = {"disk": 128 * K, "main": 32 * K, "extra": 16 * K, "music": 16 * K, "sub": 16 * K, "kanji": 32 * K,
            "option": 16 * K, "jis1": 128 * K, "jis2": 128 * K}
+MODULOS = [("extra", "Extra-ROM", "slot 3-3"), ("music", "Music-ROM / MSX-MUSIC", "slot 0-2"),
+           ("option", "Option-ROM", "slot 0-3")]
 DEFECTO = {"tipo": "msx2p", "disco": "nextor214", "teclado": "bsl", "logo": "2", "wifi": True, "logo_tr": True,
-           "extra": "3"}
+           "extra": "3", "modulos": {}}
 FLASHEO = ("PLDFLASH.COM", "SMXFLASH.COM")      # flashean el FPGA: solo si se piden (grupo "flash")
 NOMBRES = ["OCM-BIOS.DAT"] + ["ALT-BIOS.DA%d" % i for i in range(10)]
 
@@ -74,12 +78,15 @@ def que_se_puede(tipo):
     """Que opciones tienen sentido en ese tipo (para la ventana y para normalizar)."""
     return {"discos": ["megasd1", "megasd2"] if tipo == "msx2p33" else [] if tipo == "vacia" else list(DISCOS),
             "teclados": list(MAIN.get(tipo, {})), "logo": tipo in ("msx2p", "msx2p33"),
-            "wifi": tipo in ("msx2p", "turbor"), "logo_tr": tipo == "turbor", "extra": tipo != "vacia"}
+            "wifi": tipo in ("msx2p", "turbor"), "logo_tr": tipo == "turbor", "extra": tipo != "vacia",
+            "modulos": (["extra", "music"] if tipo == "msx2p33" else [] if tipo == "vacia" else
+                        ["extra", "music", "option"])}
 
 
 def receta(r=None, **cambios):
     """Una receta completa y valida (lo que no tenga sentido en su tipo queda en su valor por defecto)."""
     o = dict(DEFECTO)
+    o["modulos"] = {}
     o.update(r or {})
     o.update(cambios)
     if o["tipo"] not in NOMBRE_TIPO:
@@ -94,6 +101,31 @@ def receta(r=None, **cambios):
         raise ValueError("logo: 0-9 o A-E (los de make-sdb.cmd), o propio (solo MSX2+)")
     if o["extra"] not in {c for c, _, _ in EXTRAS}:
         raise ValueError("extra: 1, 2 o 3")
+    modulos = o.get("modulos") or {}
+    if not isinstance(modulos, dict):
+        raise ValueError("los módulos ROM no tienen un formato válido")
+    normalizados = {}
+    for bloque, especificacion in modulos.items():
+        if bloque not in {x[0] for x in MODULOS}:
+            raise ValueError("módulo ROM desconocido: %s" % bloque)
+        if bloque not in q["modulos"]:
+            continue
+        if not isinstance(especificacion, dict):
+            raise ValueError("el módulo %s no tiene un formato válido" % bloque)
+        origen = especificacion.get("origen")
+        if origen == "pack":
+            nombre = os.path.basename(str(especificacion.get("nombre", "")))
+            if not nombre or not nombre.lower().endswith(".rom"):
+                raise ValueError("elige una ROM válida del pack para %s" % bloque)
+            normalizados[bloque] = {"origen": "pack", "nombre": nombre}
+        elif origen == "archivo":
+            ruta = os.path.abspath(os.path.expanduser(str(especificacion.get("ruta", ""))))
+            if not ruta.lower().endswith(".rom"):
+                raise ValueError("elige un archivo .ROM válido para %s" % bloque)
+            normalizados[bloque] = {"origen": "archivo", "ruta": ruta}
+        else:
+            raise ValueError("origen desconocido para el módulo %s" % bloque)
+    o["modulos"] = normalizados
     o["wifi"], o["logo_tr"] = bool(o["wifi"]), bool(o["logo_tr"])
     return o
 
@@ -188,6 +220,11 @@ class Pack:
         if tam is not None and len(d) != tam:
             raise ValueError("make/roms/%s mide %d bytes y deberían ser %d" % (nombre.lower(), len(d), tam))
         return d
+
+    def roms_de_tamano(self, tam=16 * K):
+        """Nombres de las ROM del pack que caben exactamente en un bloque intercambiable."""
+        return [nombre for nombre, datos, _ in self.carpeta("make/roms")
+                if nombre.lower().endswith(".rom") and len(datos) == tam]
 
     def carpeta(self, ruta):
         """[(nombre, datos, mtime)] de los ficheros que hay directamente en ruta (p.ej. "make/sdcreate/utils")."""
@@ -347,6 +384,26 @@ def buscar():
 
 
 # ------------------------------------------------------------------ la BIOS
+def _modulo(pack, r, bloque, predeterminado):
+    """Lee un módulo personalizado o el predeterminado, siempre del tamaño exacto de su bloque."""
+    especificacion = r["modulos"].get(bloque)
+    tam = TAMANOS[bloque]
+    if not especificacion:
+        return pack.rom(predeterminado, tam)
+    if especificacion["origen"] == "pack":
+        return pack.rom(especificacion["nombre"], tam)
+    ruta = especificacion["ruta"]
+    try:
+        with open(ruta, "rb") as f:
+            datos = f.read()
+    except OSError as e:
+        raise ValueError("no se puede leer el módulo %s: %s" % (os.path.basename(ruta), e)) from e
+    if len(datos) != tam:
+        raise ValueError("%s mide %d bytes y el bloque %s necesita exactamente %d bytes (16 KB)" %
+                         (os.path.basename(ruta), len(datos), bloque, tam))
+    return datos
+
+
 def construir_dat(pack, r):
     """OCM-BIOS.DAT de 512 KB a partir de una receta, como lo montan make-sdb.cmd (MSX2+, turboR, OCM-PLD 3.0-3.3.3 y
     vacia) y update-all.cmd (MSX1 y MSX2)."""
@@ -367,11 +424,11 @@ def construir_dat(pack, r):
     elif len(disco) != t["disk"]:
         raise ValueError("la ROM de Nextor deberia medir 128 KB")
     main = pack.rom(MAIN[tipo][r["teclado"]], t["main"])
-    extra = pack.rom({c: n for c, _, n in EXTRAS}[r["extra"]], t["extra"])
+    extra = _modulo(pack, r, "extra", {c: n for c, _, n in EXTRAS}[r["extra"]])
     jis1, jis2 = pack.rom("A1XXJIS1.ROM", t["jis1"]), pack.rom("A1XXJIS2.ROM", t["jis2"])
     logo = {c: n for c, _, n in LOGOS}[r["logo"]]
     if tipo == "msx2p33":
-        dat = (disco + main + pack.rom("2PEXTR01.ROM", t["sub"]) + pack.rom("MSX2PMUS.ROM", t["music"]) + jis1 + free
+        dat = (disco + main + pack.rom("2PEXTR01.ROM", t["sub"]) + _modulo(pack, r, "music", "MSX2PMUS.ROM") + jis1 + free
                + pack.rom(logo, t["kanji"]) + free * 2 + extra + free * 2 + free * 8)
     elif tipo in ("msx2p", "turbor"):
         tr = tipo == "turbor"
@@ -383,12 +440,13 @@ def construir_dat(pack, r):
             kanji, opcion = pack.rom("KNCUSTOM.ROM", t["kanji"]), "MSXPPOPT.ROM"
         else:
             kanji, opcion = pack.rom(logo, t["kanji"]), "ESP8266E.ROM" if r["wifi"] else "FREE16KB.ROM"
-        dat = (disco + main + extra + pack.rom("MSXTRMUS.ROM" if tr else "MSX2PMUS.ROM", t["music"])
-               + pack.rom("TREXTRTC.ROM" if tr else "2PEXTRTC.ROM", t["sub"]) + kanji + pack.rom(opcion, t["option"])
+        dat = (disco + main + extra + _modulo(pack, r, "music", "MSXTRMUS.ROM" if tr else "MSX2PMUS.ROM")
+               + pack.rom("TREXTRTC.ROM" if tr else "2PEXTRTC.ROM", t["sub"]) + kanji
+               + _modulo(pack, r, "option", opcion)
                + jis1 + jis2)
     else:                                   # msx1 / msx2 (update-all.cmd)
-        dat = (disco + main + extra + pack.rom("MSX2PMUS.ROM", t["music"]) + pack.rom("X2EXTRTC.ROM", t["sub"])
-               + pack.rom("KNMFIXV2.ROM", t["kanji"]) + free + jis1 + jis2)
+        dat = (disco + main + extra + _modulo(pack, r, "music", "MSX2PMUS.ROM") + pack.rom("X2EXTRTC.ROM", t["sub"])
+               + pack.rom("KNMFIXV2.ROM", t["kanji"]) + _modulo(pack, r, "option", "FREE16KB.ROM") + jis1 + jis2)
     assert len(dat) == 512 * K, len(dat)
     return dat
 
@@ -407,6 +465,10 @@ def describir(r, pack=None):
     if q["logo_tr"]:
         p.append("logo turboR" if r["logo_tr"] else "sin logo turboR")
     p.append({c: x for c, x, _ in EXTRAS}[r["extra"]] if r["extra"] != "1" else "sin Extra-ROM")
+    etiquetas = {c: n for c, n, _ in MODULOS}
+    for bloque, especificacion in r["modulos"].items():
+        nombre = especificacion.get("nombre") or os.path.basename(especificacion["ruta"])
+        p.append("%s personalizada: %s" % (etiquetas[bloque], nombre))
     return ", ".join(p)
 
 

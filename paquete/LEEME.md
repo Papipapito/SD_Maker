@@ -1,4 +1,4 @@
-# MSX SD Maker 1.5.2 — preparar la tarjeta SD
+# MSX SD Maker 1.6.0 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -13,7 +13,8 @@
 
 No hay nada que instalar: en Windows es `MSXsdmaker.exe` y en macOS, `MSXsdmaker.app`.
 
-La versión 1.5.2 incluye Z80BENCH 1.5.1, con pruebas de velocidad de memoria mediante F5 y soporte para Z380.
+La versión 1.6.0 permite elegir módulos ROM distintos para cada BIOS OCM. También incluye Z80BENCH 1.5.1, con
+pruebas de velocidad de memoria mediante F5 y soporte para Z380.
 
 ---
 
@@ -411,6 +412,11 @@ Estas máquinas llevan el firmware **OCM-PLD** de KdL y cargan la BIOS desde la 
    - **Teclado**: `\` barra invertida, `¥` yen u occidental.
    - **Logo** de arranque, con su imagen. «Propio» es el que hayas hecho con el ++Logo Toolkit del pack.
    - **Option-ROM**: el WiFi (la BIOS del ESP8266, que detecta el módulo sola) y, en el turboR, su logo.
+   - **Módulos avanzados**: permite sustituir individualmente Extra-ROM, Music-ROM/MSX-MUSIC y Option-ROM por otra
+     ROM del pack o por un archivo externo. Así cada BIOS puede llevar, por ejemplo, una ROM de audio, un procesador
+     de textos o una utilidad distinta. La ROM debe medir exactamente **16 KB** y estar preparada para el slot que
+     indica la ventana. Una Option-ROM personalizada sustituye el WiFi/logo turboR; una Music-ROM personalizada
+     sustituye la MSX-MUSIC normal. Si una ROM mide 32 KB o corresponde a otro slot, no se puede insertar directamente.
    - **Extra-ROM**: BASIC'n turbo 2.1, BASIC'n plus 2.0 o ninguna.
 
    Por defecto: MSX2+ con Nextor 2.1.4, WiFi y logo MSX++, y una turboR de reserva.

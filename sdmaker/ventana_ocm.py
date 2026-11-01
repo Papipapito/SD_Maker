@@ -3,10 +3,103 @@ OCM-BIOS.DAT, y las de reserva, ALT-BIOS.DA0-.DA9) y, de cada una, las opciones 
 maquina, disco (Nextor o MegaSDHC), teclado, logo (con su imagen), WiFi, logo del turboR y Extra-ROM."""
 import base64
 import copy
+import os
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import filedialog, messagebox, ttk
 
 from . import ocm
+
+
+class DialogoModulos:
+    """Selector de las ROM de extensión que ocupan los bloques intercambiables de 16 KB."""
+
+    def __init__(self, padre, pack, receta, permitidos):
+        self.pack = pack
+        self.modulos = copy.deepcopy(receta.get("modulos", {}))
+        self.resultado = None
+        self.vars = {}
+        self.combos = {}
+        self.nombres_pack = pack.roms_de_tamano(16 * ocm.K)
+        self.top = tk.Toplevel(padre)
+        self.top.title("Módulos ROM de esta BIOS")
+        self.top.transient(padre)
+        self.top.resizable(False, False)
+
+        cuerpo = ttk.Frame(self.top, padding=14)
+        cuerpo.pack(fill="both", expand=True)
+        ttk.Label(cuerpo, text="ROMs de extensión", font=("Segoe UI", 13, "bold")).grid(
+            row=0, column=0, columnspan=4, sticky="w")
+        ttk.Label(cuerpo, text="Cada selección sustituye el módulo normal de ese bloque. Sólo se admiten ROMs de "
+                  "exactamente 16 KB preparadas para el slot indicado.", wraplength=610, justify="left").grid(
+            row=1, column=0, columnspan=4, sticky="w", pady=(4, 14))
+
+        etiquetas = {c: (n, slot) for c, n, slot in ocm.MODULOS}
+        for fila, bloque in enumerate(permitidos, 2):
+            nombre, slot = etiquetas[bloque]
+            ttk.Label(cuerpo, text=nombre, font=("Segoe UI", 9, "bold")).grid(row=fila, column=0, sticky="w", pady=5)
+            ttk.Label(cuerpo, text=slot).grid(row=fila, column=1, sticky="w", padx=(8, 12))
+            var = tk.StringVar()
+            combo = ttk.Combobox(cuerpo, textvariable=var, state="readonly", width=35)
+            combo.grid(row=fila, column=2, sticky="ew", pady=5)
+            combo.bind("<<ComboboxSelected>>", lambda e, b=bloque: self._seleccionar(b))
+            ttk.Button(cuerpo, text="Archivo…", command=lambda b=bloque: self._archivo(b)).grid(
+                row=fila, column=3, padx=(8, 0), pady=5)
+            self.vars[bloque], self.combos[bloque] = var, combo
+            self._refrescar(bloque)
+
+        ttk.Separator(cuerpo).grid(row=5, column=0, columnspan=4, sticky="ew", pady=(12, 10))
+        ttk.Label(cuerpo, text="Nota: una Option-ROM personalizada reemplaza el WiFi o el logo turboR; una "
+                  "Music-ROM personalizada reemplaza la MSX-MUSIC incluida.", foreground="#7a4c00",
+                  wraplength=610, justify="left").grid(row=6, column=0, columnspan=4, sticky="w")
+        pie = ttk.Frame(cuerpo)
+        pie.grid(row=7, column=0, columnspan=4, sticky="e", pady=(16, 0))
+        ttk.Button(pie, text="Cancelar", command=self.top.destroy).pack(side="right")
+        ttk.Button(pie, text="Aceptar", command=self._aceptar).pack(side="right", padx=(0, 8))
+        self.top.grab_set()
+        self.top.wait_window()
+
+    def _refrescar(self, bloque):
+        especificacion = self.modulos.get(bloque)
+        actual = "Automático (recomendado)"
+        if especificacion:
+            if especificacion["origen"] == "pack":
+                actual = especificacion["nombre"]
+            else:
+                actual = "Archivo: " + os.path.basename(especificacion["ruta"])
+        valores = ["Automático (recomendado)"] + self.nombres_pack
+        if actual not in valores:
+            valores.append(actual)
+        self.combos[bloque]["values"] = valores
+        self.vars[bloque].set(actual)
+
+    def _seleccionar(self, bloque):
+        valor = self.vars[bloque].get()
+        if valor == "Automático (recomendado)":
+            self.modulos.pop(bloque, None)
+        elif valor in self.nombres_pack:
+            self.modulos[bloque] = {"origen": "pack", "nombre": valor}
+        self._refrescar(bloque)
+
+    def _archivo(self, bloque):
+        ruta = filedialog.askopenfilename(parent=self.top, title="Elegir ROM de 16 KB",
+                                          filetypes=[("ROM de MSX", "*.rom"), ("Todos los archivos", "*")])
+        if not ruta:
+            return
+        try:
+            tam = os.path.getsize(ruta)
+        except OSError as e:
+            messagebox.showerror("MSX SD Maker", str(e), parent=self.top)
+            return
+        if tam != 16 * ocm.K:
+            messagebox.showerror("ROM incompatible", "%s mide %d bytes. Este bloque necesita exactamente 16384 "
+                                 "bytes (16 KB)." % (os.path.basename(ruta), tam), parent=self.top)
+            return
+        self.modulos[bloque] = {"origen": "archivo", "ruta": os.path.abspath(ruta)}
+        self._refrescar(bloque)
+
+    def _aceptar(self):
+        self.resultado = self.modulos
+        self.top.destroy()
 
 
 class DialogoBios:
@@ -123,6 +216,14 @@ class DialogoBios:
         for clave, texto, _ in ocm.EXTRAS:
             self.r_extra[clave] = ttk.Radiobutton(caja, text=texto, value=clave, variable=self.v["extra"])
             self.r_extra[clave].pack(side="left", padx=(0, 12))
+        fila += 1
+        titulo("Módulos avanzados")
+        caja = ttk.Frame(der)
+        caja.grid(row=fila, column=1, sticky="w", pady=(6, 6))
+        self.b_modulos = ttk.Button(caja, text="Elegir ROMs…", command=self._modulos)
+        self.b_modulos.pack(side="left")
+        self.t_modulos = ttk.Label(caja, text="Automáticos", foreground="#555555")
+        self.t_modulos.pack(side="left", padx=(10, 0))
         self.resumen = ttk.Label(der, text="", foreground="#004080", wraplength=520, justify="left")
         self.resumen.grid(row=fila + 1, column=0, columnspan=2, sticky="w", padx=6, pady=(0, 6))
 
@@ -198,6 +299,15 @@ class DialogoBios:
             return
         self._ajustar()
 
+    def _modulos(self):
+        r = self.lista[self.actual][1]
+        d = DialogoModulos(self.top, self.pack, r, ocm.que_se_puede(r["tipo"])["modulos"])
+        if d.resultado is not None:
+            nuevo = copy.deepcopy(r)
+            nuevo["modulos"] = d.resultado
+            self.lista[self.actual] = (self.lista[self.actual][0], ocm.receta(nuevo))
+            self._ajustar()
+
     def _ajustar(self):
         """Lo que no vale en el tipo elegido se corrige y se desactiva; se guarda la receta y se pinta el logo."""
         tipo = self.v["tipo"].get()
@@ -220,10 +330,12 @@ class DialogoBios:
         propio = self.v["logo"].get() == "propio"
         self.ch_wifi.state(["!disabled"] if q["wifi"] and not propio else ["disabled"])
         self.ch_tr.state(["!disabled"] if q["logo_tr"] else ["disabled"])
+        self.b_modulos.state(["!disabled"] if q["modulos"] else ["disabled"])
         codigos = [c for c, _ in self.logos]
         if self.v["logo"].get() in codigos:
             self.c_logo.current(codigos.index(self.v["logo"].get()))
         r = {k: var.get() for k, var in self.v.items()}
+        r["modulos"] = copy.deepcopy(self.lista[self.actual][1].get("modulos", {}))
         try:
             r = ocm.receta(r)
         except ValueError as e:
@@ -240,6 +352,12 @@ class DialogoBios:
                         pass
         self.lista[self.actual] = (self.lista[self.actual][0], r)
         self._rellenar_lista()
+        personalizados = []
+        etiquetas = {c: n for c, n, _ in ocm.MODULOS}
+        for bloque, especificacion in r["modulos"].items():
+            nombre = especificacion.get("nombre") or os.path.basename(especificacion["ruta"])
+            personalizados.append("%s: %s" % (etiquetas[bloque], nombre))
+        self.t_modulos["text"] = "; ".join(personalizados) if personalizados else "Automáticos"
         texto = ocm.describir(r, self.pack)
         if propio and q["logo"]:
             texto += ". El WiFi lo decide el logo propio (opción W o X del ++Logo Toolkit)."
