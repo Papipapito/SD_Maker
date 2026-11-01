@@ -4,7 +4,7 @@ Las fuentes son las carpetas de sd/ (la de este repositorio; con el .exe, la que
 o si falta, la copia que lleva dentro; ver carpeta_sd):
   base/               lo comun de las SD del MSXimus (MM, UTIL, WIFI, FONTS, musica...)
   nextor-2.1.4/       NEXTOR.SYS + COMMAND2.COM + bin/ (herramientas de Nextor 2)
-  nextor-3.0.0-beta2/ NEXTOR.SYS + COMMAND3.COM + bin/ (herramientas de Nextor 3)
+  nextor-3.0.0/       NEXTOR.SYS + COMMAND3.COM + bin/ + HELP/ (Nextor 3.0 final)
   extras/             lo de la SD de la MSX Pico que no estaba en base (SOFARUN, hub, mapper, IA, indev.com) y FPGA
                       (MXUPDATE.COM, que actualiza el core del MSXimus 60K/138K y del MSXnano desde MSX-DOS y, por
                       WiFi, se actualiza el mismo)
@@ -21,7 +21,8 @@ from .fatfs import Nodo
 
 SISTEMAS = {
     "nextor214": ("Nextor 2.1.4", "nextor-2.1.4", None),
-    "nextor3": ("Nextor 3.0 beta 2", "nextor-3.0.0-beta2", None),
+    "nextor3": ("Nextor 3.0 final (requiere BIOS 3.0 final)", "nextor-3.0.0", None),
+    "nextor3beta2": ("Nextor 3.0 beta 2 (para BIOS antiguos)", "nextor-3.0.0-beta2", None),
     "msxdos": ("MSX-DOS básico (MSXDOS2.SYS + COMMAND2.COM, y MSXDOS.SYS + COMMAND.COM)", "nextor-2.1.4",
                ["MSXDOS2.SYS", "COMMAND2.COM", "MSXDOS.SYS", "COMMAND.COM"]),
     "ninguno": ("Ninguno (solo formatear)", None, None),
@@ -78,7 +79,7 @@ def grupos_en_path(maquina):
 # drive") y MAPDRV la monta; con disquetera, MAPDRV le quita la B: hasta reiniciar o hasta MAPDRV B: D.
 UNIDADES = "CDEFGHB"
 
-# Opciones del AUTOEXEC con Nextor 3 (beta 2, COMMAND3.COM); con Nextor 2.1.4 y MSX-DOS no se usan.
+# Opciones del AUTOEXEC con Nextor 3 (COMMAND3.COM); con Nextor 2.1.4 y MSX-DOS no se usan.
 #   yenslash: YENSLASH ON, la orden INTERNA de COMMAND3.COM (desde la beta 2): barra invertida en vez de yen. La
 #             orden interna tiene preferencia sobre el YENSLASH.COM de UTIL, y sin parametros solo dice el estado.
 #   bufinsert: SET BUFINSERT=ON, la linea de ordenes empieza en modo insercion.
@@ -96,7 +97,7 @@ def opciones_n3(opciones=None):
 
 
 def nombre_autoexec(sistema, opciones=None):
-    return "AUTOEXEC.BTM" if sistema == "nextor3" and opciones_n3(opciones)["btm"] else "AUTOEXEC.BAT"
+    return "AUTOEXEC.BTM" if sistema.startswith("nextor3") and opciones_n3(opciones)["btm"] else "AUTOEXEC.BAT"
 EXCLUIR_EXT = (".bak", ".tmp")
 EXCLUIR = {"ruvector.db", "thumbs.db", "desktop.ini", "autoexec.bat", "autoexec.btm", "nextor.emu", "_nextor.psf"}
 
@@ -248,7 +249,7 @@ def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None, ocm=None):
 def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", arranque=True):
     """AUTOEXEC.BAT o .BTM (CRLF y ^Z al final, como los de MSX-DOS 2). %1 = unidad de arranque. arranque=False: el
     REBOOT.BAT (solo PATH, alias y variables)."""
-    n3 = sistema == "nextor3"
+    n3 = sistema.startswith("nextor3")
     ocm = maquina == "ocm"
     o = opciones_n3(opciones)
     def hay(*ruta):

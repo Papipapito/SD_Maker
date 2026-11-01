@@ -7,7 +7,8 @@ import tkinter as tk
 import webbrowser
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
-from . import VERSION, ayudante_macos, contenido, dispositivos, novedades, ocm, particiones, proceso, ventana_ocm
+from . import (VERSION, ayudante_macos, contenido, dispositivos, novedades, ocm, particiones, proceso, ventana_nextor,
+               ventana_ocm)
 from .dispositivos import formato_tamano
 
 ESQUEMAS = [("fat16-2g", "FAT16 de 2 GB"), ("fat16-4g", "FAT16 de 4 GB"), ("fat32", "Una FAT32 (toda la tarjeta)")]
@@ -86,6 +87,9 @@ class Ventana:
         if nueva:
             self.bios = nueva
             self._maquina_elegida()
+
+    def crear_bios_nextor(self):
+        ventana_nextor.abrir(self.raiz)
 
     def _maquina_elegida(self):
         ocm_ = self.maquina.get() == "ocm"
@@ -288,6 +292,7 @@ class Ventana:
         self.controles_n3.append(ttk.Radiobutton(fila, text="en bytes", value="0", variable=self.dirk))
         for c in self.controles_n3[-3:]:
             c.pack(side="left", padx=(0, 9))
+        ttk.Button(fo, text="Crear ROM Nextor 3…", command=self.crear_bios_nextor).pack(anchor="e", pady=(7, 0))
 
         f4 = card(derecha, "4  Programas", "Partición de arranque", expand=True)
         self.rej = ttk.Frame(f4, style="Card.TFrame")
@@ -404,6 +409,8 @@ class Ventana:
         self.controles_n3.append(ttk.Radiobutton(fila, text="en bytes, como MSX-DOS 2", value="0", variable=self.dirk))
         for c in self.controles_n3[-3:]:
             c.pack(side="left", padx=(0, 10))
+        ttk.Button(fo, text="Crear ROM Nextor 3...", command=self.crear_bios_nextor).pack(
+            anchor="e", padx=6, pady=(0, 4))
 
         f4 = ttk.LabelFrame(self.raiz, text="4. Programas (en la partición de arranque)")
         f4.pack(fill="x", **p)
@@ -511,7 +518,7 @@ class Ventana:
 
     def _recalcular(self):
         for c in getattr(self, "controles_n3", []):
-            c.state(["!disabled"] if self._sistema() == "nextor3" else ["disabled"])
+            c.state(["!disabled"] if self._sistema().startswith("nextor3") else ["disabled"])
         sectores = self._sectores()
         esquema = self.esquema.get()
         fat16 = esquema != "fat32"
@@ -561,7 +568,7 @@ class Ventana:
         return o
 
     def _texto_opciones(self):
-        if self._sistema() != "nextor3":
+        if not self._sistema().startswith("nextor3"):
             return ""
         o = self._opciones()
         partes = [contenido.nombre_autoexec("nextor3", o)]

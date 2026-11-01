@@ -5,9 +5,12 @@
 **MSX SD Maker** is a Windows and macOS app that gets an SD card ready for the FPGA MSX machines: an **MSXimus** (Tang Console 60K, Tang Mega 138K or Zynq), an **MSXnano** or a **Goa'uld** — and also for an **MSX Pico** and the **MSXBOOK / OneChipBook / 1chipMSX** (OCM-PLD):
 
 - partitions it like Nextor's `FDISK`: FAT16 of 2 or 4 GB (up to 8), or one FAT32;
-- copies the system: Nextor 2.1.4, Nextor 3.0 beta 2 or MSX-DOS;
+- copies the system: Nextor 2.1.4, Nextor 3.0 final, Nextor 3.0 beta 2 for legacy BIOS packs, or MSX-DOS;
 - copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music (the MoonBlaster Wave and MoonBlaster FM editors for the OPL4, RoboPlay and the MWM and VGM players)…, and the FPGA tools (`MXUPDATE`, which updates the MSXimus and MSXnano core from MSX-DOS, and `MTVOL`, which sets the OPL4 FM and Wave volume), and writes the `AUTOEXEC.BAT`;
 - reads everything back and checks it by CRC. It can also write a card image instead of a card;
+- (1.7) includes the final Nextor 3.0 system and a ROM/BIOS-pack creator. It can update an MSXnano or MSXimus
+  Nextor 3 beta 2 pack while preserving all its other ROMs, or build a ROM from the official base kernel and a
+  hardware-specific Nextor 3 driver;
 - (1.6) lets each OCM BIOS use its own compatible 16 KB Extra, Music and Option ROM modules, selected from the pack
   or from an external file;
 - (1.5.2) includes Z80BENCH 1.5.1, with memory-speed tests and Z380 support;

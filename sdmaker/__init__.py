@@ -2,7 +2,7 @@
 import os
 import sys
 
-VERSION = "1.6.0"
+VERSION = "1.7.0"
 
 
 def carpeta_programa():

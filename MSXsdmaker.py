@@ -6,7 +6,7 @@ de Nextor) o una FAT32, sistema (Nextor 2.1.4, Nextor 3 o MSX-DOS) y programas (
   MSXsdmaker version             esta version y la ultima publicada en GitHub
   MSXsdmaker imagen F.img --tamano 8G [opciones]     crea una imagen (para probar, o para grabarla con Rufus/dd)
   MSXsdmaker tarjeta N [opciones] --si               prepara el disco N de "listar" (BORRA TODO)
-opciones: --esquema fat16-2g|fat16-4g|fat32  --n 3  --resto  --sistema nextor214|nextor3|msxdos|ninguno
+opciones: --esquema fat16-2g|fat16-4g|fat32  --n 3  --resto  --sistema nextor214|nextor3|nextor3beta2|msxdos|ninguno
           --programas todos|ninguno|sofarun,mm,util,...  --etiqueta MSX  --tam-particion 64M (solo pruebas)
 con Nextor 3: --sin-yenslash (no pone YENSLASH ON)  --bufinsert (modo insercion)  --dirk bytes (DIR en bytes, como
           MSX-DOS 2)  --btm (AUTOEXEC.BTM en vez de AUTOEXEC.BAT)
@@ -93,7 +93,7 @@ def _ocm(a):
             except ValueError as e:
                 sys.exit(str(e))
     else:
-        lista = ocm.por_defecto("nextor3" if a.sistema == "nextor3" else "nextor214")
+        lista = ocm.por_defecto("nextor3" if a.sistema.startswith("nextor3") else "nextor214")
     try:
         ocm.comprobar_lista(lista)
     except ValueError as e:

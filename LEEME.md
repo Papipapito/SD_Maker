@@ -12,12 +12,17 @@ Se reparte en un ZIP para Windows y otro para macOS, en las [releases](https://g
 2. **Particiones**:
    - FAT16 de 2 GB o de 4 GB, tantas como quepan (hasta 8, las que ve el menú del MSXimus). Opcionalmente, una última con lo que sobre.
    - O una FAT32 con toda la tarjeta. Nextor 2.1.4 y 3.0 no leen FAT32: sirve para el menú del MSXimus (ROM y DSK) y la MSX Pico, no para arrancar MSX-DOS.
-3. **Sistema** en la partición 1: Nextor 2.1.4, Nextor 3.0 beta 2, MSX-DOS básico (`MSXDOS2.SYS` + `COMMAND2.COM`, y los de MSX-DOS 1) o ninguno.
+3. **Sistema** en la partición 1: Nextor 2.1.4, Nextor 3.0 final, Nextor 3.0 beta 2 para BIOS antiguas, MSX-DOS básico (`MSXDOS2.SYS` + `COMMAND2.COM`, y los de MSX-DOS 1) o ninguno.
 4. **Programas**: SofaRun, Multi Mente, UTIL, WiFi/UNAPI, fuentes, música (los editores MoonBlaster Wave y MoonBlaster FM, de OPL4, RoboPlay y los reproductores de MWM y VGM), HUB, IA, mapper e indev, y las herramientas FPGA (`FPGA\MXUPDATE.COM`, que actualiza el core del MSXimus 60K/138K y del MSXnano, y `FPGA\MTVOL.COM`, que fija el volumen del FM y del Wave del OPL4). Se crean también `FHUNT` y `TMP` (el menú no puede crear carpetas) y `SAVES` y `SETTINGS` de SofaRun.
 
 El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una línea `mapdrv c: 2 1 0` por cada partición de más (C: a H:, y la octava en B:, porque MSX-DOS no pasa de H:). Con Nextor 3 (1.1) lleva además las opciones del recuadro: `YENSLASH ON` (la orden interna de COMMAND3.COM desde la beta 2; el `yenslash` a secas solo diría el estado), `SET BUFINSERT=ON`, `SET DIRK=0` y, si se elige, se llama `AUTOEXEC.BTM`. Desde la 1.1, una tarjeta más pequeña que una partición entera (las de "2 GB") lleva una sola con todo, y la imagen pregunta siempre el tamaño (1800M por defecto: cabe en cualquier tarjeta de 2 GB).
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
+
+**Nextor 3.0 final y creador de ROM** (SD Maker 1.7): el botón **Crear ROM Nextor 3…** actualiza un pack BIOS de
+MSXnano o MSXimus con Nextor 3 beta 2 conservando todas sus otras ROM y su driver, o crea una ROM avanzada a partir
+del kernel base oficial y el driver Nextor 3 específico del hardware. Después de actualizar y grabar el pack se debe
+elegir **Nextor 3.0 final**; con los packs antiguos se mantiene la opción **Nextor 3.0 beta 2**.
 
 **BIOS OCM por módulos** (SD Maker 1.6): cada BIOS del MSXBOOK/OneChipBook/1chipMSX puede llevar sus propias ROM de
 extensión de 16 KB en los bloques Extra, Music y Option, elegidas del pack o desde un archivo externo.
@@ -43,7 +48,7 @@ Igual que el `FDISK` de Nextor (`kernel/bank5/fdisk2.c`): partición 1 primaria,
 
 ## Contenido
 
-Sale de `sd/` y va dentro de la aplicación empaquetada: `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` y `extras/` (SOFARUN, hub, mapper, IA e indev de la SD de la MSX Pico, y FPGA con MXUPDATE.COM y MTVOL.COM); [`sd/LEEME.md`](sd/LEEME.md) explica cada carpeta. Para cambiar lo que se copia, se cambian esas carpetas y se vuelve a construir.
+Sale de `sd/` y va dentro de la aplicación empaquetada: `base/`, `nextor-2.1.4/`, `nextor-3.0.0/`, `nextor-3.0.0-beta2/` y `extras/` (SOFARUN, hub, mapper, IA e indev de la SD de la MSX Pico, y FPGA con MXUPDATE.COM y MTVOL.COM); [`sd/LEEME.md`](sd/LEEME.md) explica cada carpeta. Para cambiar lo que se copia, se cambian esas carpetas y se vuelve a construir.
 
 Casi todo lo de `sd/` es de terceros (Nextor, MSX-DOS, SofaRun, Multi Mente, las herramientas UNAPI...) y va bajo la responsabilidad del autor de este proyecto: autores y licencias en [`paquete/LICENCIAS.md`](paquete/LICENCIAS.md), con la licencia de Nextor. El programa es GPL v3 ([`LICENSE`](LICENSE)).
 

@@ -1,4 +1,4 @@
-# MSX SD Maker 1.6.0 — preparing the SD card
+# MSX SD Maker 1.7.0 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -13,8 +13,8 @@
 
 Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
 
-Version 1.6.0 lets every OCM BIOS use different ROM modules. It also includes Z80BENCH 1.5.1, with memory-speed tests
-selected with F5 and Z380 support.
+Version 1.7.0 includes Nextor 3.0 final and a ROM creator that updates MSXnano/MSXimus packs or combines the official
+kernel with a hardware driver. It also lets every OCM BIOS use different ROM modules.
 
 ---
 
@@ -130,6 +130,15 @@ This is the operating system copied to the first, boot partition. **It must matc
 | MSXnano | `pack_bios_msxnano_nextor3.bin` or `…_en_nextor3.bin` | **Nextor 3.0 beta 2** |
 | Goa'uld | `pack_bios_goauld_es.bin` or `pack_bios_goauld_en.bin` | **Nextor 2.1.4** |
 | MSX Pico or another MSX with Nextor 2.1 | — | **Nextor 2.1.4** |
+
+The `…nextor3.bin` packs published so far contain beta 2, so they must keep using the beta 2 option. To move one to
+the final release, click **Crear ROM Nextor 3…**, then **Actualizar pack…**. The app replaces only the 128 KB Nextor
+block and preserves the remaining BIOS ROMs, the SD-reader driver and the six configuration bytes. Flash the output
+file and then choose **Nextor 3.0 final** when preparing the card. Keep a backup of the original pack.
+
+The advanced part of the same window builds a final Nextor 3.0 ROM from the included base kernel and a
+hardware-specific Nextor 3 driver. It optionally accepts mapper code, extra data, an 8 KB mapper and a boot-key
+inverter, like `mknexrom` 1.2. A Nextor 2 driver cannot be used with Nextor 3.
 
 The other two options:
 
@@ -376,7 +385,7 @@ No. It only writes to the card you choose, and the system disk never appears in 
 - **Names**: it stores the 8+3 short name MSX-DOS reads and, when needed, also the long name Windows and the menu show.
 - **The partition table is written last**, once everything else is in place. Then everything is read back and every file is compared by its CRC32.
 
-The source code and the card contents are in [SD_Maker](https://github.com/Papipapito/SD_Maker); the machines' repositories carry a copy of the program in [`fuente/`](fuente/) (Python 3 with tkinter; `construir_exe.bat` builds the `.exe` and `construir_macos.sh` builds the `.app` with PyInstaller). To run it from source you need the card contents in an `sd/` folder next to `MSXsdmaker.py`, with `base/`, `nextor-2.1.4/`, `nextor-3.0.0-beta2/` and `extras/`. The packaged applications already carry them. From the command line it can also make images:
+The source code and the card contents are in [SD_Maker](https://github.com/Papipapito/SD_Maker); the machines' repositories carry a copy of the program in [`fuente/`](fuente/) (Python 3 with tkinter; `construir_exe.bat` builds the `.exe` and `construir_macos.sh` builds the `.app` with PyInstaller). To run it from source you need the card contents in an `sd/` folder next to `MSXsdmaker.py`, with `base/`, `nextor-2.1.4/`, `nextor-3.0.0/`, `nextor-3.0.0-beta2/` and `extras/`. The packaged applications already carry them. From the command line it can also make images:
 
 ```
 python MSXsdmaker.py imagen test.img --tamano 8G --esquema fat16-2g --n 3 --sistema nextor214 --programas todos

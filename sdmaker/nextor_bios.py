@@ -1,0 +1,130 @@
+"""Creador de ROM Nextor 3, compatible con el formato de mknexrom 1.2 de Konamiman.
+
+Combina el kernel base oficial con un driver Nextor 3 específico del hardware. También admite código de mapper,
+un bloque extra de hasta 256 bytes, el parche para mappers de bancos de 8 KB y el inversor de teclas de arranque.
+"""
+
+BANK_SIZE = 16 * 1024
+MAPPER_SIZE = 48
+EXTRA_SIZE = 256
+EXTRA_OFFSET = 0x3ED0
+BASE_BANK_COUNT_OFFSET = 0xFE
+PAGE0_SIZE = 256
+MAPPER_INIT_OFFSET = 0x07DC
+MAPPER_8K_PATCH_OFFSET = 0x00F7
+BOOT_KEYS_OFFSET = 0x0200
+DRIVER_SIGNATURE = b"NEXTORv3_DRIVER"
+DRIVER_MIN_SIZE = 256 + len(DRIVER_SIGNATURE) + 13 * 3
+PACK_NEXTOR_OFFSET = 0x40000
+PACK_NEXTOR_SIZE = 128 * 1024
+
+
+def _bancos(datos):
+    return (len(datos) + BANK_SIZE - 1) // BANK_SIZE
+
+
+def crear_rom(base, driver, mapper=None, extra=None, direccion_8k=None, teclas=None):
+    """Devuelve una ROM completa a partir de bytes. Lanza ValueError si una entrada no es compatible."""
+    if len(base) <= BASE_BANK_COUNT_OFFSET:
+        raise ValueError("el kernel base es demasiado pequeño")
+    bancos_base = base[BASE_BANK_COUNT_OFFSET]
+    if bancos_base == 0 or len(base) != bancos_base * BANK_SIZE:
+        raise ValueError("el kernel base no tiene el tamaño indicado en su cabecera")
+    if len(driver) < DRIVER_MIN_SIZE or driver[PAGE0_SIZE:PAGE0_SIZE + len(DRIVER_SIGNATURE)] != DRIVER_SIGNATURE:
+        raise ValueError("el driver no es de Nextor 3 (falta NEXTORv3_DRIVER en el offset 256)")
+
+    mapper_explicito = mapper is not None
+    if mapper is None:
+        codigo_mapper = base[BANK_SIZE - MAPPER_SIZE:BANK_SIZE]
+    else:
+        if not mapper:
+            raise ValueError("el código del mapper está vacío")
+        if mapper[0] == 0xFF:
+            if len(mapper) < 4:
+                raise ValueError("la cabecera del mapper de 8 KB está incompleta")
+            if direccion_8k is None:
+                direccion_8k = mapper[1] | mapper[2] << 8
+            mapper = mapper[3:]
+        if len(mapper) > MAPPER_SIZE:
+            raise ValueError("el código del mapper no puede superar 48 bytes")
+        codigo_mapper = mapper.ljust(MAPPER_SIZE, b"\0")
+
+    if direccion_8k is not None and not 0x4000 <= direccion_8k < 0x8000:
+        raise ValueError("la dirección del mapper de 8 KB debe estar entre 4000h y 7FFFh")
+    if teclas is not None and not 0 <= teclas <= 0xFFFF:
+        raise ValueError("el inversor de teclas debe estar entre 0000h y FFFFh")
+
+    if extra is not None:
+        if len(extra) > EXTRA_SIZE:
+            raise ValueError("el bloque extra no puede superar 256 bytes")
+        for banco in (0, 3):
+            zona = base[banco * BANK_SIZE + EXTRA_OFFSET:banco * BANK_SIZE + EXTRA_OFFSET + EXTRA_SIZE]
+            if zona != bytes(EXTRA_SIZE):
+                raise ValueError("el kernel base usa el área extra del banco %d" % banco)
+
+    total_bancos = bancos_base + _bancos(driver)
+    if total_bancos > 256:
+        raise ValueError("la ROM resultante tiene más de 256 bancos")
+    rom = bytearray(total_bancos * BANK_SIZE)
+    rom[:len(base)] = base
+    rom[len(base):len(base) + len(driver)] = driver
+
+    pagina_0 = base[:PAGE0_SIZE - 1]
+    for banco in range(bancos_base, total_bancos):
+        inicio = banco * BANK_SIZE
+        rom[inicio:inicio + PAGE0_SIZE - 1] = pagina_0
+        rom[inicio + PAGE0_SIZE - 1] = banco
+
+    inicio_mapper = 0 if mapper_explicito else bancos_base
+    for banco in range(inicio_mapper, total_bancos):
+        fin = (banco + 1) * BANK_SIZE
+        rom[fin - MAPPER_SIZE:fin] = codigo_mapper
+    if mapper_explicito:
+        rom[MAPPER_INIT_OFFSET:MAPPER_INIT_OFFSET + MAPPER_SIZE] = codigo_mapper
+
+    if direccion_8k is not None:
+        parche = bytes((0x32, direccion_8k & 0xFF, direccion_8k >> 8))
+        for banco in range(total_bancos):
+            inicio = banco * BANK_SIZE + MAPPER_8K_PATCH_OFFSET
+            rom[inicio:inicio + len(parche)] = parche
+
+    if extra is not None:
+        bloque = extra.ljust(EXTRA_SIZE, b"\0")
+        for banco in (0, 3):
+            inicio = banco * BANK_SIZE + EXTRA_OFFSET
+            rom[inicio:inicio + EXTRA_SIZE] = bloque
+
+    if teclas is not None:
+        rom[BOOT_KEYS_OFFSET:BOOT_KEYS_OFFSET + 2] = teclas.to_bytes(2, "little")
+    return bytes(rom)
+
+
+def actualizar_pack_bios(pack, base):
+    """Actualiza a 3.0 final el bloque Nextor de un pack MSXnano/MSXimus, conservando su driver y configuración."""
+    if len(pack) not in (512 * 1024, 512 * 1024 + 6):
+        raise ValueError("el pack debe medir 512 KB, con una cola opcional de 6 bytes")
+    viejo = pack[PACK_NEXTOR_OFFSET:PACK_NEXTOR_OFFSET + PACK_NEXTOR_SIZE]
+    if len(viejo) != PACK_NEXTOR_SIZE:
+        raise ValueError("el pack no contiene el bloque Nextor completo")
+    bancos_base = viejo[BASE_BANK_COUNT_OFFSET]
+    inicio_driver = bancos_base * BANK_SIZE
+    if bancos_base == 0 or inicio_driver >= len(viejo):
+        raise ValueError("el bloque de 128 KB no contiene un kernel Nextor con driver")
+    driver = viejo[inicio_driver:]
+    if driver[PAGE0_SIZE:PAGE0_SIZE + len(DRIVER_SIGNATURE)] != DRIVER_SIGNATURE:
+        raise ValueError("el pack no lleva un driver Nextor 3 compatible")
+
+    mapper = viejo[BANK_SIZE - MAPPER_SIZE:BANK_SIZE]
+    extra = viejo[EXTRA_OFFSET:EXTRA_OFFSET + EXTRA_SIZE]
+    extra = extra if any(extra) else None
+    teclas = int.from_bytes(viejo[BOOT_KEYS_OFFSET:BOOT_KEYS_OFFSET + 2], "little")
+    parche = viejo[MAPPER_8K_PATCH_OFFSET:MAPPER_8K_PATCH_OFFSET + 3]
+    valor_8k = parche[1] | parche[2] << 8
+    direccion_8k = valor_8k if parche[0] == 0x32 and 0x4000 <= valor_8k < 0x8000 else None
+    nuevo = crear_rom(base, driver, mapper=mapper, extra=extra, direccion_8k=direccion_8k, teclas=teclas)
+    if len(nuevo) != PACK_NEXTOR_SIZE:
+        raise ValueError("el kernel con este driver mide %d KB; el pack reserva exactamente 128 KB" %
+                         (len(nuevo) // 1024))
+    salida = bytearray(pack)
+    salida[PACK_NEXTOR_OFFSET:PACK_NEXTOR_OFFSET + PACK_NEXTOR_SIZE] = nuevo
+    return bytes(salida)
