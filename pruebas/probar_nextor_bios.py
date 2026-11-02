@@ -2,7 +2,7 @@ import hashlib
 import unittest
 from pathlib import Path
 
-from sdmaker import nextor_bios
+from sdmaker import contenido, nextor_bios
 
 
 class CreadorNextorTest(unittest.TestCase):
@@ -75,6 +75,27 @@ class CreadorNextorTest(unittest.TestCase):
         for nombre, esperado in esperados.items():
             self.assertEqual(hashlib.sha256((carpeta / nombre).read_bytes()).hexdigest(), esperado)
         self.assertEqual(len(list((carpeta / "bin").glob("*.COM"))), 26)
+
+    def test_herramientas_finales_en_utils(self):
+        raiz = contenido.arbol("nextor3", set(), 1)
+        self.assertIsNone(raiz.hijo("BIN"))
+        tools = raiz.hijo("UTILS")
+        self.assertIsNotNone(tools)
+        self.assertIsNotNone(tools.hijo("EMUFILE.COM"))
+        autoexec = raiz.hijo("AUTOEXEC.BAT").leer().decode("ascii")
+        self.assertIn("%1\\UTILS", autoexec)
+
+    def test_personaliza_bloques_y_conserva_configuracion(self):
+        pack = bytes((i // nextor_bios.BANK_SIZE) & 0xFF for i in range(nextor_bios.PACK_SIZE)) + b"CONFIG"
+        nueva_main = b"M" * (32 * 1024)
+        nuevo_logo = b"L" * (16 * 1024)
+        salida = nextor_bios.personalizar_pack(pack, {"main": nueva_main, "logo": nuevo_logo})
+        self.assertEqual(salida[0x60000:0x68000], nueva_main)
+        self.assertEqual(salida[0x7C000:0x80000], nuevo_logo)
+        self.assertEqual(salida[-6:], b"CONFIG")
+        self.assertEqual(salida[:0x60000], pack[:0x60000])
+        with self.assertRaisesRegex(ValueError, "protegido"):
+            nextor_bios.personalizar_pack(pack, {"menu2": b"X" * (16 * 1024)})
 
 
 if __name__ == "__main__":

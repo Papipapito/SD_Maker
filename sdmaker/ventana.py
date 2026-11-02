@@ -292,7 +292,8 @@ class Ventana:
         self.controles_n3.append(ttk.Radiobutton(fila, text="en bytes", value="0", variable=self.dirk))
         for c in self.controles_n3[-3:]:
             c.pack(side="left", padx=(0, 9))
-        ttk.Button(fo, text="Crear ROM Nextor 3…", command=self.crear_bios_nextor).pack(anchor="e", pady=(7, 0))
+        ttk.Button(fo, text="Crear o personalizar pack BIOS…", command=self.crear_bios_nextor).pack(
+            anchor="e", pady=(7, 0))
 
         f4 = card(derecha, "4  Programas", "Partición de arranque", expand=True)
         self.rej = ttk.Frame(f4, style="Card.TFrame")
@@ -409,7 +410,7 @@ class Ventana:
         self.controles_n3.append(ttk.Radiobutton(fila, text="en bytes, como MSX-DOS 2", value="0", variable=self.dirk))
         for c in self.controles_n3[-3:]:
             c.pack(side="left", padx=(0, 10))
-        ttk.Button(fo, text="Crear ROM Nextor 3...", command=self.crear_bios_nextor).pack(
+        ttk.Button(fo, text="Crear o personalizar pack BIOS...", command=self.crear_bios_nextor).pack(
             anchor="e", padx=6, pady=(0, 4))
 
         f4 = ttk.LabelFrame(self.raiz, text="4. Programas (en la partición de arranque)")

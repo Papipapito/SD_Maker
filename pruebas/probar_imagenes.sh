@@ -15,7 +15,7 @@ referencia() {   # $1 = sistema, $2 = destino: el arbol esperado de la particion
     local d="$2"; rm -rf "$d"; mkdir -p "$d"
     case "$1" in
         nextor214) cp -r "$SD/nextor-2.1.4/." "$d/";;
-        nextor3)   cp -r "$SD/nextor-3.0.0/." "$d/";;
+        nextor3)   cp -r "$SD/nextor-3.0.0/." "$d/"; mv "$d/bin" "$d/UTILS";;
         msxdos)    for f in MSXDOS2.SYS COMMAND2.COM MSXDOS.SYS COMMAND.COM; do cp "$SD/nextor-2.1.4/$f" "$d/"; done;;
     esac
     for x in base/MM base/UTIL base/WIFI base/FONTS base/musica extras/SOFARUN extras/hub extras/IA extras/mapper extras/indev.com extras/FPGA; do
@@ -24,7 +24,7 @@ referencia() {   # $1 = sistema, $2 = destino: el arbol esperado de la particion
     mkdir -p "$d/SAVES" "$d/SETTINGS" "$d/FHUNT" "$d/TMP"
     find "$d" \( -iname 'ruvector.db' -o -iname '*.bak' -o -iname '*.tmp' -o -name '.*' -o -iname 'thumbs.db' \
         -o -iname 'desktop.ini' -o -iname 'nextor.emu' \) -exec rm -rf {} + 2>/dev/null
-    # MMRET.DAT va sin las asociaciones cuyo programa no esta en la tarjeta: sin bin\ (MSX-DOS) no hay EMUFILE
+    # MMRET.DAT va sin las asociaciones cuyo programa no esta en la tarjeta: sin BIN/UTILS (MSX-DOS) no hay EMUFILE
     [ "$1" = msxdos ] && LC_ALL=C sed -i '/^\.EMU\t/d' "$d/MM/MMRET.DAT"
 }
 

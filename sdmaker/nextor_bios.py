@@ -17,6 +17,22 @@ DRIVER_SIGNATURE = b"NEXTORv3_DRIVER"
 DRIVER_MIN_SIZE = 256 + len(DRIVER_SIGNATURE) + 13 * 3
 PACK_NEXTOR_OFFSET = 0x40000
 PACK_NEXTOR_SIZE = 128 * 1024
+PACK_SIZE = 512 * 1024
+
+# Mapa fijo del pack MSXnano/MSXimus. Los bloques de menú se describen para poder
+# inspeccionarlos, pero no se ofrecen como huecos libres: el core los necesita.
+PACK_BLOCKS = [
+    ("jis1", "Fuente Kanji JIS1", 0x00000, 128 * 1024, True),
+    ("jis2", "Fuente Kanji JIS2", 0x20000, 128 * 1024, True),
+    ("nextor", "Nextor + driver SD", 0x40000, 128 * 1024, False),
+    ("main", "BIOS principal MSX2+", 0x60000, 32 * 1024, True),
+    ("sub", "SubROM MSX2+", 0x68000, 16 * 1024, True),
+    ("music_menu", "MSX-MUSIC + menú (página 1)", 0x6C000, 16 * 1024, True),
+    ("menu2", "Menú (página 2)", 0x70000, 16 * 1024, False),
+    ("free", "Reserva interna (no es un slot)", 0x74000, 16 * 1024, False),
+    ("network", "Driver de red UNAPI", 0x78000, 16 * 1024, True),
+    ("logo", "Logo de arranque", 0x7C000, 16 * 1024, True),
+]
 
 
 def _bancos(datos):
@@ -128,3 +144,31 @@ def actualizar_pack_bios(pack, base):
     salida = bytearray(pack)
     salida[PACK_NEXTOR_OFFSET:PACK_NEXTOR_OFFSET + PACK_NEXTOR_SIZE] = nuevo
     return bytes(salida)
+
+
+def personalizar_pack(pack, reemplazos):
+    """Sustituye bloques completos del pack, conservando su posible cola de configuración."""
+    if len(pack) not in (PACK_SIZE, PACK_SIZE + 6):
+        raise ValueError("el pack debe medir 512 KB, con una cola opcional de 6 bytes")
+    mapa = {clave: (nombre, offset, tamano, editable)
+            for clave, nombre, offset, tamano, editable in PACK_BLOCKS}
+    salida = bytearray(pack)
+    for clave, datos in reemplazos.items():
+        if clave not in mapa:
+            raise ValueError("bloque desconocido: %s" % clave)
+        nombre, offset, tamano, editable = mapa[clave]
+        if not editable:
+            raise ValueError("%s está protegido y no se puede sustituir desde el editor" % nombre)
+        if len(datos) != tamano:
+            raise ValueError("%s mide %d bytes y %s necesita exactamente %d" %
+                             (clave, len(datos), nombre, tamano))
+        salida[offset:offset + tamano] = datos
+    return bytes(salida)
+
+
+def bloques_pack(pack):
+    """Información y bytes de cada bloque de un pack válido."""
+    if len(pack) not in (PACK_SIZE, PACK_SIZE + 6):
+        raise ValueError("el pack debe medir 512 KB, con una cola opcional de 6 bytes")
+    return [(clave, nombre, offset, tamano, editable, pack[offset:offset + tamano])
+            for clave, nombre, offset, tamano, editable in PACK_BLOCKS]

@@ -4,7 +4,7 @@ Las fuentes son las carpetas de sd/ (la de este repositorio; con el .exe, la que
 o si falta, la copia que lleva dentro; ver carpeta_sd):
   base/               lo comun de las SD del MSXimus (MM, UTIL, WIFI, FONTS, musica...)
   nextor-2.1.4/       NEXTOR.SYS + COMMAND2.COM + bin/ (herramientas de Nextor 2)
-  nextor-3.0.0/       NEXTOR.SYS + COMMAND3.COM + bin/ + HELP/ (Nextor 3.0 final)
+  nextor-3.0.0/       NEXTOR.SYS + COMMAND3.COM + bin/ + HELP/ (Nextor 3.0 final; bin/ se copia como UTILS/)
   extras/             lo de la SD de la MSX Pico que no estaba en base (SOFARUN, hub, mapper, IA, indev.com) y FPGA
                       (MXUPDATE.COM, que actualiza el core del MSXimus 60K/138K y del MSXnano desde MSX-DOS y, por
                       WiFi, se actualiza el mismo)
@@ -172,7 +172,7 @@ def ajustar_mmret(raiz, grupos, maquina):
     if nodo is None:
         return
     datos = nodo.datos if nodo.datos is not None else open(nodo.origen, "rb").read()
-    carpetas = ["BIN"] + (["UTILS"] if maquina == "ocm" else [])
+    carpetas = ["BIN", "UTILS"]
     carpetas += [c for clave, _, _, cs, _ in grupos_en_path(maquina) if clave in grupos for c in cs]
 
     def carpeta(ruta):
@@ -226,7 +226,10 @@ def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None, ocm=None):
                 _meter(raiz, os.path.join(base, f))
         else:
             for n in sorted(os.listdir(base), key=str.upper):
-                _meter(raiz, os.path.join(base, n))
+                # El archivo oficial llama TOOLS a estas utilidades. En las tarjetas MSXimus/MSXnano se dejan en
+                # UTILS, donde las espera el entorno de la máquina y donde se ha comprobado EMUFILE con Nextor 3.
+                destino = "UTILS" if sistema == "nextor3" and n.lower() == "bin" else None
+                _meter(raiz, os.path.join(base, n), destino)
     for clave, _, origenes, _, vacias in grupos_de(maquina):
         if clave not in grupos:
             continue
@@ -261,7 +264,7 @@ def autoexec(sistema, grupos, particiones, raiz, opciones=None, maquina="fpga", 
     path = ["A:\\"]
     if hay("bin"):
         path.append("%1\\BIN")
-    if ocm:
+    if hay("UTILS"):
         path.append("%1\\UTILS")
     for clave, _, _, carpetas, _ in grupos_en_path(maquina):
         if clave in grupos:

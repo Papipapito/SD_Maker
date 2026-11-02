@@ -19,6 +19,11 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**Packs MSXnano/MSXimus y herramientas Nextor** (SD Maker 1.7.2): **Crear o personalizar pack BIOS…** abre el mapa
+completo de 512 KB y permite sustituir por separado BIOS, SubROM, kanji, red y logo desde un archivo o File-Hunter.
+Las 26 herramientas de Nextor 3 final se copian siempre en `UTILS` —incluido `EMUFILE.COM`— y esa carpeta entra en
+el `PATH`, aunque no se elija el grupo general de utilidades.
+
 **OCM-SDBIOS 3.8.4** (SD Maker 1.7.1): probado con Nextor 3.0 final y con las 219 BIOS que publica KdL. El editor de
 módulos busca y descarga ROMs bajo petición mediante la API de File-Hunter; SD Maker no incluye esos binarios.
 OCM-EXTRA 3.1.1 no hace falta por separado: SDBIOS 3.8.4 ya contiene sus utilidades MSX principales.

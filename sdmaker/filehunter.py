@@ -44,7 +44,7 @@ def buscar(texto, timeout=30):
     return registros
 
 
-def descargar(texto, resultado, timeout=60):
+def descargar(texto, resultado, timeout=60, tamano_esperado=16 * 1024):
     """Descarga por el índice de la consulta, verifica metadatos y devuelve la ruta local."""
     url = "%s%s&download=%d" % (BASE_API, urllib.parse.quote_plus(texto.strip()), resultado["indice"])
     datos = _get(url, timeout)
@@ -67,9 +67,9 @@ def descargar(texto, resultado, timeout=60):
     crc = binascii.crc32(contenido) & 0xFFFFFFFF
     if crc != crc_esperado:
         raise ValueError("CRC-32 incorrecto: %08x, se esperaba %08x" % (crc, crc_esperado))
-    if tamano != 16 * 1024:
-        raise ValueError("%s mide %d bytes; el bloque OCM necesita exactamente 16384" %
-                         (meta.get("name", resultado["nombre"]), tamano))
+    if tamano != tamano_esperado:
+        raise ValueError("%s mide %d bytes; el bloque necesita exactamente %d" %
+                         (meta.get("name", resultado["nombre"]), tamano, tamano_esperado))
     nombre = _nombre_seguro(meta.get("name") or resultado["nombre"])
     destino_dir = carpeta_cache()
     os.makedirs(destino_dir, exist_ok=True)

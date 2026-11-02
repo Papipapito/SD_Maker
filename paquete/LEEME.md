@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.1 — preparar la tarjeta SD
+# MSX SD Maker 1.7.2 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -13,8 +13,8 @@
 
 No hay nada que instalar: en Windows es `MSXsdmaker.exe` y en macOS, `MSXsdmaker.app`.
 
-La versión 1.7.1 está probada con OCM-SDBIOS 3.8.4 y permite buscar módulos OCM en File-Hunter sin incluir ROMs en
-la aplicación. También incluye Nextor 3.0 final y el creador de ROM para MSXnano/MSXimus.
+La versión 1.7.2 añade un editor visual de todos los bloques del pack BIOS de MSXnano/MSXimus. También corrige la
+copia de las herramientas de Nextor 3 final: ahora siempre van en `UTILS`, incluido `EMUFILE.COM`.
 
 ---
 
@@ -132,7 +132,7 @@ Es el sistema operativo que se copia en la primera partición, la de arranque. *
 | MSX Pico u otro MSX con Nextor 2.1 | — | **Nextor 2.1.4** |
 
 Los packs `…nextor3.bin` publicados hasta ahora llevan la beta 2, por eso deben seguir usando la opción beta 2.
-Para pasarlos a la versión final, pulsa **Crear ROM Nextor 3…** y después **Actualizar pack…**: el programa sustituye
+Para pasarlos a la versión final, pulsa **Crear o personalizar pack BIOS…** y después **Sólo actualizar Nextor…**: el programa sustituye
 únicamente el bloque Nextor de 128 KB y conserva las demás BIOS, el driver del lector y los 6 bytes de configuración.
 Graba el fichero resultante en la máquina y elige entonces **Nextor 3.0 final** al preparar la tarjeta. Conserva una
 copia del pack original por seguridad.
@@ -140,6 +140,15 @@ copia del pack original por seguridad.
 La parte avanzada de esa misma ventana crea una ROM Nextor 3.0 final desde el kernel base incluido y un driver
 Nextor 3 específico del hardware. Opcionalmente admite código de mapper, datos extra, mapper de 8 KB e inversor de
 teclas, como `mknexrom` 1.2. Un driver de Nextor 2 no sirve para Nextor 3.
+
+**Personalizar bloques…** abre además el mapa completo del pack de 512 KB. Desde ahí se pueden cambiar JIS1/JIS2,
+BIOS principal, SubROM, red y logo con un archivo local o buscando en File-Hunter. El tamaño ha de coincidir
+exactamente. Los bloques imprescindibles del menú están protegidos; MSX-MUSIC comparte bloque con la primera página
+del menú y el programa avisa antes de sustituirla. El hueco de reserva de 16 KB no está conectado como slot y no
+sirve para meter una utilidad. Se conserva siempre una posible cola de configuración de seis bytes.
+
+Con **Nextor 3.0 final**, sus 26 herramientas se copian siempre en `\UTILS` y esta carpeta se añade al `PATH`, incluso
+si se desmarca el grupo general «Utilidades». Así `EMUFILE`, `MAPDRV`, `DRVINFO` y las demás corresponden al kernel.
 
 Las otras dos opciones:
 

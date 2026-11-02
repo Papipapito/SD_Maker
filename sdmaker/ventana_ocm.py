@@ -13,8 +13,10 @@ from . import filehunter, ocm
 class DialogoFileHunter:
     """Búsqueda y descarga mediante la misma API que usa el menú de MSXnano."""
 
-    def __init__(self, padre, bloque):
+    def __init__(self, padre, bloque=None, tamano_kb=16, contexto="slot interno del OCM"):
         self.bloque = bloque
+        self.tamano_kb = tamano_kb
+        self.contexto = contexto
         self.entradas = []
         self.resultado = None
         self.top = tk.Toplevel(padre)
@@ -66,7 +68,7 @@ class DialogoFileHunter:
             self.top.configure(cursor="")
         self.lista.delete(0, "end")
         for e in self.entradas:
-            compatible = e["kb"] == 16
+            compatible = e["kb"] == self.tamano_kb
             self.lista.insert("end", "%4d KB  %s%s" %
                               (e["kb"], e["nombre"], "" if compatible else "  [no cabe]"))
         if self.entradas:
@@ -81,27 +83,29 @@ class DialogoFileHunter:
         if indice is None:
             return
         e = self.entradas[indice]
-        if e["kb"] == 16:
-            self.detalle["text"] = ("Tiene el tamaño correcto, pero es una ROM de cartucho: su funcionamiento en "
-                                     "el slot interno del OCM es experimental. Conserva otra BIOS de arranque.")
+        if e["kb"] == self.tamano_kb:
+            self.detalle["text"] = ("Tiene el tamaño correcto, pero una ROM encontrada por nombre puede no ser "
+                                     "válida para %s. Conserva el pack original." % self.contexto)
             self.b_descargar["state"] = "normal"
         else:
-            self.detalle["text"] = ("No puede usarse: ocupa %d KB y este bloque OCM sólo admite 16 KB." % e["kb"])
+            self.detalle["text"] = ("No puede usarse: ocupa %d KB y este bloque necesita exactamente %d KB." %
+                                     (e["kb"], self.tamano_kb))
             self.b_descargar["state"] = "disabled"
 
     def _aceptar(self):
         indice = self._indice()
-        if indice is None or self.entradas[indice]["kb"] != 16:
+        if indice is None or self.entradas[indice]["kb"] != self.tamano_kb:
             return
         if not messagebox.askyesno(
                 "ROM experimental",
-                "El tamaño es correcto, pero no hay garantía de que esta ROM de cartucho funcione en el slot "
-                "interno del OCM.\n\n¿Descargarla y usarla de todos modos?", parent=self.top):
+                "El tamaño es correcto, pero no hay garantía de que esta ROM funcione en %s.\n\n"
+                "¿Descargarla y usarla de todos modos?" % self.contexto, parent=self.top):
             return
         try:
             self.top.configure(cursor="wait")
             self.top.update_idletasks()
-            ruta = filehunter.descargar(self.consulta.get(), self.entradas[indice])
+            ruta = filehunter.descargar(self.consulta.get(), self.entradas[indice],
+                                        tamano_esperado=self.tamano_kb * 1024)
         except Exception as e:
             messagebox.showerror("No se pudo descargar", str(e), parent=self.top)
             return

@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.1 — preparing the SD card
+# MSX SD Maker 1.7.2 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -13,8 +13,8 @@
 
 Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
 
-Version 1.7.1 is tested with OCM-SDBIOS 3.8.4 and can search File-Hunter for OCM modules without bundling ROMs in
-the application. It also includes Nextor 3.0 final and the MSXnano/MSXimus ROM creator.
+Version 1.7.2 adds a visual editor for every block in an MSXnano/MSXimus BIOS pack. It also fixes the final Nextor 3
+tools: they are now always copied to `UTILS`, including `EMUFILE.COM`.
 
 ---
 
@@ -132,13 +132,21 @@ This is the operating system copied to the first, boot partition. **It must matc
 | MSX Pico or another MSX with Nextor 2.1 | — | **Nextor 2.1.4** |
 
 The `…nextor3.bin` packs published so far contain beta 2, so they must keep using the beta 2 option. To move one to
-the final release, click **Crear ROM Nextor 3…**, then **Actualizar pack…**. The app replaces only the 128 KB Nextor
+the final release, click **Crear o personalizar pack BIOS…**, then **Sólo actualizar Nextor…**. The app replaces only the 128 KB Nextor
 block and preserves the remaining BIOS ROMs, the SD-reader driver and the six configuration bytes. Flash the output
 file and then choose **Nextor 3.0 final** when preparing the card. Keep a backup of the original pack.
 
 The advanced part of the same window builds a final Nextor 3.0 ROM from the included base kernel and a
 hardware-specific Nextor 3 driver. It optionally accepts mapper code, extra data, an 8 KB mapper and a boot-key
 inverter, like `mknexrom` 1.2. A Nextor 2 driver cannot be used with Nextor 3.
+
+**Personalizar bloques…** also opens the complete 512 KB pack map. JIS1/JIS2, main BIOS, SubROM, network and logo
+can be replaced from a local file or through File-Hunter, with exact-size validation. Essential menu blocks are
+protected; MSX-MUSIC shares its block with the first menu page and the app warns before replacing it. The reserved
+16 KB area is not connected as a slot and cannot hold a utility. A six-byte configuration tail is preserved.
+
+With **final Nextor 3.0**, its 26 matching tools are always copied to `\UTILS` and added to `PATH`, even when the
+general Utilities group is disabled. This keeps `EMUFILE`, `MAPDRV`, `DRVINFO` and the other tools matched to it.
 
 The other two options:
 
