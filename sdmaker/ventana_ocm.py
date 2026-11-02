@@ -7,7 +7,108 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from . import ocm
+from . import filehunter, ocm
+
+
+class DialogoFileHunter:
+    """Búsqueda y descarga mediante la misma API que usa el menú de MSXnano."""
+
+    def __init__(self, padre, bloque):
+        self.bloque = bloque
+        self.entradas = []
+        self.resultado = None
+        self.top = tk.Toplevel(padre)
+        self.top.title("Descargar ROM de File-Hunter")
+        self.top.transient(padre)
+        self.top.resizable(False, False)
+        cuerpo = ttk.Frame(self.top, padding=14)
+        cuerpo.pack(fill="both", expand=True)
+        ttk.Label(cuerpo, text="Buscar en File-Hunter", font=("Segoe UI", 13, "bold")).pack(anchor="w")
+        ttk.Label(cuerpo, text="La ROM se descarga directamente al ordenador del usuario mediante la API de "
+                  "File-Hunter y se verifica con tamaño y CRC-32. SD Maker no la incluye ni la redistribuye.", wraplength=640,
+                  justify="left").pack(anchor="w", pady=(4, 12))
+        fila = ttk.Frame(cuerpo)
+        fila.pack(fill="x", pady=(0, 10))
+        self.consulta = tk.StringVar(value="music" if bloque == "music" else "")
+        entrada = ttk.Entry(fila, textvariable=self.consulta, width=46)
+        entrada.pack(side="left", fill="x", expand=True)
+        entrada.bind("<Return>", lambda _e: self._buscar())
+        ttk.Button(fila, text="Buscar", command=self._buscar).pack(side="left", padx=(8, 0))
+        self.lista = tk.Listbox(cuerpo, width=88, height=10, exportselection=False)
+        self.lista.pack(fill="x")
+        self.lista.bind("<<ListboxSelect>>", lambda _e: self._actualizar())
+        self.lista.bind("<Double-Button-1>", lambda _e: self._aceptar())
+        self.detalle = ttk.Label(cuerpo, text="Escribe parte del nombre (mínimo dos caracteres).",
+                                 wraplength=640, justify="left")
+        self.detalle.pack(anchor="w", pady=(10, 0))
+        pie = ttk.Frame(cuerpo)
+        pie.pack(fill="x", pady=(16, 0))
+        ttk.Button(pie, text="Cancelar", command=self.top.destroy).pack(side="right")
+        self.b_descargar = ttk.Button(pie, text="Descargar y usar", command=self._aceptar, state="disabled")
+        self.b_descargar.pack(side="right", padx=(0, 8))
+        entrada.focus_set()
+        self.top.grab_set()
+        self.top.wait_window()
+
+    def _indice(self):
+        seleccion = self.lista.curselection()
+        return seleccion[0] if seleccion else None
+
+    def _buscar(self):
+        try:
+            self.top.configure(cursor="wait")
+            self.top.update_idletasks()
+            self.entradas = filehunter.buscar(self.consulta.get())
+        except Exception as e:
+            messagebox.showerror("No se pudo buscar", str(e), parent=self.top)
+            return
+        finally:
+            self.top.configure(cursor="")
+        self.lista.delete(0, "end")
+        for e in self.entradas:
+            compatible = e["kb"] == 16
+            self.lista.insert("end", "%4d KB  %s%s" %
+                              (e["kb"], e["nombre"], "" if compatible else "  [no cabe]"))
+        if self.entradas:
+            self.lista.selection_set(0)
+            self._actualizar()
+        else:
+            self.detalle["text"] = "Sin resultados para esta búsqueda."
+            self.b_descargar["state"] = "disabled"
+
+    def _actualizar(self):
+        indice = self._indice()
+        if indice is None:
+            return
+        e = self.entradas[indice]
+        if e["kb"] == 16:
+            self.detalle["text"] = ("Tiene el tamaño correcto, pero es una ROM de cartucho: su funcionamiento en "
+                                     "el slot interno del OCM es experimental. Conserva otra BIOS de arranque.")
+            self.b_descargar["state"] = "normal"
+        else:
+            self.detalle["text"] = ("No puede usarse: ocupa %d KB y este bloque OCM sólo admite 16 KB." % e["kb"])
+            self.b_descargar["state"] = "disabled"
+
+    def _aceptar(self):
+        indice = self._indice()
+        if indice is None or self.entradas[indice]["kb"] != 16:
+            return
+        if not messagebox.askyesno(
+                "ROM experimental",
+                "El tamaño es correcto, pero no hay garantía de que esta ROM de cartucho funcione en el slot "
+                "interno del OCM.\n\n¿Descargarla y usarla de todos modos?", parent=self.top):
+            return
+        try:
+            self.top.configure(cursor="wait")
+            self.top.update_idletasks()
+            ruta = filehunter.descargar(self.consulta.get(), self.entradas[indice])
+        except Exception as e:
+            messagebox.showerror("No se pudo descargar", str(e), parent=self.top)
+            return
+        finally:
+            self.top.configure(cursor="")
+        self.resultado = ruta
+        self.top.destroy()
 
 
 class DialogoModulos:
@@ -19,7 +120,7 @@ class DialogoModulos:
         self.resultado = None
         self.vars = {}
         self.combos = {}
-        self.nombres_pack = pack.roms_de_tamano(16 * ocm.K)
+        self.nombres_pack = {b: pack.roms_para_modulo(b, receta["tipo"]) for b in permitidos}
         self.top = tk.Toplevel(padre)
         self.top.title("Módulos ROM de esta BIOS")
         self.top.transient(padre)
@@ -44,15 +145,20 @@ class DialogoModulos:
             combo.bind("<<ComboboxSelected>>", lambda e, b=bloque: self._seleccionar(b))
             ttk.Button(cuerpo, text="Archivo…", command=lambda b=bloque: self._archivo(b)).grid(
                 row=fila, column=3, padx=(8, 0), pady=5)
+            ttk.Button(cuerpo, text="File-Hunter…", command=lambda b=bloque: self._filehunter(b)).grid(
+                row=fila, column=4, padx=(8, 0), pady=5)
             self.vars[bloque], self.combos[bloque] = var, combo
             self._refrescar(bloque)
 
-        ttk.Separator(cuerpo).grid(row=5, column=0, columnspan=4, sticky="ew", pady=(12, 10))
+        ttk.Separator(cuerpo).grid(row=5, column=0, columnspan=5, sticky="ew", pady=(12, 10))
         ttk.Label(cuerpo, text="Nota: una Option-ROM personalizada reemplaza el WiFi o el logo turboR; una "
                   "Music-ROM personalizada reemplaza la MSX-MUSIC incluida.", foreground="#7a4c00",
-                  wraplength=610, justify="left").grid(row=6, column=0, columnspan=4, sticky="w")
+                  wraplength=690, justify="left").grid(row=6, column=0, columnspan=5, sticky="w")
+        ttk.Label(cuerpo, text="MSX-AUDIO (48 KB) y los procesadores de textos (512 KB–1 MB) no caben en los "
+                  "bloques OCM de 16 KB y no se pueden seleccionar.", foreground="#7a4c00",
+                  wraplength=690, justify="left").grid(row=7, column=0, columnspan=5, sticky="w", pady=(4, 0))
         pie = ttk.Frame(cuerpo)
-        pie.grid(row=7, column=0, columnspan=4, sticky="e", pady=(16, 0))
+        pie.grid(row=8, column=0, columnspan=5, sticky="e", pady=(16, 0))
         ttk.Button(pie, text="Cancelar", command=self.top.destroy).pack(side="right")
         ttk.Button(pie, text="Aceptar", command=self._aceptar).pack(side="right", padx=(0, 8))
         self.top.grab_set()
@@ -66,7 +172,7 @@ class DialogoModulos:
                 actual = especificacion["nombre"]
             else:
                 actual = "Archivo: " + os.path.basename(especificacion["ruta"])
-        valores = ["Automático (recomendado)"] + self.nombres_pack
+        valores = ["Automático (recomendado)"] + self.nombres_pack[bloque]
         if actual not in valores:
             valores.append(actual)
         self.combos[bloque]["values"] = valores
@@ -76,7 +182,7 @@ class DialogoModulos:
         valor = self.vars[bloque].get()
         if valor == "Automático (recomendado)":
             self.modulos.pop(bloque, None)
-        elif valor in self.nombres_pack:
+        elif valor in self.nombres_pack[bloque]:
             self.modulos[bloque] = {"origen": "pack", "nombre": valor}
         self._refrescar(bloque)
 
@@ -95,6 +201,13 @@ class DialogoModulos:
                                  "bytes (16 KB)." % (os.path.basename(ruta), tam), parent=self.top)
             return
         self.modulos[bloque] = {"origen": "archivo", "ruta": os.path.abspath(ruta)}
+        self._refrescar(bloque)
+
+    def _filehunter(self, bloque):
+        d = DialogoFileHunter(self.top, bloque)
+        if not d.resultado:
+            return
+        self.modulos[bloque] = {"origen": "archivo", "ruta": d.resultado}
         self._refrescar(bloque)
 
     def _aceptar(self):

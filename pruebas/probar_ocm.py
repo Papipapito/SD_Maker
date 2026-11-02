@@ -61,6 +61,22 @@ def probar_bios(pack, ruta):
             mal("sin pareja: " + s)
 
 
+def probar_nextor3_final(pack):
+    """El pack 3.8.4 debe llevar exactamente los ficheros oficiales finales, no los de la beta 2."""
+    if pack.version != "3.8.4":
+        return
+    n3 = pack.n3xtor()
+    esperados = {
+        "NEXTOR.SYS": "b2d37b035bf352367ee2500309c3f09c985f68413333e94a55c761ee6b5111c3",
+        "COMMAND3.COM": "8afd16453e9ef5c0ac8d87a0852cafc051e5d24bed32c2a0e09900153504efcf",
+    }
+    for nombre, sha in esperados.items():
+        datos = n3.get(nombre, (b"", None))[0]
+        if hashlib.sha256(datos).hexdigest() != sha:
+            mal("%s del pack 3.8.4 no es el oficial de Nextor 3.0 final" % nombre)
+    print("  Nextor 3.0 final: NEXTOR.SYS y COMMAND3.COM oficiales")
+
+
 def leer_fichero(L, ruta):
     import struct
     c = 0
@@ -165,6 +181,7 @@ def main():
     os.makedirs(trabajo, exist_ok=True)
     pack = ocm.abrir(ruta)
     print(pack.texto(), "problemas:", pack.problemas() or "ninguno")
+    probar_nextor3_final(pack)
     probar_bios(pack, ruta)
     caso("o1_defecto_3x200M", pack, ruta, trabajo, "1G", ["--n", "3", "--tam-particion", "200M"])
     caso("o2_nextor3_resto", pack, ruta, trabajo, "6G", ["--sistema", "nextor3", "--n", "1", "--resto"])

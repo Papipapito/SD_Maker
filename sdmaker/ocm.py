@@ -68,6 +68,13 @@ TAMANOS = {"disk": 128 * K, "main": 32 * K, "extra": 16 * K, "music": 16 * K, "s
            "option": 16 * K, "jis1": 128 * K, "jis2": 128 * K}
 MODULOS = [("extra", "Extra-ROM", "slot 3-3"), ("music", "Music-ROM / MSX-MUSIC", "slot 0-2"),
            ("option", "Option-ROM", "slot 0-3")]
+# Sólo estas ROM del pack son intercambiables con seguridad en cada bloque. Que otra ROM mida 16 KB no basta:
+# CBIOSSUB, 2PEXTRTC, etc. pertenecen a otros slots y antes aparecían mezcladas en los tres desplegables.
+MODULOS_SEGUROS = {
+    "extra": ["FREE16KB.ROM", "XBASIC20.ROM", "XBASIC21.ROM"],
+    "music": ["FREE16KB.ROM", "MSX2PMUS.ROM", "MSXTRMUS.ROM"],
+    "option": ["FREE16KB.ROM", "EMPTYOPT.ROM", "ESP8266E.ROM", "ESP8266M.ROM", "MSXPPOPT.ROM", "MSXTROPT.ROM"],
+}
 DEFECTO = {"tipo": "msx2p", "disco": "nextor214", "teclado": "bsl", "logo": "2", "wifi": True, "logo_tr": True,
            "extra": "3", "modulos": {}}
 FLASHEO = ("PLDFLASH.COM", "SMXFLASH.COM")      # flashean el FPGA: solo si se piden (grupo "flash")
@@ -225,6 +232,22 @@ class Pack:
         """Nombres de las ROM del pack que caben exactamente en un bloque intercambiable."""
         return [nombre for nombre, datos, _ in self.carpeta("make/roms")
                 if nombre.lower().endswith(".rom") and len(datos) == tam]
+
+    def roms_para_modulo(self, bloque, tipo):
+        """ROM del pack conocidas como seguras para ese bloque y tipo de máquina."""
+        disponibles = {n.upper(): n for n in self.roms_de_tamano(16 * K)}
+        nombres = list(MODULOS_SEGUROS[bloque])
+        if bloque == "music":
+            nombres.remove("MSXTRMUS.ROM" if tipo != "turbor" else "MSX2PMUS.ROM")
+        elif bloque == "option":
+            if tipo == "turbor":
+                nombres.remove("MSXPPOPT.ROM")
+            elif tipo == "msx2p":
+                for n in ("EMPTYOPT.ROM", "ESP8266M.ROM", "MSXTROPT.ROM"):
+                    nombres.remove(n)
+            else:
+                nombres = ["FREE16KB.ROM"]
+        return [disponibles[n] for n in nombres if n in disponibles]
 
     def carpeta(self, ruta):
         """[(nombre, datos, mtime)] de los ficheros que hay directamente en ruta (p.ej. "make/sdcreate/utils")."""

@@ -22,6 +22,9 @@
 
 **Download** the ZIP for your system from the [latest release](https://github.com/Papipapito/SD_Maker/releases/latest), unzip it and run `MSXsdmaker.exe` on Windows or `MSXsdmaker.app` on macOS. How to use it: [paquete/README.md](paquete/README.md) (English) · [paquete/LEEME.md](paquete/LEEME.md) (castellano). The program itself is in Spanish.
 
+OCM-SDBIOS 3.8.4 is supported and tested with its final Nextor 3.0 kernel. Its main OCM-EXTRA 3.1.1 utilities are
+already included in that pack, so a separate EXTRA pack is not required.
+
 ## Contents
 
 | | |

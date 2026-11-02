@@ -19,6 +19,10 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**OCM-SDBIOS 3.8.4** (SD Maker 1.7.1): probado con Nextor 3.0 final y con las 219 BIOS que publica KdL. El editor de
+módulos busca y descarga ROMs bajo petición mediante la API de File-Hunter; SD Maker no incluye esos binarios.
+OCM-EXTRA 3.1.1 no hace falta por separado: SDBIOS 3.8.4 ya contiene sus utilidades MSX principales.
+
 **Nextor 3.0 final y creador de ROM** (SD Maker 1.7): el botón **Crear ROM Nextor 3…** actualiza un pack BIOS de
 MSXnano o MSXimus con Nextor 3 beta 2 conservando todas sus otras ROM y su driver, o crea una ROM avanzada a partir
 del kernel base oficial y el driver Nextor 3 específico del hardware. Después de actualizar y grabar el pack se debe

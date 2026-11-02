@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.0 — preparing the SD card
+# MSX SD Maker 1.7.1 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -13,8 +13,8 @@
 
 Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
 
-Version 1.7.0 includes Nextor 3.0 final and a ROM creator that updates MSXnano/MSXimus packs or combines the official
-kernel with a hardware driver. It also lets every OCM BIOS use different ROM modules.
+Version 1.7.1 is tested with OCM-SDBIOS 3.8.4 and can search File-Hunter for OCM modules without bundling ROMs in
+the application. It also includes Nextor 3.0 final and the MSXnano/MSXimus ROM creator.
 
 ---
 
@@ -408,7 +408,7 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
 
 ### What else you need
 
-**KdL's OCM-SDBIOS Pack**, which you ask the author for. MSX SD Maker does not include it because its BIOS images hold third-party system ROMs. Leave it **as it comes** (the `.7z`, or the unpacked folder) in the `OCM-SDBIOS` folder next to `MSXsdmaker.exe` or `MSXsdmaker.app`, or pick it with **Buscar el pack...**. Pack 3.8.3 has Nextor 2.1.4 and Nextor 3.0 beta 2; 3.8.1 only Nextor 2.1.4.
+**KdL's OCM-SDBIOS Pack 3.8.4**, which you ask the author for. MSX SD Maker does not include it because its BIOS images hold third-party system ROMs. Leave it **as it comes** (the `.7z`, or the unpacked folder) in the `OCM-SDBIOS` folder next to `MSXsdmaker.exe` or `MSXsdmaker.app`, or pick it with **Buscar el pack...**. It includes Nextor 2.1.4, Nextor 3.0 final and every BIOS needed for the build. OCM-EXTRA 3.1.1 is not needed separately: its main MSX utilities are already included and identical.
 
 ### Step by step
 
@@ -416,16 +416,17 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
 2. **Partitions**: FAT16 only. The machine's IPL, which loads the BIOS, cannot read FAT32. The first partition holds the BIOS images and the system; the others are mounted as C:, D:… by `MAPDRV` in `AUTOEXEC.BAT`.
 3. **Opciones de las BIOS...** opens the menu of the card's BIOS images. The main one, `OCM-BIOS.DAT`, is the one that boots. **Añadir otra** adds spare ones, `ALT-BIOS.DA0` to `.DA9`. For each one you choose:
    - **Machine type**: MSX2+ (the usual one), turboR (experimental: the OCM has no R800), MSX2, MSX1, MSX2+ for OCM-PLD 3.0-3.3.3, or empty. The empty one is not a BIOS: the machine rejects it and boots the one in its flash.
-   - **Disk**: Nextor 2.1.4, Nextor 3.0 beta 2, or MegaSDHC (MSX-DOS 2, no Nextor) with one or two SD slots.
+   - **Disk**: Nextor 2.1.4, Nextor 3.0 final, or MegaSDHC (MSX-DOS 2, no Nextor) with one or two SD slots.
    - **Keyboard**: `\` backslash, `¥` yen or western.
    - **Boot logo**, with a picture of it. "Propio" is the one you made with the pack's ++Logo Toolkit.
    - **Option-ROM**: Wi-Fi (the ESP8266 BIOS, which detects the module by itself) and, on the turboR, its logo.
    - **Extra-ROM**: BASIC'n turbo 2.1, BASIC'n plus 2.0 or none.
-   - **Advanced modules**: replaces Extra-ROM, Music-ROM/MSX-MUSIC or Option-ROM with another ROM from the pack or
-     an external file. This lets each BIOS carry a different audio ROM, word processor or utility. A module must be
-     exactly **16 KB** and made for the slot shown in the window. A custom Option-ROM replaces Wi-Fi/the turboR logo;
-     a custom Music-ROM replaces the normal MSX-MUSIC. A 32 KB ROM, or one made for another slot, cannot be inserted
-     directly.
+   - **Advanced modules**: replaces Extra-ROM, Music-ROM/MSX-MUSIC or Option-ROM. **File-Hunter…** searches by name
+     through the same HTTP API used by the MSXnano menu and downloads the selected item directly to the user's PC;
+     SD Maker neither bundles nor redistributes it. Only exact **16 KB** results can be selected, and their size and
+     CRC-32 are checked. A cartridge ROM may still not work in an internal slot, so it is marked experimental and a
+     spare boot BIOS is advisable. FM-PAC (64 KB), usual MSX-AUDIO BIOS images (48 KB), and word processors (512 KB
+     or more) cannot fit these blocks. The pack's normal MSX-MUSIC remains the recommended automatic choice.
 
    By default: MSX2+ with Nextor 2.1.4, Wi-Fi and the MSX++ logo, and a spare turboR.
 

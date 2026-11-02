@@ -29,6 +29,9 @@ class PackFalso:
     def texto_disco(self, disco):
         return disco
 
+    def roms_de_tamano(self, tam):
+        return [n for n, d in self.roms.items() if len(d) == tam]
+
 
 def main():
     pack = PackFalso()
@@ -68,6 +71,18 @@ def main():
     # Las recetas antiguas, que no contienen "modulos", siguen produciendo el mismo resultado predeterminado.
     antigua = {k: v for k, v in base.items() if k != "modulos"}
     assert ocm.construir_dat(pack, antigua) == normal
+
+    # El selector no mezcla ROM de SUB/CBIOS sólo porque también midan 16 KB.
+    class Inventario:
+        def roms_de_tamano(self, tam):
+            return ["FREE16KB.ROM", "XBASIC21.ROM", "MSX2PMUS.ROM", "MSXTRMUS.ROM", "2PEXTRTC.ROM",
+                    "ESP8266E.ROM", "ESP8266M.ROM", "MSXTROPT.ROM", "MSXPPOPT.ROM", "CBIOSOPT.ROM"]
+    inventario = Inventario()
+    assert ocm.Pack.roms_para_modulo(inventario, "extra", "msx2p") == ["FREE16KB.ROM", "XBASIC21.ROM"]
+    assert ocm.Pack.roms_para_modulo(inventario, "music", "msx2p") == ["FREE16KB.ROM", "MSX2PMUS.ROM"]
+    assert ocm.Pack.roms_para_modulo(inventario, "music", "turbor") == ["FREE16KB.ROM", "MSXTRMUS.ROM"]
+    assert ocm.Pack.roms_para_modulo(inventario, "option", "msx2p") == [
+        "FREE16KB.ROM", "ESP8266E.ROM", "MSXPPOPT.ROM"]
     print("MÓDULOS OCM: bloques, aislamiento, archivo externo y compatibilidad: OK")
 
 
