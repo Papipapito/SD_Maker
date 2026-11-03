@@ -8,6 +8,8 @@ El parche, su código, los aplicadores (`aplicar.py`, `aplicar.html`, `MM_LFN_RC
 banco de pruebas en openMSX viven en su propio repositorio, **[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)** (GPL v3). Multi Mente es de
 MOGU; el parche no es suyo ni cuenta con su aval.
 
+Para parchear tu propio `MM.COM` (2.07_A o RC5) sin instalar nada: [aplicador en línea](https://papipapito.github.io/MultiMente_LFN/aplicar.html).
+
 Lo que hay en la tarjeta:
 
 | Fichero | Qué es |
@@ -34,6 +36,8 @@ with the long-file-name patch: the list shows the first 12 characters of each fi
 The patch, its source, the appliers (`aplicar.py`, `aplicar.html`, `MM_LFN_RC5.ips`), its limitations and the
 openMSX test bench live in their own repository, **[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)** (GPL v3). Multi Mente is by MOGU; the
 patch is not his and is not endorsed by him.
+
+To patch your own `MM.COM` (2.07_A or RC5) without installing anything: [online applier](https://papipapito.github.io/MultiMente_LFN/aplicar.html).
 
 `MM.COM` = RC5 `MM.COM` + `MM_LFN_RC5.ips`, with this project's tool slots (`0x108-0x367`, what `CS.COM`
 copies from `MM.CFG`) on top. `MM.EXE` is the RC5 one (it goes with its `MM.COM`) and `CS.COM` is CS 3.12.
