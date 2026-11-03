@@ -191,7 +191,7 @@ uno.
 `MM/` es Multi Mente **2.07A+ RC5** (`MM.COM`, `MM.EXE` y CS 3.12 de la RC5) con el
 parche de nombres largos del repositorio
 [MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN) (GPL v3): la lista enseña los
-12 primeros caracteres del nombre largo de cada fichero y **File info** (`Name:`) el
+12 primeros caracteres del nombre largo de cada fichero (31 en la vista de una columna) y **File info** (`Name:`) el
 nombre largo entero del fichero del cursor. Cómo se hizo `MM.COM` en
 `parches/mm-nombres-largos/LEEME.md`. El parche solo cambia código; los huecos de las
 herramientas (0x108-0x367, lo que copia CS.COM desde `MM.CFG`) son los de abajo. 🚨 Al

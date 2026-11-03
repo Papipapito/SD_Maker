@@ -2,7 +2,8 @@
 
 `sd/base/MM/` lleva **Multi Mente 2.07A+ RC5** (la de la comunidad, con los arreglos de FAT16 y del año 2000)
 con el parche de nombres largos: la lista enseña los 12 primeros caracteres del nombre largo de cada
-fichero y **File info** el nombre largo entero.
+fichero (31 en la vista de una columna, SHIFT+1, que deja de pintar los atributos) y **File info** el
+nombre largo entero.
 
 El parche, su código, los aplicadores (`aplicar.py`, `aplicar.html`, `MM_LFN_RC5.ips`), las limitaciones y el
 banco de pruebas en openMSX viven en su propio repositorio, **[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)** (GPL v3). Multi Mente es de
@@ -14,7 +15,7 @@ Lo que hay en la tarjeta:
 
 | Fichero | Qué es |
 |---|---|
-| `MM.COM` | El de la RC5 (23.552 bytes, sha1 `09c4a6b4…`) + `MM_LFN_RC5.ips` (25.673 bytes, sha1 `5b97f818…`), y encima los huecos de herramientas de este proyecto (`0x108-0x367`, lo que `CS.COM` copia desde `MM.CFG`): 25.673 bytes, sha1 `7d7a962a…` |
+| `MM.COM` | El de la RC5 (23.552 bytes, sha1 `09c4a6b4…`) + `MM_LFN_RC5.ips` de MultiMente_LFN `69e9145` (25.726 bytes, sha1 `12b9f581…`), y encima los huecos de herramientas de este proyecto (`0x108-0x367`, lo que `CS.COM` copia desde `MM.CFG`): 25.726 bytes, sha1 `bf863ad5…` |
 | `MM.EXE` | El de la RC5 (11.648 bytes): va con su `MM.COM` |
 | `CS.COM` | CS 3.12, el que acompaña a la RC5 |
 | `MM.CFG`, `MMRET.DAT`, `MMMCR.DAT`… | Los de este proyecto (ver `sd/LEEME.md`) |
@@ -30,8 +31,8 @@ carpetas, volver de [X]ecom, borrar, copiar y `CS MM`. Con Nextor 3 la RC5 no se
 # Multi Mente with long file names
 
 `sd/base/MM/` carries **Multi Mente 2.07A+ RC5** (the community release, with the FAT16 and year 2000 fixes)
-with the long-file-name patch: the list shows the first 12 characters of each file's long name and
-**File info** the whole long name.
+with the long-file-name patch: the list shows the first 12 characters of each file's long name (31 in the
+one-column view, SHIFT+1, which no longer shows the attributes) and **File info** the whole long name.
 
 The patch, its source, the appliers (`aplicar.py`, `aplicar.html`, `MM_LFN_RC5.ips`), its limitations and the
 openMSX test bench live in their own repository, **[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)** (GPL v3). Multi Mente is by MOGU; the
