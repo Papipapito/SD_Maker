@@ -9,6 +9,8 @@ con TAB. Unica diferencia con el FDISK: el enlace de cada EBR a la siguiente log
 FAT32: una sola particion 0Ch que empieza en el sector 8192 (4 MB, como el formateador de la SD Association)."""
 import struct
 
+from . import idioma
+
 GB2 = 2048 * 1024 * 2          # sectores de una particion de 2 GB del FDISK (2048 MB)
 GB4 = 4096 * 1024 * 2          # 4 GB = el maximo de una FAT16 de Nextor
 MAX_PARTICIONES = 8            # el menu del MSXimus ve 8 (PART_TBL); Nextor mapea las 9 primeras al arrancar
@@ -48,7 +50,7 @@ def planificar(sectores_disco, esquema, n=1, resto=False, tam=None):
     (hasta 4 GB). tam: tamano de particion en sectores (solo para pruebas con imagenes pequenas)."""
     if esquema == "fat32":
         if sectores_disco < 8192 + 2 * 65536:
-            raise ValueError("tarjeta demasiado pequena para FAT32")
+            raise ValueError(idioma.t("pa.fat32_pequena"))
         return [Particion(1, 8192, sectores_disco - 8192, TIPO_FAT32, activa=True)]
     tam = tam or (GB2 if esquema == "fat16-2g" else GB4)
     maximo = maximo_fat16(sectores_disco, tam)
@@ -57,7 +59,7 @@ def planificar(sectores_disco, esquema, n=1, resto=False, tam=None):
         # una sola particion con toda la tarjeta, como hace el FDISK de Nextor. Antes no dejaba hacer ninguna FAT16.
         return [Particion(1, 1, min(GB4, sectores_disco - 1), TIPO_FAT16, activa=True)]
     if n < 1 or n > maximo:
-        raise ValueError("caben de 1 a %d particiones de ese tamano" % maximo)
+        raise ValueError(idioma.t("pa.caben", maximo))
     tamanos = [tam] * n
     usado = 1 + tam + (n - 1) * (1 + tam)
     sobra = sectores_disco - usado

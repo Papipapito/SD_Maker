@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.3 — preparing the SD card
+# MSX SD Maker 1.7.4 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -11,9 +11,10 @@
 5. Writes an `AUTOEXEC.BAT` that sets everything up at boot.
 6. Reads everything back to check that the card came out right.
 
-Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
+Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program speaks Spanish and English.
 
-Version 1.7.3 replaces Multi Mente with **2.07A+ RC5** (with the FAT16 and year 2000 fixes) with long file names:
+Version 1.7.4 speaks Spanish and English: at the top right, **Idioma / Language** switches the language at
+once without losing your choices, and remembers it for next time (the first time, the system's). Version 1.7.3 replaced Multi Mente with **2.07A+ RC5** (with the FAT16 and year 2000 fixes) with long file names:
 12 characters in the list and up to 31 in the one-column view (SHIFT+1). Version 1.7.2 added the visual editor for
 MSXnano/MSXimus BIOS packs and the final Nextor 3 tools in `UTILS`.
 

@@ -21,7 +21,7 @@ jobs:
         run: python -m pip install --upgrade pip pyinstaller py7zr
       - name: Probar
         run: |
-          python -m unittest -v pruebas.probar_macos pruebas.probar_nextor_bios pruebas.probar_filehunter
+          python -m unittest -v pruebas.probar_macos pruebas.probar_nextor_bios pruebas.probar_filehunter pruebas.probar_idioma
           python pruebas/probar_modulos_ocm.py
       - name: Construir EXE y ZIP
         shell: cmd
@@ -48,7 +48,7 @@ jobs:
           .venv-macos/bin/python -m pip install --upgrade pip pyinstaller py7zr
       - name: Probar
         run: |
-          .venv-macos/bin/python -m unittest -v pruebas.probar_macos pruebas.probar_nextor_bios pruebas.probar_filehunter
+          .venv-macos/bin/python -m unittest -v pruebas.probar_macos pruebas.probar_nextor_bios pruebas.probar_filehunter pruebas.probar_idioma
           .venv-macos/bin/python pruebas/probar_modulos_ocm.py
       - name: Construir aplicación y ZIP
         run: PYTHON_BIN="$PWD/.venv-macos/bin/python" ./construir_macos.sh

@@ -5,7 +5,9 @@ import tempfile
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(AQUI, ".."))
-from sdmaker import ocm  # noqa: E402
+from sdmaker import idioma, ocm  # noqa: E402
+
+idioma.fijar("es")     # la prueba comprueba mensajes en castellano
 
 
 class PackFalso:

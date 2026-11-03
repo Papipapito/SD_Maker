@@ -20,7 +20,7 @@ MSXBOOK / OneChipBook / 1chipMSX: --maquina ocm [--pack RUTA] (el OCM-SDBIOS Pac
 import argparse
 import sys
 
-from sdmaker import VERSION, contenido, dispositivos, novedades, ocm, particiones, proceso
+from sdmaker import VERSION, contenido, dispositivos, idioma, novedades, ocm, particiones, proceso
 
 
 def _tam(texto):
@@ -114,7 +114,7 @@ def _crear(dev, a):
     print("   sin usar: %s" % dispositivos.formato_tamano(particiones.sin_usar(dev.sectores, plan) * 512))
 
     def aviso(texto, fraccion=None):
-        if not texto.startswith("Copiando"):
+        if not texto.startswith(idioma.prefijos("p.copiando")):
             print("[%3d%%] %s" % (int((fraccion or 0) * 100), texto))
     inf = proceso.crear(dev, plan, a.sistema, _grupos(a.programas, a.maquina), a.etiqueta, aviso,
                         opciones=_opciones_n3(a), ocm=datos_ocm)
@@ -132,6 +132,7 @@ def main():
         from sdmaker import ventana
         ventana.main()
         return 0
+    idioma.fijar("es")      # la línea de órdenes sigue en castellano (los mensajes que salen de los módulos, también)
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="orden", required=True)
     sub.add_parser("listar")

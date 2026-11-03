@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.3 — preparar la tarjeta SD
+# MSX SD Maker 1.7.4 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -13,7 +13,8 @@
 
 No hay nada que instalar: en Windows es `MSXsdmaker.exe` y en macOS, `MSXsdmaker.app`.
 
-La versión 1.7.3 cambia Multi Mente por la **2.07A+ RC5** (con los arreglos de FAT16 y del año 2000) con nombres
+La versión 1.7.4 habla castellano e inglés: arriba a la derecha, **Idioma / Language** cambia el idioma al
+momento sin perder lo elegido, y se recuerda para la próxima vez (al principio, el del sistema). La 1.7.3 cambió Multi Mente por la **2.07A+ RC5** (con los arreglos de FAT16 y del año 2000) con nombres
 largos: 12 caracteres en la lista y hasta 31 en la vista de una columna (SHIFT+1). La 1.7.2 añadió el editor visual
 del pack BIOS de MSXnano/MSXimus y las herramientas de Nextor 3 final en `UTILS`.
 

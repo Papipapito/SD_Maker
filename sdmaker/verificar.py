@@ -3,7 +3,7 @@ la tabla de particiones, el sector de arranque de cada particion y el contenido 
 import struct
 import zlib
 
-from . import particiones
+from . import idioma, particiones
 
 SECTOR = 512
 
@@ -14,11 +14,11 @@ class LectorFat:
         self.lba = lba
         b = dev.leer(lba)
         if b[510:512] != b"\x55\xAA":
-            raise ValueError("sin firma 55AA en el sector de arranque")
+            raise ValueError(idioma.t("ve.sin_firma"))
         (bps, self.spc, res, nfats, raiz_ent, tot16, _media, fat16, _spt, _heads, _ocultos, tot32) = \
             struct.unpack_from("<HBHBHHBHHHII", b, 11)
         if bps != SECTOR:
-            raise ValueError("sector de %d bytes" % bps)
+            raise ValueError(idioma.t("ve.sector", bps))
         self.fat32 = fat16 == 0
         self.spf = struct.unpack_from("<I", b, 36)[0] if self.fat32 else fat16
         self.raiz_cluster = struct.unpack_from("<I", b, 44)[0] if self.fat32 else 0
@@ -99,17 +99,17 @@ def comprobar(dev, plan, volumenes):
     tabla = particiones.leer_tabla(lambda lba: dev.leer(lba))
     esperado = [(p.numero, p.tipo, p.lba, p.sectores) for p in plan]
     if tabla != esperado:
-        errores.append("la tabla de particiones leida no es la escrita: %r" % tabla)
+        errores.append(idioma.t("ve.tabla", tabla))
     for p, v in zip(plan, volumenes):
         try:
             lector = LectorFat(dev, p.lba)
         except ValueError as e:
-            errores.append("particion %d: %s" % (p.numero, e))
+            errores.append(idioma.t("ve.particion", p.numero, e))
             continue
         leido = lector.listar()
         if leido != v.crc:
             falta = sorted(set(v.crc) - set(leido))
             sobra = sorted(set(leido) - set(v.crc))
             mal = sorted(r for r in set(v.crc) & set(leido) if v.crc[r] != leido[r])
-            errores.append("particion %d: faltan %s, sobran %s, distintos %s" % (p.numero, falta[:5], sobra[:5], mal[:5]))
+            errores.append(idioma.t("ve.ficheros", p.numero, falta[:5], sobra[:5], mal[:5]))
     return errores

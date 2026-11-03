@@ -13,6 +13,8 @@ import struct
 import time
 import zlib
 
+from . import idioma
+
 SECTOR = 512
 EOC16 = 0xFFFF
 EOC32 = 0x0FFFFFFF
@@ -44,15 +46,14 @@ class Geometria:
         return self.lba_datos + (c - 2) * self.spc
 
     def __repr__(self):
-        return "FAT%d %d sectores, %d KB/cluster, %d clusters, FAT de %d sectores" % (
-            self.tipo, self.total, self.cluster_bytes // 1024, self.clusters, self.spf)
+        return idioma.t("ff.geometria", self.tipo, self.total, self.cluster_bytes // 1024, self.clusters, self.spf)
 
 
 def geometria_fat16_nextor(sectores_particion):
     """CalculateFatFileSystemParametersFat16 del FDISK de Nextor, tal cual (tamano en K = sectores / 2)."""
     size_k = sectores_particion // 2
     if size_k <= 32768:
-        raise ValueError("una FAT16 de Nextor ha de pasar de 32 MB")
+        raise ValueError(idioma.t("ff.fat16_32mb"))
     size_m = size_k >> 10
     pw = 7
     for limite, p in ((128, 2), (256, 3), (512, 4), (1024, 5), (2048, 6)):
@@ -95,7 +96,7 @@ def geometria_fat32(sectores, lba_inicio):
             break
         spc //= 2
     if clusters < 65525:
-        raise ValueError("la particion es demasiado pequena para FAT32")
+        raise ValueError(idioma.t("ff.fat32_pequena"))
     return Geometria(32, sectores, reservados, spc, spf, 0, clusters)
 
 
@@ -182,7 +183,7 @@ def nombre_corto(nombre, usados):
         if corto not in usados:
             usados.add(corto)
             return corto, 0, True
-    raise TarjetaLlena("demasiados nombres parecidos en un directorio")
+    raise TarjetaLlena(idioma.t("ff.nombres_parecidos"))
 
 
 def suma_lfn(corto):
@@ -195,7 +196,7 @@ def suma_lfn(corto):
 def entradas_lfn(nombre, corto):
     u = nombre.encode("utf-16-le")
     if len(nombre) > 255:
-        raise ValueError("nombre demasiado largo: " + nombre)
+        raise ValueError(idioma.t("ff.nombre_largo", nombre))
     trozos = -(-len(nombre) // 13)
     u += b"\x00\x00" if len(nombre) % 13 else b""
     u = u.ljust(trozos * 26, b"\xFF")
@@ -272,7 +273,7 @@ class Volumen:
             return 0
         primero = self.siguiente
         if primero + n > self.g.clusters + 2:
-            raise TarjetaLlena("no cabe en la particion")
+            raise TarjetaLlena(idioma.t("ff.no_cabe"))
         for c in range(primero, primero + n - 1):
             self.fat[c] = c + 1
         self.fat[primero + n - 1] = EOC16 if self.g.tipo == 16 else EOC32
@@ -313,7 +314,7 @@ class Volumen:
         n = self._contar(d, es_raiz)
         if es_raiz and self.g.tipo == 16:
             if n > self.g.raiz_entradas:
-                raise TarjetaLlena("la raiz no admite mas de %d entradas" % self.g.raiz_entradas)
+                raise TarjetaLlena(idioma.t("ff.raiz_llena", self.g.raiz_entradas))
         else:
             d.cluster = self._reservar(max(1, self._clusters(n * 32)))
         for h in d.hijos:

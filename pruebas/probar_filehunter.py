@@ -5,7 +5,11 @@ import tempfile
 import unittest
 from unittest import mock
 
-from sdmaker import filehunter
+from sdmaker import filehunter, idioma
+
+
+def setUpModule():
+    idioma.fijar("es")     # las pruebas comprueban mensajes en castellano
 
 
 class FileHunterTest(unittest.TestCase):

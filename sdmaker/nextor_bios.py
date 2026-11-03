@@ -3,6 +3,7 @@
 Combina el kernel base oficial con un driver Nextor 3 específico del hardware. También admite código de mapper,
 un bloque extra de hasta 256 bytes, el parche para mappers de bancos de 8 KB y el inversor de teclas de arranque.
 """
+from . import idioma
 
 BANK_SIZE = 16 * 1024
 MAPPER_SIZE = 48
@@ -20,18 +21,18 @@ PACK_NEXTOR_SIZE = 128 * 1024
 PACK_SIZE = 512 * 1024
 
 # Mapa fijo del pack MSXnano/MSXimus. Los bloques de menú se describen para poder
-# inspeccionarlos, pero no se ofrecen como huecos libres: el core los necesita.
+# inspeccionarlos, pero no se ofrecen como huecos libres: el core los necesita. El nombre de cada bloque es una clave de idioma.py (idioma.t(nombre)).
 PACK_BLOCKS = [
-    ("jis1", "Fuente Kanji JIS1", 0x00000, 128 * 1024, True),
-    ("jis2", "Fuente Kanji JIS2", 0x20000, 128 * 1024, True),
-    ("nextor", "Nextor + driver SD", 0x40000, 128 * 1024, False),
-    ("main", "BIOS principal MSX2+", 0x60000, 32 * 1024, True),
-    ("sub", "SubROM MSX2+", 0x68000, 16 * 1024, True),
-    ("music_menu", "MSX-MUSIC + menú (página 1)", 0x6C000, 16 * 1024, True),
-    ("menu2", "Menú (página 2)", 0x70000, 16 * 1024, False),
-    ("free", "Reserva interna (no es un slot)", 0x74000, 16 * 1024, False),
-    ("network", "Driver de red UNAPI", 0x78000, 16 * 1024, True),
-    ("logo", "Logo de arranque", 0x7C000, 16 * 1024, True),
+    ("jis1", "nb.bloque.jis1", 0x00000, 128 * 1024, True),
+    ("jis2", "nb.bloque.jis2", 0x20000, 128 * 1024, True),
+    ("nextor", "nb.bloque.nextor", 0x40000, 128 * 1024, False),
+    ("main", "nb.bloque.main", 0x60000, 32 * 1024, True),
+    ("sub", "nb.bloque.sub", 0x68000, 16 * 1024, True),
+    ("music_menu", "nb.bloque.music_menu", 0x6C000, 16 * 1024, True),
+    ("menu2", "nb.bloque.menu2", 0x70000, 16 * 1024, False),
+    ("free", "nb.bloque.free", 0x74000, 16 * 1024, False),
+    ("network", "nb.bloque.network", 0x78000, 16 * 1024, True),
+    ("logo", "nb.bloque.logo", 0x7C000, 16 * 1024, True),
 ]
 
 
@@ -42,45 +43,45 @@ def _bancos(datos):
 def crear_rom(base, driver, mapper=None, extra=None, direccion_8k=None, teclas=None):
     """Devuelve una ROM completa a partir de bytes. Lanza ValueError si una entrada no es compatible."""
     if len(base) <= BASE_BANK_COUNT_OFFSET:
-        raise ValueError("el kernel base es demasiado pequeño")
+        raise ValueError(idioma.t("nb.kernel_pequeno"))
     bancos_base = base[BASE_BANK_COUNT_OFFSET]
     if bancos_base == 0 or len(base) != bancos_base * BANK_SIZE:
-        raise ValueError("el kernel base no tiene el tamaño indicado en su cabecera")
+        raise ValueError(idioma.t("nb.kernel_tam"))
     if len(driver) < DRIVER_MIN_SIZE or driver[PAGE0_SIZE:PAGE0_SIZE + len(DRIVER_SIGNATURE)] != DRIVER_SIGNATURE:
-        raise ValueError("el driver no es de Nextor 3 (falta NEXTORv3_DRIVER en el offset 256)")
+        raise ValueError(idioma.t("nb.driver_no_n3"))
 
     mapper_explicito = mapper is not None
     if mapper is None:
         codigo_mapper = base[BANK_SIZE - MAPPER_SIZE:BANK_SIZE]
     else:
         if not mapper:
-            raise ValueError("el código del mapper está vacío")
+            raise ValueError(idioma.t("nb.mapper_vacio"))
         if mapper[0] == 0xFF:
             if len(mapper) < 4:
-                raise ValueError("la cabecera del mapper de 8 KB está incompleta")
+                raise ValueError(idioma.t("nb.mapper8_incompleto"))
             if direccion_8k is None:
                 direccion_8k = mapper[1] | mapper[2] << 8
             mapper = mapper[3:]
         if len(mapper) > MAPPER_SIZE:
-            raise ValueError("el código del mapper no puede superar 48 bytes")
+            raise ValueError(idioma.t("nb.mapper_48"))
         codigo_mapper = mapper.ljust(MAPPER_SIZE, b"\0")
 
     if direccion_8k is not None and not 0x4000 <= direccion_8k < 0x8000:
-        raise ValueError("la dirección del mapper de 8 KB debe estar entre 4000h y 7FFFh")
+        raise ValueError(idioma.t("nb.dir8k"))
     if teclas is not None and not 0 <= teclas <= 0xFFFF:
-        raise ValueError("el inversor de teclas debe estar entre 0000h y FFFFh")
+        raise ValueError(idioma.t("nb.teclas"))
 
     if extra is not None:
         if len(extra) > EXTRA_SIZE:
-            raise ValueError("el bloque extra no puede superar 256 bytes")
+            raise ValueError(idioma.t("nb.extra_256"))
         for banco in (0, 3):
             zona = base[banco * BANK_SIZE + EXTRA_OFFSET:banco * BANK_SIZE + EXTRA_OFFSET + EXTRA_SIZE]
             if zona != bytes(EXTRA_SIZE):
-                raise ValueError("el kernel base usa el área extra del banco %d" % banco)
+                raise ValueError(idioma.t("nb.extra_usado", banco))
 
     total_bancos = bancos_base + _bancos(driver)
     if total_bancos > 256:
-        raise ValueError("la ROM resultante tiene más de 256 bancos")
+        raise ValueError(idioma.t("nb.bancos_256"))
     rom = bytearray(total_bancos * BANK_SIZE)
     rom[:len(base)] = base
     rom[len(base):len(base) + len(driver)] = driver
@@ -118,17 +119,17 @@ def crear_rom(base, driver, mapper=None, extra=None, direccion_8k=None, teclas=N
 def actualizar_pack_bios(pack, base):
     """Actualiza a 3.0 final el bloque Nextor de un pack MSXnano/MSXimus, conservando su driver y configuración."""
     if len(pack) not in (512 * 1024, 512 * 1024 + 6):
-        raise ValueError("el pack debe medir 512 KB, con una cola opcional de 6 bytes")
+        raise ValueError(idioma.t("nb.pack_512"))
     viejo = pack[PACK_NEXTOR_OFFSET:PACK_NEXTOR_OFFSET + PACK_NEXTOR_SIZE]
     if len(viejo) != PACK_NEXTOR_SIZE:
-        raise ValueError("el pack no contiene el bloque Nextor completo")
+        raise ValueError(idioma.t("nb.pack_sin_nextor"))
     bancos_base = viejo[BASE_BANK_COUNT_OFFSET]
     inicio_driver = bancos_base * BANK_SIZE
     if bancos_base == 0 or inicio_driver >= len(viejo):
-        raise ValueError("el bloque de 128 KB no contiene un kernel Nextor con driver")
+        raise ValueError(idioma.t("nb.sin_kernel"))
     driver = viejo[inicio_driver:]
     if driver[PAGE0_SIZE:PAGE0_SIZE + len(DRIVER_SIGNATURE)] != DRIVER_SIGNATURE:
-        raise ValueError("el pack no lleva un driver Nextor 3 compatible")
+        raise ValueError(idioma.t("nb.pack_sin_driver"))
 
     mapper = viejo[BANK_SIZE - MAPPER_SIZE:BANK_SIZE]
     extra = viejo[EXTRA_OFFSET:EXTRA_OFFSET + EXTRA_SIZE]
@@ -139,8 +140,7 @@ def actualizar_pack_bios(pack, base):
     direccion_8k = valor_8k if parche[0] == 0x32 and 0x4000 <= valor_8k < 0x8000 else None
     nuevo = crear_rom(base, driver, mapper=mapper, extra=extra, direccion_8k=direccion_8k, teclas=teclas)
     if len(nuevo) != PACK_NEXTOR_SIZE:
-        raise ValueError("el kernel con este driver mide %d KB; el pack reserva exactamente 128 KB" %
-                         (len(nuevo) // 1024))
+        raise ValueError(idioma.t("nb.kernel_128", len(nuevo) // 1024))
     salida = bytearray(pack)
     salida[PACK_NEXTOR_OFFSET:PACK_NEXTOR_OFFSET + PACK_NEXTOR_SIZE] = nuevo
     return bytes(salida)
@@ -149,19 +149,18 @@ def actualizar_pack_bios(pack, base):
 def personalizar_pack(pack, reemplazos):
     """Sustituye bloques completos del pack, conservando su posible cola de configuración."""
     if len(pack) not in (PACK_SIZE, PACK_SIZE + 6):
-        raise ValueError("el pack debe medir 512 KB, con una cola opcional de 6 bytes")
+        raise ValueError(idioma.t("nb.pack_512"))
     mapa = {clave: (nombre, offset, tamano, editable)
             for clave, nombre, offset, tamano, editable in PACK_BLOCKS}
     salida = bytearray(pack)
     for clave, datos in reemplazos.items():
         if clave not in mapa:
-            raise ValueError("bloque desconocido: %s" % clave)
+            raise ValueError(idioma.t("nb.bloque_desconocido", clave))
         nombre, offset, tamano, editable = mapa[clave]
         if not editable:
-            raise ValueError("%s está protegido y no se puede sustituir desde el editor" % nombre)
+            raise ValueError(idioma.t("nb.protegido", idioma.t(nombre)))
         if len(datos) != tamano:
-            raise ValueError("%s mide %d bytes y %s necesita exactamente %d" %
-                             (clave, len(datos), nombre, tamano))
+            raise ValueError(idioma.t("nb.tam_bloque", clave, len(datos), idioma.t(nombre), tamano))
         salida[offset:offset + tamano] = datos
     return bytes(salida)
 
@@ -169,6 +168,6 @@ def personalizar_pack(pack, reemplazos):
 def bloques_pack(pack):
     """Información y bytes de cada bloque de un pack válido."""
     if len(pack) not in (PACK_SIZE, PACK_SIZE + 6):
-        raise ValueError("el pack debe medir 512 KB, con una cola opcional de 6 bytes")
+        raise ValueError(idioma.t("nb.pack_512"))
     return [(clave, nombre, offset, tamano, editable, pack[offset:offset + tamano])
             for clave, nombre, offset, tamano, editable in PACK_BLOCKS]

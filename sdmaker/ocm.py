@@ -22,6 +22,7 @@ import tempfile
 import zipfile
 
 from . import carpeta_programa as _carpeta_programa
+from .idioma import t as _t, tr
 
 K = 1024
 CARPETA = "OCM-SDBIOS"          # junto al programa: ahi se deja el pack de KdL
@@ -43,27 +44,27 @@ CARPETA = "OCM-SDBIOS"          # junto al programa: ahi se deja el pack de KdL
 # Los bloques (firmware 2 y 3, y MSX1/MSX2): DISK 128K + MAIN 32K + EXTRA 16K + MUSIC 16K + SUB 16K + KANJI 32K +
 # OPTION 16K + JIS1 128K + JIS2 128K. Firmware 1: DISK 64K + MAIN + SUB + MUSIC + JIS1 + FREE + KANJI + FREE*2 + EXTRA
 # + FREE*2 + 128K de FF.
-TIPOS = [("msx2p", "MSX2+ (OCM-PLD 3.4 o posterior)"), ("turbor", "MSX turboR (experimental: Z80, sin R800)"),
-         ("msx2", "MSX2"), ("msx1", "MSX1"), ("msx2p33", "MSX2+ para OCM-PLD 3.0 a 3.3.3 (1chipMSX antiguo)"),
-         ("vacia", "Vacía: la IPL la rechaza y arranca la BIOS de la flash (EPBIOS)")]
+# Los textos que ve el usuario son claves de idioma.py (t(clave)); los que no cambian de idioma van tal cual.
+TIPOS = [("msx2p", "o.tipo.msx2p"), ("turbor", "o.tipo.turbor"), ("msx2", "MSX2"), ("msx1", "MSX1"),
+         ("msx2p33", "o.tipo.msx2p33"), ("vacia", "o.tipo.vacia")]
 NOMBRE_TIPO = {"msx2p": "MSX2+", "turbor": "turboR", "msx2": "MSX2", "msx1": "MSX1", "msx2p33": "MSX2+ (OCM-PLD 3.0-3.3)",
-               "vacia": "vacía (BIOS de la flash)"}
+               "vacia": "o.nombre_tipo.vacia"}
 DISCOS = ["nextor214", "nextor3", "megasd1", "megasd2"]
 MAIN = {"msx2p": {"yen": "A1WSXYEN.ROM", "bsl": "A1WSXBSL.ROM", "wst": "A1WSXWST.ROM"},
         "turbor": {"yen": "MSXTRYEN.ROM", "bsl": "MSXTRBSL.ROM"},
         "msx2": {"yen": "MSX2-YEN.ROM", "bsl": "MSX2-BSL.ROM", "wst": "MSX2-WST.ROM"},
         "msx1": {"yen": "MSX1-YEN.ROM", "bsl": "MSX1-BSL.ROM", "wst": "MSX1-WST.ROM"}}
 MAIN["msx2p33"] = MAIN["msx2p"]
-TECLADOS = [("bsl", "\\ barra invertida"), ("yen", "¥ yen (japonés)"), ("wst", "occidental")]
+TECLADOS = [("bsl", "o.teclado.bsl"), ("yen", "o.teclado.yen"), ("wst", "o.teclado.wst")]
 EXTRAS = [("3", "BASIC'n turbo 2.1", "XBASIC21.ROM"), ("2", "BASIC'n plus 2.0", "XBASIC20.ROM"),
-          ("1", "ninguna", "FREE16KB.ROM")]
-LOGOS = [("2", "MSX++ (el oficial)", "KNMSXPPL.ROM"), ("1", "MSX2+", "KNMFIXV2.ROM"), ("0", "sin logo", "KNNOLOGO.ROM"),
-         ("B", "OCM genérico", "KNOCMGV2.ROM"), ("9", "1chipMSX-Kai (HRA!)", "KNMKAI15.ROM"),
+          ("1", "o.extra.ninguna", "FREE16KB.ROM")]
+LOGOS = [("2", "o.logo.2", "KNMSXPPL.ROM"), ("1", "MSX2+", "KNMFIXV2.ROM"), ("0", "o.logo.0", "KNNOLOGO.ROM"),
+         ("B", "o.logo.B", "KNOCMGV2.ROM"), ("9", "1chipMSX-Kai (HRA!)", "KNMKAI15.ROM"),
          ("3", "Sony", "KNSONYV2.ROM"), ("4", "Philips", "KNPHILV2.ROM"), ("D", "Panasonic", "KNPANAV1.ROM"),
-         ("5", "Zemmix Neo (Corea)", "KNZNEOKR.ROM"), ("6", "Zemmix Neo (Brasil)", "KNZNEOBR.ROM"),
+         ("5", "o.logo.5", "KNZNEOKR.ROM"), ("6", "o.logo.6", "KNZNEOBR.ROM"),
          ("7", "SX-1 (8bits4ever)", "KNSX-1V4.ROM"), ("A", "SX-2 (8bits4ever)", "KNSX-2V4.ROM"),
          ("E", "SX-E (8bits4ever)", "KNSX-EV7.ROM"), ("8", "SM-X (Victor Trucco)", "KNSM-XV2.ROM"),
-         ("C", "u2-SX (Denjhang)", "KNU2SXV3.ROM"), ("propio", "propio (KNCUSTOM.ROM del ++Logo Toolkit)", "KNCUSTOM.ROM")]
+         ("C", "u2-SX (Denjhang)", "KNU2SXV3.ROM"), ("propio", "o.logo.propio", "KNCUSTOM.ROM")]
 TAMANOS = {"disk": 128 * K, "main": 32 * K, "extra": 16 * K, "music": 16 * K, "sub": 16 * K, "kanji": 32 * K,
            "option": 16 * K, "jis1": 128 * K, "jis2": 128 * K}
 MODULOS = [("extra", "Extra-ROM", "slot 3-3"), ("music", "Music-ROM / MSX-MUSIC", "slot 0-2"),
@@ -79,6 +80,10 @@ DEFECTO = {"tipo": "msx2p", "disco": "nextor214", "teclado": "bsl", "logo": "2",
            "extra": "3", "modulos": {}}
 FLASHEO = ("PLDFLASH.COM", "SMXFLASH.COM")      # flashean el FPGA: solo si se piden (grupo "flash")
 NOMBRES = ["OCM-BIOS.DAT"] + ["ALT-BIOS.DA%d" % i for i in range(10)]
+
+
+def nombre_tipo(tipo, lang=None):
+    return tr(lang, NOMBRE_TIPO[tipo])
 
 
 def que_se_puede(tipo):
@@ -97,41 +102,41 @@ def receta(r=None, **cambios):
     o.update(r or {})
     o.update(cambios)
     if o["tipo"] not in NOMBRE_TIPO:
-        raise ValueError("tipo: %s" % ", ".join(NOMBRE_TIPO))
+        raise ValueError(_t("o.err.tipo", ", ".join(NOMBRE_TIPO)))
     q = que_se_puede(o["tipo"])
     if q["discos"] and o["disco"] not in q["discos"]:
-        raise ValueError("%s solo con: %s" % (NOMBRE_TIPO[o["tipo"]], ", ".join(q["discos"])))
+        raise ValueError(_t("o.err.discos", nombre_tipo(o["tipo"]), ", ".join(q["discos"])))
     if q["teclados"] and o["teclado"] not in q["teclados"]:
-        raise ValueError("teclado de %s: %s" % (NOMBRE_TIPO[o["tipo"]], ", ".join(q["teclados"])))
+        raise ValueError(_t("o.err.teclados", nombre_tipo(o["tipo"]), ", ".join(q["teclados"])))
     o["logo"] = str(o["logo"]) if o["logo"] == "propio" else str(o["logo"]).upper()
     if o["logo"] not in {c for c, _, _ in LOGOS} or (o["logo"] == "propio" and o["tipo"] != "msx2p"):
-        raise ValueError("logo: 0-9 o A-E (los de make-sdb.cmd), o propio (solo MSX2+)")
+        raise ValueError(_t("o.err.logo"))
     if o["extra"] not in {c for c, _, _ in EXTRAS}:
-        raise ValueError("extra: 1, 2 o 3")
+        raise ValueError(_t("o.err.extra"))
     modulos = o.get("modulos") or {}
     if not isinstance(modulos, dict):
-        raise ValueError("los módulos ROM no tienen un formato válido")
+        raise ValueError(_t("o.err.modulos_formato"))
     normalizados = {}
     for bloque, especificacion in modulos.items():
         if bloque not in {x[0] for x in MODULOS}:
-            raise ValueError("módulo ROM desconocido: %s" % bloque)
+            raise ValueError(_t("o.err.modulo_desconocido", bloque))
         if bloque not in q["modulos"]:
             continue
         if not isinstance(especificacion, dict):
-            raise ValueError("el módulo %s no tiene un formato válido" % bloque)
+            raise ValueError(_t("o.err.modulo_formato", bloque))
         origen = especificacion.get("origen")
         if origen == "pack":
             nombre = os.path.basename(str(especificacion.get("nombre", "")))
             if not nombre or not nombre.lower().endswith(".rom"):
-                raise ValueError("elige una ROM válida del pack para %s" % bloque)
+                raise ValueError(_t("o.err.rom_pack", bloque))
             normalizados[bloque] = {"origen": "pack", "nombre": nombre}
         elif origen == "archivo":
             ruta = os.path.abspath(os.path.expanduser(str(especificacion.get("ruta", ""))))
             if not ruta.lower().endswith(".rom"):
-                raise ValueError("elige un archivo .ROM válido para %s" % bloque)
+                raise ValueError(_t("o.err.rom_archivo", bloque))
             normalizados[bloque] = {"origen": "archivo", "ruta": ruta}
         else:
-            raise ValueError("origen desconocido para el módulo %s" % bloque)
+            raise ValueError(_t("o.err.origen", bloque))
     o["modulos"] = normalizados
     o["wifi"], o["logo_tr"] = bool(o["wifi"]), bool(o["logo_tr"])
     return o
@@ -200,14 +205,16 @@ class Pack:
                 texto = "Nextor " + m.group(1)
             elif t.startswith("MegaSDHC"):
                 clave = "megasd2" if "Double" in t else "megasd1"
-                texto = "MegaSDHC FAT16X (MSX-DOS 2), %s" % ("dos ranuras SD" if "Double" in t else "una ranura SD")
+                texto = "MegaSDHC FAT16X"       # el texto completo, en el idioma de la ventana: texto_disco
             else:
                 continue
             if clave and clave not in out and self.datos("make/roms/" + rom) is not None:
                 out[clave] = (rom.upper(), texto)
         return out
 
-    def texto_disco(self, disco):
+    def texto_disco(self, disco, lang=None):
+        if disco.startswith("megasd") and disco in self.nucleos:
+            return tr(lang, "o.megasd", tr(lang, "o.ranuras_2" if disco == "megasd2" else "o.ranuras_1"))
         return self.nucleos[disco][1] if disco in self.nucleos else disco
 
     def tiene_propio(self):
@@ -223,9 +230,9 @@ class Pack:
     def rom(self, nombre, tam=None):
         d = self.datos("make/roms/" + nombre)
         if d is None:
-            raise ValueError("falta make/roms/%s en el pack" % nombre.lower())
+            raise ValueError(_t("o.err.falta_rom", nombre.lower()))
         if tam is not None and len(d) != tam:
-            raise ValueError("make/roms/%s mide %d bytes y deberían ser %d" % (nombre.lower(), len(d), tam))
+            raise ValueError(_t("o.err.tam_rom", nombre.lower(), len(d), tam))
         return d
 
     def roms_de_tamano(self, tam=16 * K):
@@ -275,7 +282,7 @@ class Pack:
         out = []
         lista = self.datos("make/roms/_checksum.md5")
         if lista is None:
-            out.append("no está make/roms/_checksum.md5")
+            out.append(_t("o.pr.sin_checksum"))
         else:
             for linea in lista.decode("latin-1").splitlines():
                 m = re.match(r"([0-9a-fA-F]{32}) \*?(\S.*\.rom)$", linea.strip(), re.I)
@@ -283,20 +290,20 @@ class Pack:
                     continue
                 d = self.datos("make/roms/" + m.group(2))
                 if d is None:
-                    out.append("falta make/roms/%s" % m.group(2))
+                    out.append(_t("o.pr.falta_rom", m.group(2)))
                 elif hashlib.md5(d).hexdigest() != m.group(1).lower():
-                    out.append("make/roms/%s no coincide con _checksum.md5" % m.group(2))
+                    out.append(_t("o.pr.no_coincide", m.group(2)))
         for f in ("make/sdcreate/os/msxdos2.sys", "make/sdcreate/os/command2.com", "make/sdcreate/os/nextor.sys",
                   "make/sdcreate/utils/sdbios.btm"):
             if self.datos(f) is None:
-                out.append("falta %s" % f)
+                out.append(_t("o.pr.falta", f))
         if "nextor214" not in self.nucleos:
-            out.append("no trae Nextor 2.1.4 (hace falta el pack 3.8.1 o posterior)")
+            out.append(_t("o.pr.sin_nextor214"))
         return out
 
-    def texto(self):
-        n = ", ".join(self.nucleos[k][1] for k in ("nextor214", "nextor3") if k in self.nucleos)
-        return "OCM-SDBIOS Pack v%s de KdL (%s)" % (self.version, n or "sin Nextor")
+    def texto(self, lang=None):
+        n = ", ".join(self.texto_disco(k, lang) for k in ("nextor214", "nextor3") if k in self.nucleos)
+        return tr(lang, "o.pack_texto", self.version, n or tr(lang, "o.sin_nextor"))
 
 
 def _mtime_zip(info):
@@ -318,7 +325,7 @@ def abrir(ruta):
     if os.path.isdir(ruta):
         base = _raiz_pack(ruta)
         if base is None:
-            raise ValueError("%s no es un OCM-SDBIOS Pack (no tiene make/roms ni make/sdcreate)" % ruta)
+            raise ValueError(_t("o.err.no_pack_carpeta", ruta))
         ficheros = {}
         for d, _, ns in os.walk(base):
             for n in ns:
@@ -339,7 +346,7 @@ def abrir(ruta):
         try:
             import py7zr
         except ImportError:
-            raise ValueError("para leer el .7z hace falta py7zr; descomprime el pack en la carpeta %s" % CARPETA)
+            raise ValueError(_t("o.err.sin_py7zr", CARPETA))
         with py7zr.SevenZipFile(ruta) as z:
             info = {i.filename: i for i in z.list() if not i.is_directory}
             pre = _prefijo(list(info), ruta)
@@ -349,10 +356,10 @@ def abrir(ruta):
                 ficheros = {}
                 for n in quiero:
                     with open(os.path.join(tmp, *n.split("/")), "rb") as fh:
-                        t = info[n].creationtime
-                        ficheros[n[len(pre):]] = (fh.read(), t.timestamp() if t else None)
+                        creada = info[n].creationtime
+                        ficheros[n[len(pre):]] = (fh.read(), creada.timestamp() if creada else None)
         return Pack(ruta, ficheros)
-    raise ValueError("%s: el pack tiene que ser una carpeta, un .7z o un .zip" % ruta)
+    raise ValueError(_t("o.err.formato_pack", ruta))
 
 
 def _prefijo(nombres, ruta):
@@ -360,7 +367,7 @@ def _prefijo(nombres, ruta):
     for n in nombres:
         if n.lower().endswith("make/make-sdb.cmd"):
             return n[:-len("make/make-sdb.cmd")]
-    raise ValueError("%s no es un OCM-SDBIOS Pack (no tiene make/make-sdb.cmd)" % ruta)
+    raise ValueError(_t("o.err.no_pack_cmd", ruta))
 
 
 def _raiz_pack(carpeta):
@@ -420,10 +427,9 @@ def _modulo(pack, r, bloque, predeterminado):
         with open(ruta, "rb") as f:
             datos = f.read()
     except OSError as e:
-        raise ValueError("no se puede leer el módulo %s: %s" % (os.path.basename(ruta), e)) from e
+        raise ValueError(_t("o.err.leer_modulo", os.path.basename(ruta), e)) from e
     if len(datos) != tam:
-        raise ValueError("%s mide %d bytes y el bloque %s necesita exactamente %d bytes (16 KB)" %
-                         (os.path.basename(ruta), len(datos), bloque, tam))
+        raise ValueError(_t("o.err.tam_modulo", os.path.basename(ruta), len(datos), bloque, tam))
     return datos
 
 
@@ -437,15 +443,15 @@ def construir_dat(pack, r):
     if tipo == "vacia":
         return free * 32
     if r["disco"] not in pack.nucleos:
-        raise ValueError("el pack no trae %s" % r["disco"])
+        raise ValueError(_t("o.err.pack_sin_disco", r["disco"]))
     disco = pack.rom(pack.nucleos[r["disco"]][0])
     if r["disco"].startswith("megasd"):
         if len(disco) != 64 * K:
-            raise ValueError("la ROM de MegaSDHC deberia medir 64 KB")
+            raise ValueError(_t("o.err.megasd_64"))
         if tipo != "msx2p33":
             disco += pack.rom("NULL64KB.ROM", 64 * K)
     elif len(disco) != t["disk"]:
-        raise ValueError("la ROM de Nextor deberia medir 128 KB")
+        raise ValueError(_t("o.err.nextor_128"))
     main = pack.rom(MAIN[tipo][r["teclado"]], t["main"])
     extra = _modulo(pack, r, "extra", {c: n for c, _, n in EXTRAS}[r["extra"]])
     jis1, jis2 = pack.rom("A1XXJIS1.ROM", t["jis1"]), pack.rom("A1XXJIS2.ROM", t["jis2"])
@@ -474,24 +480,26 @@ def construir_dat(pack, r):
     return dat
 
 
-def describir(r, pack=None):
+def describir(r, pack=None, lang=None):
+    """La BIOS en una frase, en el idioma de la ventana (lang="es" para lo que va a la tarjeta)."""
     r = receta(r)
     if r["tipo"] == "vacia":
-        return "vacía: arranca la BIOS de la flash (EPBIOS)"
+        return tr(lang, "o.desc.vacia")
     q = que_se_puede(r["tipo"])
-    p = [NOMBRE_TIPO[r["tipo"]], pack.texto_disco(r["disco"]) if pack else r["disco"],
-         "teclado " + {"bsl": "\\", "yen": "yen", "wst": "occidental"}[r["teclado"]]]
+    p = [nombre_tipo(r["tipo"], lang), pack.texto_disco(r["disco"], lang) if pack else r["disco"],
+         tr(lang, "o.desc.teclado", "\\" if r["teclado"] == "bsl" else "yen" if r["teclado"] == "yen"
+            else tr(lang, "o.teclado_corto.wst"))]
     if q["logo"]:
-        p.append("logo " + {c: x for c, x, _ in LOGOS}[r["logo"]].split(" (")[0])
+        p.append(tr(lang, "o.desc.logo", tr(lang, {c: x for c, x, _ in LOGOS}[r["logo"]]).split(" (")[0]))
     if q["wifi"] and r["logo"] != "propio":
-        p.append("WiFi" if r["wifi"] else "sin WiFi")
+        p.append(tr(lang, "o.desc.wifi" if r["wifi"] else "o.desc.sin_wifi"))
     if q["logo_tr"]:
-        p.append("logo turboR" if r["logo_tr"] else "sin logo turboR")
-    p.append({c: x for c, x, _ in EXTRAS}[r["extra"]] if r["extra"] != "1" else "sin Extra-ROM")
+        p.append(tr(lang, "o.desc.logo_tr" if r["logo_tr"] else "o.desc.sin_logo_tr"))
+    p.append(tr(lang, {c: x for c, x, _ in EXTRAS}[r["extra"]]) if r["extra"] != "1" else tr(lang, "o.desc.sin_extra"))
     etiquetas = {c: n for c, n, _ in MODULOS}
     for bloque, especificacion in r["modulos"].items():
         nombre = especificacion.get("nombre") or os.path.basename(especificacion["ruta"])
-        p.append("%s personalizada: %s" % (etiquetas[bloque], nombre))
+        p.append(tr(lang, "o.desc.personalizada", etiquetas[bloque], nombre))
     return ", ".join(p)
 
 
@@ -512,11 +520,11 @@ def sistema_de(lista):
 def comprobar_lista(lista):
     nombres = [n for n, _ in lista]
     if not lista or nombres[0] != "OCM-BIOS.DAT":
-        raise ValueError("la primera BIOS tiene que ser OCM-BIOS.DAT (la que arranca)")
+        raise ValueError(_t("o.err.primera"))
     if len(set(nombres)) != len(nombres) or any(n not in NOMBRES for n in nombres):
-        raise ValueError("nombres de BIOS: OCM-BIOS.DAT y ALT-BIOS.DA0 a .DA9, sin repetir")
+        raise ValueError(_t("o.err.nombres"))
     if receta(lista[0][1])["tipo"] == "vacia":
-        raise ValueError("la principal no puede ser la vacía")
+        raise ValueError(_t("o.err.principal_vacia"))
 
 
 # ------------------------------------------------------------------ la tarjeta
@@ -526,7 +534,7 @@ def poner_sistema(raiz, pack, lista, flasheo, Nodo, meter_datos):
     Sistema: MSXDOS2.SYS y COMMAND2.COM siempre (MegaSDHC y la BIOS de la flash los usan); NEXTOR.SYS el de la primera
     BIOS con Nextor; si otra lleva el otro Nextor, su NEXTOR.SYS va como N2XTOR.SYS / N3XTOR.SYS para XSYS3.BTM."""
     comprobar_lista(lista)
-    datos = [(n, construir_dat(pack, r), describir(r, pack), receta(r)) for n, r in lista]
+    datos = [(n, construir_dat(pack, r), describir(r, pack, "es"), receta(r)) for n, r in lista]
     for nombre, dat, _, _ in datos:
         meter_datos(raiz, nombre, dat, None)
     os_ = {n.upper(): (d, t) for n, d, t in pack.carpeta("make/sdcreate/os")}
@@ -536,7 +544,7 @@ def poner_sistema(raiz, pack, lista, flasheo, Nodo, meter_datos):
     activo = versiones[0] if versiones else None
     n3 = pack.n3xtor() if 3 in versiones else {}
     if 3 in versiones and ("NEXTOR.SYS" not in n3 or "COMMAND3.COM" not in n3):
-        raise ValueError("el pack no trae N3XTOR.ZIP con NEXTOR.SYS y COMMAND3.COM (Nextor 3)")
+        raise ValueError(_t("o.err.sin_n3xtor"))
     sys_ = {2: os_["NEXTOR.SYS"], 3: n3.get("NEXTOR.SYS")}
     if activo:
         meter_datos(raiz, "NEXTOR.SYS", *sys_[activo])
@@ -567,7 +575,7 @@ def poner_sistema(raiz, pack, lista, flasheo, Nodo, meter_datos):
 
 def texto_bios(pack, datos, activo, versiones):
     """BIOS.TXT: que BIOS hay y como se cambia (ASCII, CRLF y ^Z como los ficheros de texto de MSX-DOS)."""
-    L = ["BIOS de esta tarjeta (%s)" % _ascii(pack.texto()), ""]
+    L = ["BIOS de esta tarjeta (%s)" % _ascii(pack.texto("es")), ""]
     for nombre, _, desc, r in datos:
         L.append("%-13s %s" % (nombre, _ascii(desc)))
         if nombre != "OCM-BIOS.DAT":

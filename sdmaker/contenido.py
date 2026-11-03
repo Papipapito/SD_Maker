@@ -18,29 +18,29 @@ import sys
 
 from . import carpeta_programa
 from .fatfs import Nodo
+from .idioma import t
 
+# El texto que ve el usuario es una clave de idioma.py (t(clave)): "c.sistema.<clave>", "c.grupo.<clave>", "c.maquina.<clave>".
 SISTEMAS = {
-    "nextor214": ("Nextor 2.1.4", "nextor-2.1.4", None),
-    "nextor3": ("Nextor 3.0 final (requiere BIOS 3.0 final)", "nextor-3.0.0", None),
-    "nextor3beta2": ("Nextor 3.0 beta 2 (para BIOS antiguos)", "nextor-3.0.0-beta2", None),
-    "msxdos": ("MSX-DOS básico (MSXDOS2.SYS + COMMAND2.COM, y MSXDOS.SYS + COMMAND.COM)", "nextor-2.1.4",
-               ["MSXDOS2.SYS", "COMMAND2.COM", "MSXDOS.SYS", "COMMAND.COM"]),
-    "ninguno": ("Ninguno (solo formatear)", None, None),
+    "nextor214": ("c.sistema.nextor214", "nextor-2.1.4", None),
+    "nextor3": ("c.sistema.nextor3", "nextor-3.0.0", None),
+    "nextor3beta2": ("c.sistema.nextor3beta2", "nextor-3.0.0-beta2", None),
+    "msxdos": ("c.sistema.msxdos", "nextor-2.1.4", ["MSXDOS2.SYS", "COMMAND2.COM", "MSXDOS.SYS", "COMMAND.COM"]),
+    "ninguno": ("c.sistema.ninguno", None, None),
 }
 
-# (clave, texto, [origenes relativos a sd/], carpetas del PATH, carpetas vacias que necesita)
+# (clave, clave del texto, [origenes relativos a sd/], carpetas del PATH, carpetas vacias que necesita)
 GRUPOS = [
-    ("sofarun", "SofaRun (lanzador de ROM, DSK y cintas)", ["extras/SOFARUN"], ["SOFARUN"], ["SAVES", "SETTINGS"]),
-    ("mm", "Multi Mente (gestor de ficheros)", ["base/MM"], ["MM"], []),
-    ("util", "Utilidades (UTIL: 120 programas)", ["base/UTIL"], ["UTIL"], []),
-    ("wifi", "Red WiFi / UNAPI (WIFI: hget, ftp, telnet, sntp...)", ["base/WIFI"], ["WIFI"], []),
-    ("fonts", "Fuentes de pantalla (FONTS)", ["base/FONTS"], [], []),
-    ("musica", "Música (MoonBlaster Wave y FM, RoboPlay, reproductores de MWM y VGM)", ["base/musica"],
-     ["musica", "musica\\roboplay"], []),
-    ("hub", "HUB (gestor de paquetes msxhub.com)", ["extras/hub"], ["hub"], []),
-    ("ia", "IA (cliente de chat con IA; las claves van en IA\\ia.cfg)", ["extras/IA"], ["IA"], []),
-    ("varios", "mapper e indev", ["extras/mapper", "extras/indev.com"], ["mapper"], []),
-    ("fpga", "Herramientas FPGA (MXUPDATE: actualizar MSXimus 60K/138K y MSXnano)", ["extras/FPGA"], ["FPGA"], []),
+    ("sofarun", "c.grupo.sofarun", ["extras/SOFARUN"], ["SOFARUN"], ["SAVES", "SETTINGS"]),
+    ("mm", "c.grupo.mm", ["base/MM"], ["MM"], []),
+    ("util", "c.grupo.util", ["base/UTIL"], ["UTIL"], []),
+    ("wifi", "c.grupo.wifi", ["base/WIFI"], ["WIFI"], []),
+    ("fonts", "c.grupo.fonts", ["base/FONTS"], [], []),
+    ("musica", "c.grupo.musica", ["base/musica"], ["musica", "musica\\roboplay"], []),
+    ("hub", "c.grupo.hub", ["extras/hub"], ["hub"], []),
+    ("ia", "c.grupo.ia", ["extras/IA"], ["IA"], []),
+    ("varios", "c.grupo.varios", ["extras/mapper", "extras/indev.com"], ["mapper"], []),
+    ("fpga", "c.grupo.fpga", ["extras/FPGA"], ["FPGA"], []),
 ]
 SIEMPRE = ["FHUNT", "TMP"]      # FHUNT: el menu descarga del File-Hunter ahi y NO puede crear carpetas
 
@@ -48,10 +48,9 @@ SIEMPRE = ["FHUNT", "TMP"]      # FHUNT: el menu descarga del File-Hunter ahi y 
 # demas con OCM-PLD, con el pack de KdL. En un OCM no van varios (indev es de la MSX Pico) ni fpga (MXUPDATE es de
 # nuestros cores); musica va desmarcado (MBWave, MBFM y MWM son de OPL4: solo con un cartucho MoonSound o parecido) y
 # util tambien (UTILS de KdL ya trae las del OCM). flash = PLDFLASH y SMXFLASH de UTILS, que flashean el FPGA.
-MAQUINAS = {"fpga": "MSXimus, MSXnano, Goa'uld o MSX Pico",
-            "ocm": "MSXBOOK, OneChipBook o 1chipMSX (OCM-PLD), con el OCM-SDBIOS Pack de KdL"}
+MAQUINAS = {"fpga": "c.maquina.fpga", "ocm": "c.maquina.ocm"}
 NO_EN_OCM = {"varios", "fpga"}
-GRUPOS_OCM = [("flash", "Flasheo del FPGA (PLDFLASH, SMXFLASH): ¡con cuidado!", [], [], [])]
+GRUPOS_OCM = [("flash", "c.grupo.flash", [], [], [])]
 DESMARCADOS_OCM = {"util", "musica", "flash"}
 
 
@@ -115,7 +114,7 @@ def carpeta_sd():
     for c in candidatas:
         if c and os.path.isdir(os.path.join(c, "base")):
             return os.path.normpath(c)
-    raise FileNotFoundError("no encuentro el contenido de la SD (carpeta sd/ con base/, nextor-2.1.4/...)")
+    raise FileNotFoundError(t("c.sin_sd"))
 
 
 def _excluido(nombre):

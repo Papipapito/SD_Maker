@@ -19,6 +19,10 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**Castellano e inglés** (SD Maker 1.7.4): selector **Idioma / Language** en la ventana; textos en
+`sdmaker/textos_es.py` y `textos_en.py`, el idioma se guarda en `ajustes.json` (en `%APPDATA%\MSXsdmaker`, o
+`~/Library/Application Support/MSXsdmaker` en macOS). Lo que se escribe en la tarjeta no cambia con el idioma.
+
 **Multi Mente 2.07A+ RC5 con nombres largos** (SD Maker 1.7.3): `MM\` lleva la RC5 con el parche de
 [MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN); ver `parches/mm-nombres-largos/LEEME.md`.
 

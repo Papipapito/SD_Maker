@@ -6,7 +6,7 @@ para que Windows no vea particiones a medio hacer; (4) verificacion: se relee la
 import random
 import time
 
-from . import contenido, fatfs, particiones, verificar
+from . import contenido, fatfs, idioma, particiones, verificar
 
 SECTOR = 512
 
@@ -21,13 +21,13 @@ def crear(dev, plan, sistema, grupos, etiqueta="MSX", aviso=None, raiz_sd=None, 
     """plan = lista de particiones.Particion. aviso(texto, fraccion) informa del avance. opciones = las de Nextor 3
     (contenido.OPCIONES_N3). ocm = {"pack", "bios"} para un MSXBOOK/1chipMSX (contenido.arbol). Devuelve un informe."""
     if ocm and plan[0].tipo != particiones.TIPO_FAT16:
-        raise ValueError("la IPL del OCM solo lee FAT16 en la primera particion")
+        raise ValueError(idioma.t("p.ipl_fat16"))
     aviso = aviso or (lambda texto, fraccion=None: None)
     t0 = time.time()
     rnd = random.Random()
     informe = {"particiones": [], "ficheros": 0, "bytes": 0}
 
-    aviso("Borrando las tablas viejas...", 0.02)
+    aviso(idioma.t("p.borrando"), 0.02)
     uno = min(2048, dev.sectores)
     dev.escribir(0, bytes(uno * SECTOR))
     if dev.sectores > 4096:
@@ -36,7 +36,7 @@ def crear(dev, plan, sistema, grupos, etiqueta="MSX", aviso=None, raiz_sd=None, 
     arbol = None
     if sistema != "ninguno" or grupos:
         if ocm:
-            aviso("Montando las BIOS con el %s..." % ocm["pack"].texto(), 0.03)
+            aviso(idioma.t("p.montando", ocm["pack"].texto()), 0.03)
         arbol = contenido.arbol(sistema, grupos, len(plan), raiz_sd, opciones, ocm)
         informe["ficheros"], informe["bytes"] = contenido.resumen(arbol)
     total_ficheros = max(1, informe["ficheros"])
@@ -53,22 +53,22 @@ def crear(dev, plan, sistema, grupos, etiqueta="MSX", aviso=None, raiz_sd=None, 
 
         def progreso(ruta, base=base):
             hechos[0] += 1
-            aviso("Copiando %s" % ruta, base + 0.8 * hechos[0] / total_ficheros / len(plan))
+            aviso(idioma.t("p.copiando", ruta), base + 0.8 * hechos[0] / total_ficheros / len(plan))
 
-        aviso("Particion %d: formateando %s..." % (p.numero, g), base)
+        aviso(idioma.t("p.formateando", p.numero, g), base)
         v = fatfs.Volumen(dev, p.lba, g, et, rnd.getrandbits(32), ocultos=p.lba, progreso=progreso)
         usados = v.formatear(arbol if p.numero == 1 else None)
         volumenes.append(v)
         informe["particiones"].append({"numero": p.numero, "geometria": g, "etiqueta": et,
                                        "clusters_usados": usados})
 
-    aviso("Escribiendo la tabla de particiones...", 0.92)
+    aviso(idioma.t("p.tabla"), 0.92)
     for lba, s in particiones.sectores_tabla(dev.sectores, plan, rnd.getrandbits(32) | 1):
         dev.escribir(lba, s)
 
-    aviso("Verificando lo escrito...", 0.95)
+    aviso(idioma.t("p.verificando"), 0.95)
     errores = verificar.comprobar(dev, plan, volumenes)
     informe["errores"] = errores
     informe["segundos"] = time.time() - t0
-    aviso("Hecho" if not errores else "Hecho, CON ERRORES", 1.0)
+    aviso(idioma.t("p.hecho" if not errores else "p.hecho_errores"), 1.0)
     return informe

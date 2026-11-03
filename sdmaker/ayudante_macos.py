@@ -13,7 +13,7 @@ import sys
 import tempfile
 import time
 
-from . import contenido, ocm, particiones, proceso
+from . import contenido, idioma, ocm, particiones, proceso
 from . import dispositivos
 
 
@@ -25,7 +25,7 @@ def datos_trabajo(tarjeta, plan, sistema, grupos, etiqueta, opciones, datos_ocm=
     if datos_ocm:
         d_ocm = {"ruta": datos_ocm["pack"].ruta,
                  "bios": [[nombre, dict(receta)] for nombre, receta in datos_ocm["bios"]]}
-    return {"formato": 1, "tarjeta": esperado, "plan": ps, "sistema": sistema,
+    return {"formato": 1, "idioma": idioma.actual(), "tarjeta": esperado, "plan": ps, "sistema": sistema,
             "grupos": sorted(grupos), "etiqueta": etiqueta, "opciones": dict(opciones), "ocm": d_ocm}
 
 
@@ -55,7 +55,7 @@ def _leer_progreso(f, aviso):
 def lanzar(datos, aviso):
     """Pide autorización, sigue el progreso y devuelve el informe de ``proceso.crear``."""
     if sys.platform != "darwin":
-        raise RuntimeError("el ayudante de macOS sólo se puede usar en macOS")
+        raise RuntimeError(idioma.t("am.solo_macos"))
     with tempfile.TemporaryDirectory(prefix="msxsdmaker_") as tmp:
         trabajo = os.path.join(tmp, "trabajo.json")
         progreso = os.path.join(tmp, "progreso.jsonl")
@@ -89,15 +89,15 @@ def lanzar(datos, aviso):
                 pass
             detalle = (error or salida or "").strip()
             if "(-128)" in detalle or "cancel" in detalle.lower():
-                raise PermissionError("se ha cancelado la autorización de administrador")
-            raise PermissionError(detalle or "no se han podido obtener permisos de administrador")
+                raise PermissionError(idioma.t("am.cancelado"))
+            raise PermissionError(detalle or idioma.t("am.sin_permisos"))
         try:
             with open(resultado, "r", encoding="utf-8") as f:
                 r = json.load(f)
         except (OSError, ValueError) as e:
-            raise RuntimeError("el ayudante no ha devuelto un resultado válido: %s" % e)
+            raise RuntimeError(idioma.t("am.resultado_no_valido", e))
         if not r.get("ok"):
-            raise RuntimeError(r.get("error") or "el ayudante no ha podido preparar la tarjeta")
+            raise RuntimeError(r.get("error") or idioma.t("am.no_ha_podido"))
         for texto in r.get("avisos", []):
             aviso(texto, None)
         return r["informe"]
@@ -109,7 +109,7 @@ def _plan(datos):
         out.append(particiones.Particion(int(p["numero"]), int(p["lba"]), int(p["sectores"]), int(p["tipo"]),
                                          bool(p.get("activa")), p.get("lba_ebr")))
     if not out or [p.numero for p in out] != list(range(1, len(out) + 1)):
-        raise ValueError("plan de particiones no válido")
+        raise ValueError(idioma.t("am.plan"))
     return out
 
 
@@ -119,7 +119,7 @@ def _datos_ocm(datos):
     pack = ocm.abrir(datos["ruta"])
     problemas = pack.problemas()
     if problemas:
-        raise ValueError("el OCM-SDBIOS Pack no vale: %s" % "; ".join(problemas[:3]))
+        raise ValueError(idioma.t("am.pack_no_vale", "; ".join(problemas[:3])))
     bios = [(str(nombre), ocm.receta(receta)) for nombre, receta in datos["bios"]]
     ocm.comprobar_lista(bios)
     return {"pack": pack, "bios": bios}
@@ -142,22 +142,24 @@ def ejecutar(ruta_trabajo):
 
     try:
         if sys.platform != "darwin" or os.geteuid() != 0:
-            raise PermissionError("el ayudante necesita permisos de administrador en macOS")
+            raise PermissionError(idioma.t("am.necesita_admin"))
         with open(ruta_trabajo, "r", encoding="utf-8") as f:
             d = json.load(f)
+        if d.get("idioma") in idioma.TABLAS:       # el de la ventana, no el de esta copia (que corre como root)
+            idioma.fijar(d["idioma"])
         if d.get("formato") != 1:
-            raise ValueError("formato de trabajo desconocido")
+            raise ValueError(idioma.t("am.formato"))
         tarjeta = d["tarjeta"]
         plan = _plan(d["plan"])
         sistema = d["sistema"]
         if sistema not in contenido.SISTEMAS:
-            raise ValueError("sistema desconocido")
+            raise ValueError(idioma.t("am.sistema"))
         datos_ocm = _datos_ocm(d.get("ocm"))
         maquina = "ocm" if datos_ocm else "fpga"
         validos = {g[0] for g in contenido.grupos_de(maquina)}
         grupos = set(d.get("grupos", []))
         if not grupos <= validos:
-            raise ValueError("hay grupos de programas desconocidos")
+            raise ValueError(idioma.t("am.grupos"))
         opciones = contenido.opciones_n3(d.get("opciones"))
 
         with open(progreso, "a", encoding="utf-8", buffering=1) as log:

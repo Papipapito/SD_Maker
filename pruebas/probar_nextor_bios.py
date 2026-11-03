@@ -2,7 +2,11 @@ import hashlib
 import unittest
 from pathlib import Path
 
-from sdmaker import contenido, nextor_bios
+from sdmaker import contenido, idioma, nextor_bios
+
+
+def setUpModule():
+    idioma.fijar("es")     # las pruebas comprueban mensajes en castellano
 
 
 class CreadorNextorTest(unittest.TestCase):

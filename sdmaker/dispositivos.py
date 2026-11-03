@@ -14,6 +14,8 @@ import subprocess
 import sys
 import time
 
+from . import idioma
+
 SECTOR = 512
 
 
@@ -83,7 +85,7 @@ if sys.platform == "win32":
     def _abrir(ruta, acceso):
         h = k32.CreateFileW(ruta, acceso, SHARE_RW, None, OPEN_EXISTING, 0, None)
         if h == INVALIDO or h is None:
-            raise OSError(ctypes.get_last_error(), "no se puede abrir " + ruta)
+            raise OSError(ctypes.get_last_error(), idioma.t("d.no_abrir", ruta))
         return h
 
     def _ioctl(h, codigo, entrada=None, tam_salida=0):
@@ -159,7 +161,7 @@ if sys.platform == "win32":
 
             def cad(o):
                 return d[o:d.index(b"\x00", o)].decode("ascii", "replace").strip() if o and o < len(d) else ""
-            modelo = (cad(vend_o) + " " + cad(prod_o)).strip() or "sin nombre"
+            modelo = (cad(vend_o) + " " + cad(prod_o)).strip() or idioma.t("d.sin_nombre")
             valido = bus in (12, 13) or (bus == 7 and (extraible or incluir_usb_fijos))
             if i == sistema or not valido or longitud <= 0 or bps != SECTOR:
                 continue
@@ -190,11 +192,11 @@ if sys.platform == "win32":
 
         def leer(self, lba, n=1):
             if not k32.SetFilePointerEx(self.h, lba * SECTOR, None, 0):
-                raise OSError(ctypes.get_last_error(), "no se puede ir al sector %d" % lba)
+                raise OSError(ctypes.get_last_error(), idioma.t("d.no_ir", lba))
             buf = ctypes.create_string_buffer(n * SECTOR)
             m = wt.DWORD(0)
             if not k32.ReadFile(self.h, buf, n * SECTOR, ctypes.byref(m), None):
-                raise OSError(ctypes.get_last_error(), "error de lectura en el sector %d" % lba)
+                raise OSError(ctypes.get_last_error(), idioma.t("d.error_lectura", lba))
             return buf.raw[:m.value]
 
         def cerrar(self):
@@ -205,7 +207,7 @@ if sys.platform == "win32":
 
         def __init__(self, numero):
             if numero == disco_del_sistema():
-                raise PermissionError("ese es el disco de Windows")
+                raise PermissionError(idioma.t("d.disco_windows"))
             self.numero = numero
             self.nombre = "Disco %d" % numero
             self.bloqueos = []
@@ -221,8 +223,7 @@ if sys.platform == "win32":
                         if intento == 9:
                             k32.CloseHandle(hv)
                             self._soltar()
-                            raise OSError(e.errno, "la unidad %s esta en uso: cierra lo que la tenga abierta"
-                                          % (letras[0] if letras else vol))
+                            raise OSError(e.errno, idioma.t("d.unidad_en_uso", letras[0] if letras else vol))
                         time.sleep(0.5)
                 _ioctl(hv, FSCTL_DISMOUNT_VOLUME)
                 self.bloqueos.append(hv)
@@ -231,7 +232,7 @@ if sys.platform == "win32":
 
         def _mover(self, lba):
             if not k32.SetFilePointerEx(self.h, lba * SECTOR, None, 0):
-                raise OSError(ctypes.get_last_error(), "no se puede ir al sector %d" % lba)
+                raise OSError(ctypes.get_last_error(), idioma.t("d.no_ir", lba))
 
         def escribir(self, lba, datos):
             assert len(datos) % SECTOR == 0
@@ -239,14 +240,14 @@ if sys.platform == "win32":
             buf = ctypes.create_string_buffer(bytes(datos), len(datos))
             n = wt.DWORD(0)
             if not k32.WriteFile(self.h, buf, len(datos), ctypes.byref(n), None) or n.value != len(datos):
-                raise OSError(ctypes.get_last_error(), "error de escritura en el sector %d" % lba)
+                raise OSError(ctypes.get_last_error(), idioma.t("d.error_escritura", lba))
 
         def leer(self, lba, n=1):
             self._mover(lba)
             buf = ctypes.create_string_buffer(n * SECTOR)
             m = wt.DWORD(0)
             if not k32.ReadFile(self.h, buf, n * SECTOR, ctypes.byref(m), None):
-                raise OSError(ctypes.get_last_error(), "error de lectura en el sector %d" % lba)
+                raise OSError(ctypes.get_last_error(), idioma.t("d.error_lectura", lba))
             return buf.raw[:m.value]
 
         def _soltar(self):
@@ -272,17 +273,17 @@ elif sys.platform == "darwin":
         p = subprocess.run([DISKUTIL, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         if p.returncode:
             detalle = p.stderr.decode("utf-8", "replace").strip() or p.stdout.decode("utf-8", "replace").strip()
-            raise OSError("diskutil %s: %s" % (" ".join(args), detalle or "error %d" % p.returncode))
+            raise OSError("diskutil %s: %s" % (" ".join(args), detalle or idioma.t("d.error_n", p.returncode)))
         try:
             return plistlib.loads(p.stdout)
         except Exception as e:
-            raise OSError("diskutil %s no devolvio una lista valida: %s" % (" ".join(args), e))
+            raise OSError(idioma.t("d.diskutil_lista", " ".join(args), e))
 
     def _diskutil(*args):
         p = subprocess.run([DISKUTIL, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
         texto = (p.stderr or p.stdout).strip()
         if p.returncode:
-            raise OSError("diskutil %s: %s" % (" ".join(args), texto or "error %d" % p.returncode))
+            raise OSError("diskutil %s: %s" % (" ".join(args), texto or idioma.t("d.error_n", p.returncode)))
         return (p.stdout or "").strip()
 
     def _identificadores(nodo):
@@ -316,7 +317,7 @@ elif sys.platform == "darwin":
                 ident = nodo.get("DeviceIdentifier")
                 if ident and re.fullmatch(r"disk\d+s\d+(?:s\d+)?", ident):
                     out.append({"identificador": ident, "bytes": int(nodo.get("Size") or 0),
-                                "tipo": nodo.get("Content") or nodo.get("FilesystemType") or "desconocido",
+                                "tipo": nodo.get("Content") or nodo.get("FilesystemType") or idioma.t("d.desconocido"),
                                 "nombre": nodo.get("VolumeName") or "", "montaje": nodo.get("MountPoint") or ""})
                 for v in nodo.values():
                     recorrer(v)
@@ -346,7 +347,7 @@ elif sys.platform == "darwin":
             return None
         if int(info.get("DeviceBlockSize") or 0) != SECTOR:
             return None
-        bus = str(info.get("BusProtocol") or "externo")
+        bus = str(info.get("BusProtocol") or idioma.t("d.externo"))
         extraible = bool(info.get("RemovableMedia") or info.get("Removable") or info.get("Ejectable"))
         if not extraible and not (incluir_usb_fijos and bus.upper() == "USB"):
             return None
@@ -355,7 +356,7 @@ elif sys.platform == "darwin":
             return None
         partes = _particiones(entrada)
         montajes = [p["montaje"] or p["nombre"] for p in partes if p["montaje"] or p["nombre"]]
-        modelo = (info.get("MediaName") or info.get("IORegistryEntryName") or "sin nombre").strip()
+        modelo = (info.get("MediaName") or info.get("IORegistryEntryName") or idioma.t("d.sin_nombre")).strip()
         identidad = "|".join(str(info.get(k) or "") for k in
                               ("DeviceTreePath", "IORegistryEntryName", "MediaUUID", "DiskUUID"))
         return {"numero": int(identificador[4:]), "identificador": identificador, "sectores": nbytes // SECTOR,
@@ -419,22 +420,22 @@ elif sys.platform == "darwin":
             self.f = None
             self.aviso_cierre = None
             if self.identificador in _discos_sistema():
-                raise PermissionError("ese disco contiene el sistema de macOS")
+                raise PermissionError(idioma.t("d.disco_macos"))
             actual = _buscar_tarjeta(self.numero)
             if actual is None:
-                raise PermissionError("%s ya no es una tarjeta externa y extraible valida" % self.nombre)
+                raise PermissionError(idioma.t("d.ya_no_tarjeta", self.nombre))
             if not _misma_tarjeta(actual, esperada):
-                raise PermissionError("la tarjeta de %s ha cambiado desde que se eligio; pulsa Actualizar" % self.nombre)
+                raise PermissionError(idioma.t("d.cambiada", self.nombre))
             _diskutil("unmountDisk", self.nombre)
             try:
                 # Entre la confirmación y este punto la tarjeta puede haberse extraído o sustituido.
                 actual = _buscar_tarjeta(self.numero)
                 if actual is None or not _misma_tarjeta(actual, esperada or actual):
-                    raise PermissionError("la tarjeta de %s ha cambiado durante el desmontaje" % self.nombre)
+                    raise PermissionError(idioma.t("d.cambiada_desmontaje", self.nombre))
                 ruta = "/dev/r" + self.identificador
                 modo = os.stat(ruta).st_mode
                 if not stat.S_ISCHR(modo):
-                    raise PermissionError("%s no es un dispositivo de caracteres" % ruta)
+                    raise PermissionError(idioma.t("d.no_caracteres", ruta))
                 self.f = os.open(ruta, os.O_RDWR)
                 self.sectores = actual["sectores"]
             except Exception:
@@ -447,26 +448,26 @@ elif sys.platform == "darwin":
         def escribir(self, lba, datos):
             assert len(datos) % SECTOR == 0, "escritura no alineada"
             if lba < 0 or lba + len(datos) // SECTOR > self.sectores:
-                raise OSError("escritura fuera de la tarjeta en el sector %d" % lba)
+                raise OSError(idioma.t("d.escritura_fuera", lba))
             vista = memoryview(datos)
             posicion = lba * SECTOR
             while vista:
                 n = os.pwrite(self.f, vista, posicion)
                 if n <= 0:
-                    raise OSError("error de escritura en el sector %d" % lba)
+                    raise OSError(idioma.t("d.error_escritura", lba))
                 vista = vista[n:]
                 posicion += n
 
         def leer(self, lba, n=1):
             if lba < 0 or n < 0 or lba + n > self.sectores:
-                raise OSError("lectura fuera de la tarjeta en el sector %d" % lba)
+                raise OSError(idioma.t("d.lectura_fuera", lba))
             faltan = n * SECTOR
             posicion = lba * SECTOR
             partes = []
             while faltan:
                 datos = os.pread(self.f, faltan, posicion)
                 if not datos:
-                    raise OSError("lectura incompleta en el sector %d" % lba)
+                    raise OSError(idioma.t("d.lectura_incompleta", lba))
                 partes.append(datos)
                 faltan -= len(datos)
                 posicion += len(datos)
@@ -485,8 +486,7 @@ elif sys.platform == "darwin":
             try:
                 _diskutil("mountDisk", self.nombre)
             except OSError as e:
-                self.aviso_cierre = ("La tarjeta esta preparada, pero macOS no ha podido montar sus particiones: %s. "
-                                      "Extraela y vuelve a insertarla." % e)
+                self.aviso_cierre = idioma.t("d.aviso_cierre", e)
             if error:
                 raise error
 
@@ -508,5 +508,5 @@ else:
 def formato_tamano(nbytes):
     for unidad, div in (("TB", 1 << 40), ("GB", 1 << 30), ("MB", 1 << 20), ("KB", 1 << 10)):
         if nbytes >= div:
-            return ("%.2f %s" % (nbytes / div, unidad)).replace(".", ",")
+            return idioma.decimal("%.2f %s" % (nbytes / div, unidad))
     return "%d B" % nbytes
