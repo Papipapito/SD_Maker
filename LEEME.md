@@ -19,6 +19,9 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**Multi Mente 2.07A+ RC5 con nombres largos** (SD Maker 1.7.3): `MM\` lleva la RC5 con el parche de
+[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN); ver `parches/mm-nombres-largos/LEEME.md`.
+
 **Packs MSXnano/MSXimus y herramientas Nextor** (SD Maker 1.7.2): **Crear o personalizar pack BIOS…** abre el mapa
 completo de 512 KB y permite sustituir por separado BIOS, SubROM, kanji, red y logo desde un archivo o File-Hunter.
 Las 26 herramientas de Nextor 3 final se copian siempre en `UTILS` —incluido `EMUFILE.COM`— y esa carpeta entra en

@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.2 — preparing the SD card
+# MSX SD Maker 1.7.3 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -13,8 +13,9 @@
 
 Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program itself is in Spanish; this guide explains every option.
 
-Version 1.7.2 adds a visual editor for every block in an MSXnano/MSXimus BIOS pack. It also fixes the final Nextor 3
-tools: they are now always copied to `UTILS`, including `EMUFILE.COM`.
+Version 1.7.3 replaces Multi Mente with **2.07A+ RC5** (with the FAT16 and year 2000 fixes) with long file names:
+12 characters in the list and up to 31 in the one-column view (SHIFT+1). Version 1.7.2 added the visual editor for
+MSXnano/MSXimus BIOS packs and the final Nextor 3 tools in `UTILS`.
 
 ---
 
