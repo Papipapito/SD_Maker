@@ -38,7 +38,7 @@ extensión de 16 KB en los bloques Extra, Music y Option, elegidas del pack o de
 
 **Z80BENCH 1.5.1** (SD Maker 1.5.2): incluye las pruebas de velocidad de memoria con F5 y soporte para Z380.
 
-**Música y Multi Mente** (1.5): MoonBlaster FM, RoboPlay y MUSPLAY en `musica\`, y VGMPlay 1.4 delante del de SofaRun en el PATH. En Multi Mente, RETURN abre cada fichero con su programa (`MM\MMRET.DAT`, del que el programa quita al hacer la tarjeta las líneas cuyo programa no va) y la lista y File info enseñan los nombres largos (`MM.COM` parcheado, en `parches/mm-nombres-largos/`).
+**Música y Multi Mente** (1.5): MoonBlaster FM, RoboPlay y MUSPLAY en `musica\`, y VGMPlay 1.4 delante del de SofaRun en el PATH. En Multi Mente, RETURN abre cada fichero con su programa (`MM\MMRET.DAT`, del que el programa quita al hacer la tarjeta las líneas cuyo programa no va) y la lista y File info enseñan los nombres largos (Multi Mente 2.07A+ RC5 con el parche del repositorio MultiMente_LFN; ver `parches/mm-nombres-largos/`).
 
 **MSXBOOK, OneChipBook y 1chipMSX** (1.4): con el OCM-SDBIOS Pack de KdL, que el usuario deja tal cual (el `.7z`) en la
 carpeta `OCM-SDBIOS` junto al programa; no va en este repositorio porque sus BIOS llevan ROMs de sistema con derechos
