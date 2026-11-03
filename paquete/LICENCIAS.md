@@ -19,7 +19,7 @@
 | `MSXDOS.SYS`, `COMMAND.COM` (MSX-DOS 1) | ASCII Corporation / Microsoft; today The MSX Licensing Corporation | Non-commercial distribution |
 | `SOFARUN\` (SofaRun 8.1) | Louthrax | Freeware |
 | VGMPlay: `musica\vgmplay.com` and `UTIL\VGMPLAY.COM` (1.4 dev), `SOFARUN\VGMPLAY.COM` (1.2, patched for SofaRun by Louthrax) | Laurens Holst (Grauw) | Simplified BSD, below |
-| `MM\` (Multi Mente 2.07A+ RC5, with `CS.COM` 3.12) | MOGU (Multi Mente); RC5 community release. `MM.COM` with the long-file-name patch from the MultiMente_LFN repository (GPL v3, not by MOGU nor endorsed by him) and with its tool slots set from `MM.CFG` | Freeware; the patch, GPL v3 |
+| `MM\` (Multi Mente 2.07A+ RC5, with `CS.COM` 3.12) | MOGU (Multi Mente); RC5 community release. `MM.COM` with the long-file-name patch from [MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN) (GPL v3, not by MOGU nor endorsed by him) and with its tool slots set from `MM.CFG` | Freeware; the patch, GPL v3 |
 | `FONTS\` | Font pack for Multi Mente | Freeware |
 | `hub\` (`HUB.COM`, `HUBG.COM`) | Carles Amigó (fr3nd); HUBG by Oduvaldo Pavan Junior and Israel F. Araujo | Freeware |
 | `WIFI\` (`TELNET`, `HGET`, `FTP`, `SNTP`, `TCPIP`…) | Oduvaldo Pavan Junior (ducasp), Néstor Soriano (Konamiman) and others | Freeware; see `WIFI\README.TXT` |

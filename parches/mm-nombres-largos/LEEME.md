@@ -5,7 +5,7 @@ con el parche de nombres largos: la lista enseña los 12 primeros caracteres del
 fichero y **File info** el nombre largo entero.
 
 El parche, su código, los aplicadores (`aplicar.py`, `aplicar.html`, `MM_LFN_RC5.ips`), las limitaciones y el
-banco de pruebas en openMSX viven en su propio repositorio, **MultiMente_LFN** (GPL v3). Multi Mente es de
+banco de pruebas en openMSX viven en su propio repositorio, **[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)** (GPL v3). Multi Mente es de
 MOGU; el parche no es suyo ni cuenta con su aval.
 
 Lo que hay en la tarjeta:
@@ -17,7 +17,7 @@ Lo que hay en la tarjeta:
 | `CS.COM` | CS 3.12, el que acompaña a la RC5 |
 | `MM.CFG`, `MMRET.DAT`, `MMMCR.DAT`… | Los de este proyecto (ver `sd/LEEME.md`) |
 
-Para rehacer `MM.COM`: aplicar `MM_LFN_RC5.ips` (de MultiMente_LFN) al `MM.COM` de la RC5 y copiar encima los
+Para rehacer `MM.COM`: aplicar `MM_LFN_RC5.ips` (de [MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)) al `MM.COM` de la RC5 y copiar encima los
 bytes `0x108-0x367` del `MM.COM` actual (o pasar `CS MM` en el MSX con el `MM.CFG` de la tarjeta).
 
 Probado en openMSX con el banco de MultiMente_LFN (Nextor 2.1.4): lista y File info, ordenar, marcar,
@@ -32,7 +32,7 @@ with the long-file-name patch: the list shows the first 12 characters of each fi
 **File info** the whole long name.
 
 The patch, its source, the appliers (`aplicar.py`, `aplicar.html`, `MM_LFN_RC5.ips`), its limitations and the
-openMSX test bench live in their own repository, **MultiMente_LFN** (GPL v3). Multi Mente is by MOGU; the
+openMSX test bench live in their own repository, **[MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN)** (GPL v3). Multi Mente is by MOGU; the
 patch is not his and is not endorsed by him.
 
 `MM.COM` = RC5 `MM.COM` + `MM_LFN_RC5.ips`, with this project's tool slots (`0x108-0x367`, what `CS.COM`
