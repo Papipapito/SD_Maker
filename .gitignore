@@ -1,6 +1,7 @@
 build/
 dist/
 __pycache__/
+.DS_Store
 *.img
 ruvector.db
 # el pack de KdL (lleva ROMs con derechos de terceros): solo el LEEME
