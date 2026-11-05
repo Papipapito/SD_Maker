@@ -6,6 +6,13 @@ de Nextor) o una FAT32, sistema (Nextor 2.1.4, Nextor 3 o MSX-DOS) y programas (
   MSXsdmaker version             esta version y la ultima publicada en GitHub
   MSXsdmaker imagen F.img --tamano 8G [opciones]     crea una imagen (para probar, o para grabarla con Rufus/dd)
   MSXsdmaker tarjeta N [opciones] --si               prepara el disco N de "listar" (BORRA TODO)
+  MSXsdmaker actualizar RUTA [--sistema X] [--anadir sofarun,mm] [--forzar ruta,...] [--si]
+                                 pone al dia una tarjeta ya hecha (RUTA = su unidad: E:/, /Volumes/MSX...) sin formatear
+                                 y sin borrar ni pisar nada tuyo. Sin --si solo ensena el plan. --sistema nextor214|
+                                 nextor3|nextor3beta2|msxdos|conservar (por defecto el que lleva). --anadir: programas
+                                 que no lleva. --forzar: ficheros cambiados por ti que SI quieres pisar (antes se guarda
+                                 una copia .BAK). MSXimus / MSXnano: si cambia el sistema hace falta --pack-flasheado
+                                 (confirma que tienes flasheado el pack de BIOS de ese Nextor). MSXBOOK: --pack RUTA.
 opciones: --esquema fat16-2g|fat16-4g|fat32  --n 3  --resto  --sistema nextor214|nextor3|nextor3beta2|msxdos|ninguno
           --programas todos|ninguno|sofarun,mm,util,...  --etiqueta MSX  --tam-particion 64M (solo pruebas)
 con Nextor 3: --sin-yenslash (no pone YENSLASH ON)  --bufinsert (modo insercion)  --dirk bytes (DIR en bytes, como
@@ -20,7 +27,7 @@ MSXBOOK / OneChipBook / 1chipMSX: --maquina ocm [--pack RUTA] (el OCM-SDBIOS Pac
 import argparse
 import sys
 
-from sdmaker import VERSION, contenido, dispositivos, idioma, novedades, ocm, particiones, proceso
+from sdmaker import VERSION, actualizar, contenido, dispositivos, idioma, novedades, ocm, particiones, proceso
 
 
 def _tam(texto):
@@ -124,6 +131,46 @@ def _crear(dev, a):
     return 1 if inf["errores"] else 0
 
 
+def _actualizar(a):
+    pack = None
+    tj = actualizar.Tarjeta(a.ruta)
+    es_ocm = a.maquina == "ocm" or (a.maquina == "auto" and any(tj.buscar(n) for n in actualizar.BIOS_OCM))
+    ruta_pack = a.pack or (ocm.buscar() if es_ocm else None)
+    if ruta_pack:
+        try:
+            pack = ocm.abrir(ruta_pack)
+        except (ValueError, OSError) as e:
+            sys.exit("el pack %s no vale: %s" % (ruta_pack, e))
+        problemas = pack.problemas()
+        if problemas:
+            sys.exit("el pack %s no vale: %s" % (ruta_pack, "; ".join(problemas)))
+    lista = lambda texto: [x.strip() for x in (texto or "").split(",") if x.strip()]
+    try:
+        plan = actualizar.analizar(a.ruta, sistema=a.sistema, anadir=lista(a.anadir), forzar=lista(a.forzar),
+                                   maquina=None if a.maquina == "auto" else a.maquina, pack=pack)
+    except actualizar.ErrorActualizar as e:
+        sys.exit(str(e))
+    print(plan.texto())
+    if not a.si:
+        print("\n(sin --si no se escribe nada)")
+        return 0
+    if not plan.hay_trabajo():
+        return 0
+    plan.confirmado = a.pack_flasheado
+    try:
+        inf = actualizar.aplicar(plan, lambda texto, f=None: None if texto.startswith(idioma.prefijos("ac.copiando"))
+                                 else print("[%3d%%] %s" % (int((f or 0) * 100), texto)))
+    except actualizar.SinConfirmar as e:
+        print("\n" + str(e))
+        print("\nSi lo tienes flasheado, repite la orden con --pack-flasheado.")
+        return 2
+    except actualizar.ErrorActualizar as e:
+        sys.exit(str(e))
+    print(inf.texto())
+    print("\nExpulsa la tarjeta con seguridad antes de sacarla.")
+    return 1 if inf.errores else 0
+
+
 def main():
     if len(sys.argv) == 3 and sys.argv[1] == "--ayudante-macos":
         from sdmaker import ayudante_macos
@@ -145,7 +192,19 @@ def main():
     at.add_argument("disco", type=int)
     at.add_argument("--si", action="store_true", help="no preguntar")
     _opciones(at)
+    au = sub.add_parser("actualizar")
+    au.add_argument("ruta", help="la unidad / carpeta raiz de la particion de arranque de la tarjeta")
+    au.add_argument("--sistema", choices=actualizar.FPGA_SISTEMAS + [actualizar.CONSERVAR], default=None)
+    au.add_argument("--anadir", help="programas que la tarjeta no lleva y se quieren (sofarun,mm,...)")
+    au.add_argument("--forzar", help="rutas de ficheros cambiados por el usuario que se quieren pisar (con copia .BAK)")
+    au.add_argument("--si", action="store_true", help="escribir (sin esto solo se ensena el plan)")
+    au.add_argument("--pack-flasheado", action="store_true",
+                    help="MSXimus / MSXnano: confirma que tienes flasheado el pack de BIOS del Nextor elegido")
+    au.add_argument("--maquina", default="auto", choices=["auto"] + list(contenido.MAQUINAS))
+    au.add_argument("--pack", help="ocm: el OCM-SDBIOS Pack de KdL (.7z, .zip o carpeta)")
     a = ap.parse_args()
+    if a.orden == "actualizar":
+        return _actualizar(a)
     if a.orden == "listar":
         for t in dispositivos.listar_tarjetas():
             print("disco %d: %s, %s (%s), unidades %s" % (t["numero"], t["modelo"],

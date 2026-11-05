@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.4 — preparar la tarjeta SD
+# MSX SD Maker 1.8.0 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -10,6 +10,8 @@
 4. Copia una colección de programas: SofaRun, Multi Mente, utilidades, red, música…
 5. Escribe un `AUTOEXEC.BAT` que lo deja todo a mano al arrancar.
 6. Relee lo escrito para comprobar que la tarjeta ha quedado bien.
+
+Y con **Actualizar tarjeta…** pone al día una tarjeta que ya hiciste (sistema y programas) sin formatear y sin borrar ni pisar nada tuyo: ver el [apartado 12](#12-actualizar-una-tarjeta-ya-hecha).
 
 No hay nada que instalar: en Windows es `MSXsdmaker.exe` y en macOS, `MSXsdmaker.app`.
 
@@ -33,6 +35,7 @@ del pack BIOS de MSXnano/MSXimus y las herramientas de Nextor 3 final en `UTILS`
 9. [Para curiosos: cómo lo hace](#9-para-curiosos-cómo-lo-hace)
 10. [Licencias y créditos](#10-licencias-y-créditos)
 11. [MSXBOOK, OneChipBook y 1chipMSX](#11-msxbook-onechipbook-y-1chipmsx)
+12. [Actualizar una tarjeta ya hecha](#12-actualizar-una-tarjeta-ya-hecha)
 
 ---
 
@@ -462,3 +465,41 @@ Estas máquinas llevan el firmware **OCM-PLD** de KdL y cargan la BIOS desde la 
 - **Cambiar de BIOS**: `SDBIOS n -R` (n = la cifra final de `ALT-BIOS.DAn`) cambia y reinicia. `SDBIOS -R` vuelve a la principal. `TYPE BIOS.TXT` lo recuerda.
 - **Nextor 2 y Nextor 3** necesitan cada uno su `NEXTOR.SYS`. Si la tarjeta lleva BIOS de los dos, el otro va como `N2XTOR.SYS` o `N3XTOR.SYS`. Para pasar a una BIOS con el otro Nextor: `SDBIOS n` (sin `-R`), luego `XSYS3` (cambia el `NEXTOR.SYS`) y después un **reinicio completo** (pulsación larga del reset, o apagar y encender). El reinicio de `XSYS3` no recarga la BIOS: sin el completo sigue la de antes y `NEXTOR.SYS` da el error de que necesita otro kernel. Para volver: `SDBIOS`, `XSYS3` y reinicio completo.
 - **Si algo va mal**: un clic en el reset durante el parpadeo inicial arranca la BIOS de la flash, sin sacar la tarjeta.
+
+
+---
+
+## 12. Actualizar una tarjeta ya hecha
+
+**Actualizar tarjeta…** (junto a «Preparar la tarjeta») pone al día una tarjeta que ya hizo MSX SD Maker, **sin formatear y sin borrar ni pisar nada tuyo**: juegos, ROM, carpetas propias y ficheros que hayas cambiado se quedan como están, byte a byte y con su fecha. No hace falta ser administrador ni escribir el disco en crudo: trabaja con la unidad montada (letra de unidad en Windows, volumen en macOS) y con ficheros normales. Si la tarjeta tiene varias unidades usa la de arranque (la que lleva el sistema) y, si no se sabe cuál es, te pregunta.
+
+El diálogo enseña lo que lleva la tarjeta (máquina, sistema, versión de MSX SD Maker, programas, sitio libre) y lo que cambiaría, agrupado:
+
+- **Se actualizarán**: ficheros nuestros en una versión antigua.
+- **Se añadirán**: ficheros que faltan en un programa que la tarjeta ya lleva.
+- **Programas que no lleva**: casillas **desmarcadas**; marca los que quieras añadir.
+- **Cambiados por el usuario**: ficheros distintos de todas las versiones publicadas. No se tocan; si quieres pisar uno, márcalo y antes se guarda una copia con la extensión `.BAK` (o `.BA1`, `.BA2`… si ya existe).
+- **Ya no se usan**: ficheros nuestros que la versión nueva ya no lleva. Se quedan donde están: **nunca se borra nada**.
+
+**Configuración que nunca se pisa**: `IA\ia.cfg` (tus claves), `SOFARUN\SR.INI`, `SROM.INI` y `SSMS.INI`, `MM\MM.HIS` y `MM.PHS`, `hub\CONFIG\` entero, y las carpetas `SAVES` y `SETTINGS`. `MM\MM.CFG` y las configuraciones de los editores de `musica\` (`mbfm.cfg`, `MBWAVE.CFG`) solo se actualizan si siguen siendo una versión publicada; si las has cambiado, se conservan. Si alguno falta, se copia.
+
+`AUTOEXEC.BAT` (o `.BTM`), `REBOOT.BAT` y `MM\MMRET.DAT` dependen de lo que lleva la tarjeta y se rehacen como en una tarjeta nueva. Si los cambiaste tú, se dejan y el nuevo `AUTOEXEC` va al lado como `AUTOEXEC.NEW`. En la raíz queda `SDMAKER.INF`, una marca de texto con la versión, la máquina, el sistema, los programas y el sha1 de cada fichero escrito; la escriben también las tarjetas nuevas.
+
+Cada fichero se escribe con un nombre temporal en su carpeta, se relee y compara, y solo entonces ocupa su sitio: si algo falla, queda el que había. Si no hay sitio se avisa antes y no se copia nada. Al acabar se vuelve a comparar todo lo escrito. Antes de sacar la tarjeta, **expúlsala con seguridad**.
+
+### Cambiar de sistema (Nextor)
+
+El selector **Sistema de destino** empieza en el que lleva la tarjeta; de la beta de Nextor 3 se recomienda pasar a la versión final. Con la tarjeta de un **MSXimus o MSXnano** solo cambian los ficheros de la tarjeta (`NEXTOR.SYS`, `COMMAND*.COM`, herramientas): el núcleo de Nextor está en el pack de BIOS que flasheaste y desde la tarjeta no se puede saber cuál es. **Antes de actualizar, ten flasheado el pack del Nextor elegido** (también de la beta 2 a la final): si no, la máquina arrancará en BASIC con «Incompatible DOS version». Siempre te lo pregunta, y puedes volver atrás cuando quieras eligiendo el sistema anterior.
+
+Con un **MSXBOOK, OneChipBook o 1chipMSX** hace falta el OCM-SDBIOS Pack de KdL (sin él no se cambia la BIOS y `UTILS` y `HELP` no se tocan; los demás programas sí). Cambia solo el bloque DISK de 128 KB de `OCM-BIOS.DAT`, en su sitio y dejando intacto el resto (logo, teclado…), tras guardar una copia en este PC (carpeta de ajustes, `copias`). Las `ALT-BIOS` se listan con su Nextor y no se tocan. Después hace falta un **reinicio completo** del MSX: pulsación larga del reset, o apagarlo y encenderlo.
+
+### Desde la línea de órdenes
+
+```
+MSXsdmaker actualizar E:/                          sólo enseña el plan
+MSXsdmaker actualizar E:/ --si                     lo aplica
+MSXsdmaker actualizar E:/ --sistema nextor3 --pack-flasheado --si
+MSXsdmaker actualizar E:/ --anadir sofarun,mm --forzar MM/MM.COM --si
+```
+
+`--sistema` admite `nextor214`, `nextor3`, `nextor3beta2`, `msxdos` y `conservar` (no tocar el sistema). `--pack-flasheado` confirma que el pack de BIOS del MSXimus o MSXnano ya está flasheado. Con un MSXBOOK, `--pack` es el OCM-SDBIOS Pack.

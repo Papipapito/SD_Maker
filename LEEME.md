@@ -19,6 +19,15 @@ El `AUTOEXEC.BAT` se genera con lo elegido: `PATH`, alias de SofaRun y una líne
 
 Al acabar se relee todo lo escrito: la tabla de particiones y cada fichero por CRC.
 
+**Actualizar tarjeta** (SD Maker 1.8): el botón **Actualizar tarjeta…** pone al día una tarjeta ya hecha, sin
+formatear y sin borrar ni pisar nada del usuario. Enseña el sistema y la versión que lleva, y actualiza el sistema y
+los programas por la unidad montada, con ficheros normales: lo que ha cambiado el usuario se deja (se puede pisar
+fichero a fichero, con copia `.BAK`), la configuración (`IA\ia.cfg`, `SOFARUN\*.INI`, `MM\MM.HIS`, `hub\CONFIG`…)
+nunca se toca y lo que ya no se usa se queda donde está. Cada fichero se escribe a un temporal, se relee y se compara
+antes de ocupar su sitio. También por la línea de órdenes (`MSXsdmaker.py actualizar RUTA`). En MSXimus y MSXnano,
+cambiar de Nextor exige tener flasheado el pack de BIOS de ese Nextor; en MSXBOOK cambia solo el bloque DISK de
+`OCM-BIOS.DAT`, en su sitio. Ver el apartado 12 de [`paquete/LEEME.md`](paquete/LEEME.md).
+
 **Castellano e inglés** (SD Maker 1.7.4): selector **Idioma / Language** en la ventana; textos en
 `sdmaker/textos_es.py` y `textos_en.py`, el idioma se guarda en `ajustes.json` (en `%APPDATA%\MSXsdmaker`, o
 `~/Library/Application Support/MSXsdmaker` en macOS). Lo que se escribe en la tarjeta no cambia con el idioma.
@@ -89,6 +98,17 @@ bash pruebas/probar_imagenes.sh
 ```
 
 Nueve casos: 3×200 MB, 2×2 GB con sobrante y Nextor 3, 2×4 GB con sobrante, FAT32 de 16 GB, MSX-DOS, vacía, 8 particiones, las opciones de Nextor 3 y una imagen de 1800 MB. En cada uno, la partición 1 se extrae y se compara con un árbol hecho con `cp`.
+
+«Actualizar tarjeta» (no escribe discos: usa carpetas temporales):
+
+```bash
+python -m unittest pruebas.probar_actualizar          # sin la historia de git (como en CI)
+python -m unittest pruebas.probar_actualizar_tags     # solo con las tags de git: tarjetas de versiones anteriores
+python herramientas/hacer_huellas.py                  # regenera sdmaker/huellas.py tras cambiar algo en sd/
+```
+
+`sdmaker/huellas.py` guarda el sha1 de todas las versiones que ha tenido cada fichero de `sd/` (de la historia de
+git); `probar_actualizar` falla si algún fichero de `sd/` no está.
 
 MSXBOOK (con Python de Windows y el pack de KdL):
 

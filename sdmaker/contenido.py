@@ -101,6 +101,24 @@ EXCLUIR_EXT = (".bak", ".tmp")
 EXCLUIR = {"ruvector.db", "thumbs.db", "desktop.ini", "autoexec.bat", "autoexec.btm", "nextor.emu", "_nextor.psf"}
 
 
+def rutas_tarjeta(rel):
+    """Rutas de la tarjeta (con "/") a las que va un fichero de sd/ (rel, con "/"); [] si no se copia. Lo que hace
+    arbol() carpeta a carpeta: base/ y extras/ van a la raiz, las de nextor-* tambien (bin/ de Nextor 3.0 final, como
+    UTILS/; las versiones 1.7.0 y 1.7.1 lo copiaban como BIN/, y esa ruta se devuelve la segunda). Sirve tambien para las
+    carpetas que sd/ tuvo en otras versiones (herramientas/hacer_huellas.py)."""
+    partes = rel.split("/")
+    if len(partes) < 2 or any(_excluido(p) for p in partes):
+        return []
+    carpeta, resto = partes[0], partes[1:]
+    if carpeta == "base" and len(resto) == 1:
+        return []           # el AUTOEXEC.BAT de base/ no se copia: se genera
+    if carpeta in ("base", "extras"):
+        return ["/".join(resto)]
+    if carpeta == "nextor-3.0.0" and resto[0].lower() == "bin":
+        return ["/".join(["UTILS"] + resto[1:]), "/".join(resto)]       # hasta la 1.7.1 iba como BIN/
+    return ["/".join(resto)] if carpeta.startswith("nextor-") else []
+
+
 def carpeta_sd():
     """El contenido de la SD: MSXSDMAKER_SD; o la carpeta sd/ junto al .exe (la trae el ZIP de la release: lo que se
     cambie ahi es lo que se copia); o la copia que lleva dentro el .exe (si sd/ falta o no tiene base/); o, sin .exe, la
@@ -208,15 +226,18 @@ def ajustar_mmret(raiz, grupos, maquina):
 def arbol(sistema, grupos, particiones, raiz_sd=None, opciones=None, ocm=None):
     """Nodo raiz de la particion de arranque. particiones = cuantas hay en la tarjeta (para el MAPDRV); opciones = las
     de Nextor 3 (OPCIONES_N3); ocm = {"pack": ocm.Pack, "bios": [(nombre, receta)]} para la maquina "ocm" (el
-    sistema lo deciden entonces sus BIOS: ocm.sistema_de)."""
+    sistema lo deciden entonces sus BIOS: ocm.sistema_de). Con {"pack", "versiones": [2|3], "sistema"} (actualizar.py)
+    solo el sistema del pack, sin BIOS."""
     sd = raiz_sd or carpeta_sd()
     raiz = Nodo("", es_dir=True)
     maquina = "ocm" if ocm else "fpga"
     if ocm:
         from . import ocm as _ocm
-        sistema = _ocm.sistema_de(ocm["bios"])
+        sistema = ocm["sistema"] if "versiones" in ocm else _ocm.sistema_de(ocm["bios"])
     nombre, carpeta, lista = SISTEMAS[sistema]
-    if ocm:
+    if ocm and "versiones" in ocm:      # actualizar.py: el sistema del pack, sin montar las BIOS
+        _ocm.poner_sistema_sin_bios(raiz, ocm["pack"], ocm["versiones"], "flash" in grupos, Nodo, meter_datos)
+    elif ocm:
         _ocm.poner_sistema(raiz, ocm["pack"], ocm["bios"], "flash" in grupos, Nodo, meter_datos)
     elif carpeta:
         base = os.path.join(sd, carpeta)

@@ -176,6 +176,16 @@ if sys.platform == "win32":
         except Exception:
             return False
 
+    def sistema_de_ficheros(ruta):
+        """'FAT16', 'FAT32', 'NTFS'... del volumen que contiene esa carpeta, o None."""
+        raiz = os.path.splitdrive(os.path.abspath(ruta))[0] + "\\"
+        nombre = ctypes.create_unicode_buffer(64)
+        k32.GetVolumeInformationW.argtypes = [wt.LPCWSTR, wt.LPWSTR, wt.DWORD, wt.LPVOID, wt.LPVOID, wt.LPVOID,
+                                              wt.LPWSTR, wt.DWORD]
+        if not k32.GetVolumeInformationW(raiz, None, 0, None, None, None, nombre, 64):
+            return None
+        return "FAT16" if nombre.value.upper() == "FAT" else nombre.value.upper()
+
     def _dispersa(f):
         """Fichero disperso en NTFS: una imagen de 32 GB solo ocupa lo escrito."""
         import msvcrt
@@ -361,6 +371,7 @@ elif sys.platform == "darwin":
                               ("DeviceTreePath", "IORegistryEntryName", "MediaUUID", "DiskUUID"))
         return {"numero": int(identificador[4:]), "identificador": identificador, "sectores": nbytes // SECTOR,
                 "bytes": nbytes, "modelo": modelo, "bus": bus, "extraible": extraible, "letras": montajes,
+                "montajes": [p["montaje"] for p in partes if p["montaje"]],
                 "particiones": partes, "identidad": identidad}
 
     def listar_tarjetas(incluir_usb_fijos=False):
@@ -380,6 +391,15 @@ elif sys.platform == "darwin":
 
     def es_admin():
         return os.geteuid() == 0
+
+    def sistema_de_ficheros(ruta):
+        """'FAT16', 'FAT32'... del volumen montado en esa carpeta (con diskutil), o None."""
+        info = _diskutil_plist("info", "-plist", ruta)
+        nombre = str(info.get("FilesystemName") or info.get("FilesystemType") or "").upper()
+        for f in ("FAT32", "FAT16", "FAT12", "EXFAT", "NTFS", "APFS"):
+            if f in nombre.replace(" ", ""):
+                return f
+        return nombre or None
 
     def _misma_tarjeta(actual, esperada):
         if not esperada:
@@ -502,7 +522,17 @@ else:
     def disco_del_sistema():
         return None
 
+    def sistema_de_ficheros(ruta):
+        return None
+
     Disco = None
+
+
+def carpetas_montadas(tarjeta):
+    """Las carpetas raiz (unidades montadas) de una tarjeta de listar_tarjetas: letras en Windows, puntos de montaje en
+    macOS. Lista vacia si no tiene ninguna montada."""
+    candidatas = tarjeta["montajes"] if "montajes" in tarjeta else tarjeta.get("letras", [])
+    return [c for c in candidatas if os.path.isdir(c)]
 
 
 def formato_tamano(nbytes):

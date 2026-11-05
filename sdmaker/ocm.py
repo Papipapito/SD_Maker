@@ -537,10 +537,18 @@ def poner_sistema(raiz, pack, lista, flasheo, Nodo, meter_datos):
     datos = [(n, construir_dat(pack, r), describir(r, pack, "es"), receta(r)) for n, r in lista]
     for nombre, dat, _, _ in datos:
         meter_datos(raiz, nombre, dat, None)
+    versiones = [v for v in (nextor_de(r) for _, _, _, r in datos) if v]
+    activo = poner_sistema_sin_bios(raiz, pack, versiones, flasheo, Nodo, meter_datos)
+    meter_datos(raiz, "BIOS.TXT", texto_bios(pack, datos, activo, versiones), None)
+    return datos
+
+
+def poner_sistema_sin_bios(raiz, pack, versiones, flasheo, Nodo, meter_datos):
+    """Lo de poner_sistema que no son las BIOS: MSXDOS2.SYS, COMMAND2.COM, NEXTOR.SYS (y N2XTOR / N3XTOR), COMMAND3.COM,
+    HELP y UTILS del pack. versiones = el Nextor (2 o 3) de cada BIOS, la principal primero. Devuelve el Nextor activo."""
     os_ = {n.upper(): (d, t) for n, d, t in pack.carpeta("make/sdcreate/os")}
     for f in ("MSXDOS2.SYS", "COMMAND2.COM"):
         meter_datos(raiz, f, *os_[f])
-    versiones = [v for v in (nextor_de(r) for _, _, _, r in datos) if v]
     activo = versiones[0] if versiones else None
     n3 = pack.n3xtor() if 3 in versiones else {}
     if 3 in versiones and ("NEXTOR.SYS" not in n3 or "COMMAND3.COM" not in n3):
@@ -569,8 +577,7 @@ def poner_sistema(raiz, pack, lista, flasheo, Nodo, meter_datos):
             partes = ruta.split("/")
             if len(partes) == 2 and partes[0].upper() in ("UTILS", "HELP"):
                 meter_datos(utils if partes[0].upper() == "UTILS" else help_, partes[1], d, t)
-    meter_datos(raiz, "BIOS.TXT", texto_bios(pack, datos, activo, versiones), None)
-    return datos
+    return activo
 
 
 def texto_bios(pack, datos, activo, versiones):

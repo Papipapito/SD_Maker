@@ -51,7 +51,8 @@ caso() {   # nombre tamano_imagen sistema opciones...
             rm -rf "$W/sacado"; mkdir -p "$W/sacado"
             "$MT/mcopy" -s -n -m -i "$W/p.img" ::/ "$W/sacado/" 2>/dev/null
             referencia "$sis" "$W/ref"
-            rm -f "$W/sacado/AUTOEXEC.BAT" "$W/sacado/AUTOEXEC.BTM"
+            [ -f "$W/sacado/SDMAKER.INF" ] && echo "  P1 marca: SDMAKER.INF ($(grep -c . "$W/sacado/SDMAKER.INF") lineas)" || { echo "  P1 marca: FALTA SDMAKER.INF"; fallos=$((fallos+1)); }
+            rm -f "$W/sacado/AUTOEXEC.BAT" "$W/sacado/AUTOEXEC.BTM" "$W/sacado/SDMAKER.INF"
             if diff -r "$W/ref" "$W/sacado" > "$W/diff.txt" 2>&1; then
                 echo "  P1 contenido: IDENTICO a la referencia ($(find "$W/ref" -type f | wc -l) ficheros)"
             else
@@ -61,6 +62,13 @@ caso() {   # nombre tamano_imagen sistema opciones...
                 "$MT/mtype" -i "$W/p.img" ::/$ae 2>/dev/null | tr -d '\r\032' | sed "s/^/     | $ae: /" | grep -iE "PATH|mapdrv|Maped|CALL|YENSLASH|SET BUF|SET DIRK"
             done
             echo "  P1 raiz: $("$MT/mdir" -i "$W/p.img" -b ::/ | tr '\n' ' ' | sed 's|::/||g')"
+        fi
+        if [ $k -eq 1 ] && [ "$sis" = ninguno ]; then      # sin sistema no hay marca de «Actualizar tarjeta»
+            if "$MT/mdir" -i "$W/p.img" -b ::/ 2>/dev/null | grep -qi 'SDMAKER.INF'; then
+                echo "  P1 marca: NO deberia haber SDMAKER.INF sin sistema"; fallos=$((fallos+1))
+            else
+                echo "  P1 sin SDMAKER.INF (sin sistema): OK"
+            fi
         fi
     done < <(sfdisk -d "$img" 2>/dev/null | grep -E "^/" | grep -v "type=f" | sed -E 's/.*start= *([0-9]+), size= *([0-9]+).*/\1 \2/')
 }

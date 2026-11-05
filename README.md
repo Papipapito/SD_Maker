@@ -8,6 +8,15 @@
 - copies the system: Nextor 2.1.4, Nextor 3.0 final, Nextor 3.0 beta 2 for legacy BIOS packs, or MSX-DOS;
 - copies the programs: SofaRun, Multi Mente, utilities, UNAPI networking, music (the MoonBlaster Wave and MoonBlaster FM editors for the OPL4, RoboPlay and the MWM and VGM players)…, and the FPGA tools (`MXUPDATE`, which updates the MSXimus and MSXnano core from MSX-DOS, and `MTVOL`, which sets the OPL4 FM and Wave volume), and writes the `AUTOEXEC.BAT`;
 - reads everything back and checks it by CRC. It can also write a card image instead of a card;
+- (1.8) **Update card…** brings a card you already made up to date, without formatting and without deleting or
+  overwriting anything of the user's: it shows the system and version the card carries and updates the system and
+  programs through the mounted drive, with ordinary files. Files the user changed are left alone (they can be
+  overwritten one by one, with a `.BAK` copy), configuration (`IA\ia.cfg`, `SOFARUN\*.INI`, `MM\MM.HIS`,
+  `hub\CONFIG`…) is never touched and what is no longer used stays where it is. Each file is written to a temporary
+  name, read back and compared before it takes its place. Also from the command line
+  (`MSXsdmaker.py actualizar PATH`). On an MSXimus or MSXnano, changing Nextor needs the BIOS pack of that Nextor to be
+  flashed; on an MSXBOOK only the DISK block of `OCM-BIOS.DAT` changes, in place. See section 12 of
+  [`paquete/README.md`](paquete/README.md);
 - (1.7) includes the final Nextor 3.0 system and a ROM/BIOS-pack creator. It can update an MSXnano or MSXimus
   Nextor 3 beta 2 pack while preserving all its other ROMs, or build a ROM from the official base kernel and a
   hardware-specific Nextor 3 driver;
@@ -33,6 +42,7 @@ already included in that pack, so a separate EXTRA pack is not required.
 | `sd/` | What goes to the card ([sd/LEEME.md](sd/LEEME.md)) |
 | `paquete/` | The guide, licences and screenshots that go with the `.exe` |
 | `pruebas/` | Image tests with tools that are not ours (`sfdisk`, `fsck.fat`, `mtools`) |
+| `herramientas/` | `hacer_huellas.py`: generates `sdmaker/huellas.py` (the known versions of every card file) from the git history |
 | `construir_exe.bat` | Builds `dist\MSXsdmaker.exe` with PyInstaller, with `sd/` inside |
 | `construir_macos.sh` | Builds the native `dist/MSXsdmaker.app` bundle and the macOS ZIP |
 | `hacer_zip.py`, `hacer_zip_macos.py` | Build the Windows and macOS release ZIPs |
@@ -54,6 +64,17 @@ python MSXsdmaker.py imagen test.img --tamano 1800M --sistema nextor3
 bash pruebas/probar_imagenes.sh
 python pruebas/probar_ocm.py "PATH TO KdL's PACK"
 ```
+
+"Update card" (writes no disks: it uses temporary folders):
+
+```bash
+python -m unittest pruebas.probar_actualizar          # without the git history (as in CI)
+python -m unittest pruebas.probar_actualizar_tags     # only with the git tags: cards from earlier versions
+python herramientas/hacer_huellas.py                  # regenerates sdmaker/huellas.py after changing anything in sd/
+```
+
+`sdmaker/huellas.py` holds the sha1 of every version each `sd/` file has had (from the git history);
+`probar_actualizar` fails if any `sd/` file is missing from it.
 
 ## Licences
 

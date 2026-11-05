@@ -6,9 +6,14 @@ para que Windows no vea particiones a medio hacer; (4) verificacion: se relee la
 import random
 import time
 
-from . import contenido, fatfs, idioma, particiones, verificar
+from . import actualizar, contenido, fatfs, idioma, particiones, verificar
 
 SECTOR = 512
+
+
+def _sistema_ocm(ocm):
+    from . import ocm as _ocm
+    return _ocm.sistema_de(ocm["bios"])
 
 
 def etiqueta_particion(etiqueta, numero):
@@ -38,6 +43,9 @@ def crear(dev, plan, sistema, grupos, etiqueta="MSX", aviso=None, raiz_sd=None, 
         if ocm:
             aviso(idioma.t("p.montando", ocm["pack"].texto()), 0.03)
         arbol = contenido.arbol(sistema, grupos, len(plan), raiz_sd, opciones, ocm)
+        if sistema != "ninguno" or ocm:      # la marca para «Actualizar tarjeta» (no en las tarjetas sin sistema)
+            actualizar.poner_marca(arbol, "ocm" if ocm else "fpga", sistema if not ocm else _sistema_ocm(ocm), grupos,
+                                   len(plan), opciones)
         informe["ficheros"], informe["bytes"] = contenido.resumen(arbol)
     total_ficheros = max(1, informe["ficheros"])
     hechos = [0]

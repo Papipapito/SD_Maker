@@ -8,8 +8,8 @@ import tkinter as tk
 import webbrowser
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
-from . import (VERSION, ayudante_macos, contenido, dispositivos, idioma, novedades, ocm, particiones, proceso,
-               ventana_nextor, ventana_ocm)
+from . import (VERSION, actualizar, ayudante_macos, contenido, dispositivos, idioma, novedades, ocm, particiones,
+               proceso, ventana_actualizar, ventana_nextor, ventana_ocm)
 from .dispositivos import formato_tamano
 from .idioma import t as tx
 
@@ -377,6 +377,8 @@ class Ventana:
         ttk.Button(acciones, text=tx("v.salir"), command=self.raiz.destroy).pack(side="left")
         self.b_crear = ttk.Button(acciones, text=tx("v.preparar"), command=self.preparar, style="Primary.TButton")
         self.b_crear.pack(side="right")
+        self.b_act = ttk.Button(acciones, text=self._puntos("v.act_tarjeta"), command=self.actualizar_tarjeta)
+        self.b_act.pack(side="right", padx=(0, 10))
         self.b_imagen = ttk.Button(acciones, text=self._puntos("v.guardar_imagen"), command=self.guardar_imagen)
         self.b_imagen.pack(side="right", padx=(0, 10))
         self.estado = ttk.Label(pie, text="", style="Secondary.Card.TLabel")
@@ -496,8 +498,10 @@ class Ventana:
         fila.pack(fill="x", **p)
         self.b_crear = ttk.Button(fila, text=tx("v.preparar"), command=self.preparar)
         self.b_crear.pack(side="left")
+        self.b_act = ttk.Button(fila, text=self._puntos("v.act_tarjeta"), command=self.actualizar_tarjeta)
+        self.b_act.pack(side="left", padx=6)
         self.b_imagen = ttk.Button(fila, text=self._puntos("v.guardar_imagen"), command=self.guardar_imagen)
-        self.b_imagen.pack(side="left", padx=6)
+        self.b_imagen.pack(side="left")
         ttk.Button(fila, text=tx("v.salir"), command=self.raiz.destroy).pack(side="right")
         self.barra = ttk.Progressbar(self.raiz, maximum=1000)
         self.barra.pack(fill="x", **p)
@@ -651,7 +655,7 @@ class Ventana:
 
     def _bloquear(self, si):
         self.trabajando = si
-        for b in (self.b_crear, self.b_imagen):
+        for b in (self.b_crear, self.b_act, self.b_imagen):
             b.state(["disabled"] if si else ["!disabled"])
 
     def _listo_ocm(self):
@@ -701,6 +705,31 @@ class Ventana:
         def abrir():
             return dispositivos.Disco(t["numero"])
         self._lanzar(abrir, plan, tx("v.la_tarjeta"))
+
+    def actualizar_tarjeta(self):
+        """Pone al dia la tarjeta elegida SIN formatearla: por su unidad montada, con ficheros normales (no hace falta
+        ser administrador ni escribir el disco en crudo). Si tiene varias unidades, la de arranque."""
+        if self.trabajando:
+            messagebox.showinfo(TITULO, tx("v.act_ocupado"))
+            return
+        t = self.tarjeta()
+        if t is None:
+            messagebox.showwarning(TITULO, tx("v.conecta"))
+            return
+        carpetas = dispositivos.carpetas_montadas(t)
+        if not carpetas:
+            messagebox.showinfo(TITULO, tx("v.act_sin_unidad"))
+            return
+        candidatas = actualizar.elegir_arranque(carpetas)
+        con_sistema = [c for c, ok in candidatas if ok]
+        if len(carpetas) == 1:
+            ruta = carpetas[0]
+        elif len(con_sistema) == 1:
+            ruta = con_sistema[0]
+        else:
+            ruta = ventana_actualizar.elegir_unidad(self.raiz, carpetas, con_sistema)
+        if ruta:
+            ventana_actualizar.abrir(self.raiz, ruta, self.pack)
 
     def guardar_imagen(self):
         if self.trabajando or not self._listo_ocm():

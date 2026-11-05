@@ -30,7 +30,7 @@ class TablasTest(unittest.TestCase):
 
     def test_todas_las_claves_del_codigo_existen(self):
         """Toda cadena "x.clave" del código que parezca una clave de texto está en las tablas."""
-        patron = re.compile(r'"((?:v|vo|vn|c|o|nb|fh|pa|ve|ff|d|p|am|g)\.[A-Za-z0-9_.\-]+)"')
+        patron = re.compile(r'"((?:v|vo|vn|c|o|nb|fh|pa|ve|ff|d|p|am|g|ac|va)\.[A-Za-z0-9_.\-]+)"')
         dinamicas = ("v.disco", "v.grupo_mac.", "v.sistema_mac.")
         for ruta in glob.glob(os.path.join(AQUI, "..", "sdmaker", "*.py")):
             if os.path.basename(ruta).startswith("textos_"):

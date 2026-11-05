@@ -1,4 +1,4 @@
-# MSX SD Maker 1.7.4 — preparing the SD card
+# MSX SD Maker 1.8.0 — preparing the SD card
 
 *[Versión en castellano](LEEME.md)*
 
@@ -10,6 +10,8 @@
 4. Copies a set of programs: SofaRun, Multi Mente, utilities, networking, music…
 5. Writes an `AUTOEXEC.BAT` that sets everything up at boot.
 6. Reads everything back to check that the card came out right.
+
+And **Update card…** brings a card you already made up to date (system and programs) without formatting and without deleting or overwriting anything of yours: see [section 12](#12-updating-an-existing-card).
 
 Nothing to install: on Windows it is `MSXsdmaker.exe`; on macOS, `MSXsdmaker.app`. The program speaks Spanish and English.
 
@@ -33,6 +35,7 @@ MSXnano/MSXimus BIOS packs and the final Nextor 3 tools in `UTILS`.
 9. [For the curious: how it works](#9-for-the-curious-how-it-works)
 10. [Licenses and credits](#10-licenses-and-credits)
 11. [MSXBOOK, OneChipBook and 1chipMSX](#11-msxbook-onechipbook-and-1chipmsx)
+12. [Updating an existing card](#12-updating-an-existing-card)
 
 ---
 
@@ -458,3 +461,41 @@ These machines run KdL's **OCM-PLD** firmware and load their BIOS from the card 
 - **Switching BIOS**: `SDBIOS n -R` (n = the last digit of `ALT-BIOS.DAn`) switches and reboots. `SDBIOS -R` goes back to the main one. `TYPE BIOS.TXT` reminds you.
 - **Nextor 2 and Nextor 3** each need their own `NEXTOR.SYS`. If the card has BIOS images with both, the other one is kept as `N2XTOR.SYS` or `N3XTOR.SYS`. To move to a BIOS with the other Nextor: `SDBIOS n` (without `-R`), then `XSYS3` (it swaps `NEXTOR.SYS`) and then a **full restart** (long press on the reset button, or power off and on). The reboot done by `XSYS3` does not reload the BIOS: without the full restart the old one stays and `NEXTOR.SYS` complains that it needs another kernel. To go back: `SDBIOS`, `XSYS3` and a full restart.
 - **If something goes wrong**: a click on the reset button during the initial blinking boots the BIOS in the flash, without taking the card out.
+
+
+---
+
+## 12. Updating an existing card
+
+**Update card…** (next to "Prepare the card") brings a card that MSX SD Maker already made up to date, **without formatting and without deleting or overwriting anything of yours**: games, ROMs, your own folders and files you changed stay as they are, byte for byte and with their dates. No administrator rights are needed and the disk is not written raw: it works with the mounted drive (a drive letter on Windows, a volume on macOS) and with ordinary files. If the card has several drives it uses the boot one (the one with the system) and asks you if it cannot tell which it is.
+
+The dialog shows what the card carries (machine, system, MSX SD Maker version, programs, free space) and what would change, grouped:
+
+- **Will be updated**: our files in an older version.
+- **Will be added**: files missing from a program the card already carries.
+- **Programs it lacks**: **unticked** boxes; tick the ones you want to add.
+- **Changed by the user**: files that differ from every published version. They are left alone; to overwrite one, tick it and a copy with the `.BAK` extension (or `.BA1`, `.BA2`… if it exists) is kept first.
+- **No longer used**: our files that the new version no longer carries. They stay where they are: **nothing is ever deleted**.
+
+**Configuration that is never overwritten**: `IA\ia.cfg` (your keys), `SOFARUN\SR.INI`, `SROM.INI` and `SSMS.INI`, `MM\MM.HIS` and `MM.PHS`, the whole of `hub\CONFIG\`, and the `SAVES` and `SETTINGS` folders. `MM\MM.CFG` and the editor settings in `musica\` (`mbfm.cfg`, `MBWAVE.CFG`) are only updated if they are still a published version; if you changed them they are kept. If one is missing it is copied.
+
+`AUTOEXEC.BAT` (or `.BTM`), `REBOOT.BAT` and `MM\MMRET.DAT` depend on what the card carries and are rebuilt as on a new card. If you changed them they are left alone and the new `AUTOEXEC` goes beside it as `AUTOEXEC.NEW`. The root holds `SDMAKER.INF`, a text mark with the version, machine, system, programs and the sha1 of every file written; new cards get it too.
+
+Each file is written to a temporary name in its folder, read back and compared, and only then takes its place: if anything fails, the previous one stays. If there is not enough space you are told beforehand and nothing is copied. At the end everything written is compared again. Before taking the card out, **eject it safely**.
+
+### Changing the system (Nextor)
+
+The **Target system** selector starts at the one the card carries; going from the Nextor 3 beta to the final version is recommended. With an **MSXimus or MSXnano** card only the card's files change (`NEXTOR.SYS`, `COMMAND*.COM`, tools): the Nextor kernel lives in the BIOS pack you flashed and cannot be told from the card. **Before updating, have the pack of the chosen Nextor flashed** (also from beta 2 to final): otherwise the machine will boot into BASIC with "Incompatible DOS version". It always asks you, and you can go back whenever you like by choosing the previous system.
+
+With an **MSXBOOK, OneChipBook or 1chipMSX** KdL's OCM-SDBIOS Pack is needed (without it the BIOS is not changed and `UTILS` and `HELP` are left alone; the other programs are updated). Only the 128 KB DISK block of `OCM-BIOS.DAT` changes, in place and leaving the rest (logo, keyboard…) intact, after keeping a copy on this PC (settings folder, `copias`). The `ALT-BIOS` files are listed with their Nextor and left alone. Afterwards a **full restart** of the MSX is needed: long press on the reset button, or power it off and on.
+
+### From the command line
+
+```
+MSXsdmaker actualizar E:/                          only shows the plan
+MSXsdmaker actualizar E:/ --si                     applies it
+MSXsdmaker actualizar E:/ --sistema nextor3 --pack-flasheado --si
+MSXsdmaker actualizar E:/ --anadir sofarun,mm --forzar MM/MM.COM --si
+```
+
+`--sistema` accepts `nextor214`, `nextor3`, `nextor3beta2`, `msxdos` and `conservar` (leave the system alone). `--pack-flasheado` confirms that the MSXimus or MSXnano BIOS pack is already flashed. With an MSXBOOK, `--pack` is the OCM-SDBIOS Pack.

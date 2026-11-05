@@ -45,6 +45,7 @@ class DispositivosMacOSTest(unittest.TestCase):
             tarjetas = dispositivos.listar_tarjetas()
         self.assertEqual([4], [t["numero"] for t in tarjetas])
         self.assertEqual(["/Volumes/MSX"], tarjetas[0]["letras"])
+        self.assertEqual(["/Volumes/MSX"], tarjetas[0]["montajes"])
         self.assertEqual("DOS_FAT_16", tarjetas[0]["particiones"][0]["tipo"])
 
     def test_usb_fijo_solo_si_se_pide_expresamente(self):
