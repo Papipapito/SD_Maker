@@ -1,4 +1,4 @@
-# MSX SD Maker 1.8.0 — preparar la tarjeta SD
+# MSX SD Maker 1.8.1 — preparar la tarjeta SD
 
 *[English version](README.md)*
 
@@ -132,11 +132,12 @@ Es el sistema operativo que se copia en la primera partición, la de arranque. *
 | MSXimus Z (Zynq) | un `BOOT_…_nextor214.bin` | **Nextor 2.1.4** |
 | MSXimus Z (Zynq) | un `BOOT_…_nextor3.bin` | **Nextor 3.0 beta 2** |
 | MSXnano | `pack_bios_msxnano.bin` o `pack_bios_msxnano_en.bin` | **Nextor 2.1.4** |
-| MSXnano | `pack_bios_msxnano_nextor3.bin` o `…_en_nextor3.bin` | **Nextor 3.0 beta 2** |
+| MSXnano | `pack_bios_msxnano_nextor3.bin` o `…_en_nextor3.bin` de la release v2.1.1 | **Nextor 3.0 final** |
+| MSXnano | esos packs de una release anterior a la v2.1.1 | **Nextor 3.0 beta 2** |
 | Goa'uld | `pack_bios_goauld_es.bin` o `pack_bios_goauld_en.bin` | **Nextor 2.1.4** |
 | MSX Pico u otro MSX con Nextor 2.1 | — | **Nextor 2.1.4** |
 
-Los packs `…nextor3.bin` publicados hasta ahora llevan la beta 2, por eso deben seguir usando la opción beta 2.
+Los packs `…nextor3.bin` del MSXimus, los de la Zynq y los del MSXnano anteriores a la v2.1.1 llevan la beta 2, por eso deben seguir usando la opción beta 2.
 Para pasarlos a la versión final, pulsa **Crear o personalizar pack BIOS…** y después **Sólo actualizar Nextor…**: el programa sustituye
 únicamente el bloque Nextor de 128 KB y conserva las demás BIOS, el driver del lector y los 6 bytes de configuración.
 Graba el fichero resultante en la máquina y elige entonces **Nextor 3.0 final** al preparar la tarjeta. Conserva una
