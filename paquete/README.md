@@ -334,7 +334,7 @@ A convenient way to organise it:
 
 Good to know:
 
-- **Long names.** The MSXimus menu and Windows show them in full, like "Aleste 2 (1988).rom". MSX-DOS and SofaRun see the 8+3 short name Windows generates, like `ALESTE~1.ROM`. Multi Mente shows the first 12 characters of the long name in its file list (31 in the one-column view, SHIFT+1), and the whole name of the file under the cursor in its "File info" box (with Nextor 2.1 or 3.0).
+- **Long names.** The MSXimus menu and Windows show them in full, like "Aleste 2 (1988).rom". MSX-DOS sees the 8+3 short name Windows generates, like `ALESTE~1.ROM`. SofaRun, on the 80-column screen, shows a one-column list with the long name (up to 63 characters) and the size; it launches with the 8.3 name, and in 40 columns the list stays 8.3. Multi Mente shows the first 12 characters of the long name in its file list (31 in the one-column view, SHIFT+1), and the whole name of the file under the cursor in its "File info" box (with Nextor 2.1 or 3.0).
 - **The MSXimus menu** walks every partition with TAB and launches ROM and DSK files without going through MSX-DOS.
 - **Do not format the partitions from Windows.** Windows would change their format or cluster size. To start over, run the card through MSX SD Maker again.
 - **Do not delete `FHUNT` or `TMP`** from partition 1.

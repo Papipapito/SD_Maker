@@ -23,6 +23,9 @@
 - (1.6) lets each OCM BIOS use its own compatible 16 KB Extra, Music and Option ROM modules, selected from the pack
   or from an external file;
 - (1.5.2) includes Z80BENCH 1.5.1, with memory-speed tests and Z380 support;
+- (1.8.2) patches SofaRun to show long file names: a one-column list with each file's long name and size, on the
+  80-column screen with Nextor 2.1 or 3.0 (patch from [SofaRun_LFN](https://github.com/Papipapito/SofaRun_LFN); see
+  `parches/sofarun-nombres-largos/`);
 - (1.5) sets up Multi Mente so that RETURN opens each file with its program (VGM/VGZ with VGMPlay 1.4; MFM, MWM, MID and the AdLib formats with RoboPlay; ROM, DSK and ZIP with SofaRun…) and shows long file names (Multi Mente 2.07A+ RC5 with the long-file-name patch from [MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN); see `parches/mm-nombres-largos/`);
 - for the MSXBOOK, OneChipBook and 1chipMSX it builds the `OCM-BIOS.DAT` BIOS images from KdL's OCM-SDBIOS Pack, with
   the same options as his `make-sdb.cmd` plus per-BIOS selection of compatible 16 KB Extra, Music and Option ROM

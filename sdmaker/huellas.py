@@ -290,7 +290,7 @@ FICHEROS = {
     'SOFARUN/SG1000.TXT': '5699df4b5b66:7fff',
     'SOFARUN/SG1000F.COM': '3421ea9e4aba:7fff',
     'SOFARUN/SG1000F.TXT': 'e5c846bcabdf:7fff',
-    'SOFARUN/SR.COM': '2f13bb7303d4:7fff',
+    'SOFARUN/SR.COM': '2f13bb7303d4:3fff c2f56896a09b:4000',
     'SOFARUN/SR.INI': '362e6fdb8fd9:7fff',
     'SOFARUN/SR.TXT': 'f477d229ea9d:7fff',
     'SOFARUN/SRI.COM': '84cdf3fe4a4c:7fff',

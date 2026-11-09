@@ -32,6 +32,11 @@ cambiar de Nextor exige tener flasheado el pack de BIOS de ese Nextor; en MSXBOO
 `sdmaker/textos_es.py` y `textos_en.py`, el idioma se guarda en `ajustes.json` (en `%APPDATA%\MSXsdmaker`, o
 `~/Library/Application Support/MSXsdmaker` en macOS). Lo que se escribe en la tarjeta no cambia con el idioma.
 
+**SofaRun con nombres largos** (SD Maker 1.8.2): `SOFARUN\SR.COM` lleva el parche de
+[SofaRun_LFN](https://github.com/Papipapito/SofaRun_LFN): lista en una columna con el nombre largo y el tamaño, en
+80 columnas con Nextor 2.1 o 3.0; ver `parches/sofarun-nombres-largos/LEEME.md`. **Actualizar tarjeta** lo cambia
+en las tarjetas que llevan el `SR.COM` anterior.
+
 **Multi Mente 2.07A+ RC5 con nombres largos** (SD Maker 1.7.3): `MM\` lleva la RC5 con el parche de
 [MultiMente_LFN](https://github.com/Papipapito/MultiMente_LFN); ver `parches/mm-nombres-largos/LEEME.md`.
 
