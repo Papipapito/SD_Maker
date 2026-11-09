@@ -19,7 +19,7 @@ sd/
 ├── nextor-3.0.0/            Nextor 3.0 final: sistema, 26 herramientas oficiales y HELP
 ├── nextor-3.0.0-beta2/      NEXTOR.SYS + COMMAND3.COM + bin/ (las 25 herramientas oficiales)
 └── extras/                  SOFARUN, hub, mapper, IA, indev.com (de la SD de la MSX Pico, 30/09) y FPGA
-                             (MXUPDATE.COM 1.4 del MSXimus, md5 388a1850e749: se actualiza solo desde msx.barcelona y, con /O, baja las ondas del OPL4;
+                             (MXUPDATE.COM 1.5 del MSXimus, md5 2c56b8117694: se actualiza solo desde msx.barcelona y, con /O, baja las ondas del OPL4;
                              MTVOL.COM 1.0.2 de MoonTANG, md5 10a0e6cde1b7: volumen FM/Wave del OPL4, fuente tools/msx/mtvol.asm de MoonTANG)
 ```
 
