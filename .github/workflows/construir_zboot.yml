@@ -1,0 +1,51 @@
+name: MSXimus Z Boot (beta)
+
+on:
+  push:
+    branches: [zynq-arranque]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar dependencias
+        run: python -m pip install --upgrade pip pyinstaller certifi
+      - name: Probar
+        run: python -m unittest -v pruebas.probar_zynq_boot
+      - name: Construir EXE
+        shell: cmd
+        run: call construir_zboot.bat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MSXimusZboot-Windows-x64
+          path: dist/MSXimusZboot.exe
+          if-no-files-found: error
+          retention-days: 14
+
+  macos:
+    name: macOS Apple Silicon
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Python con Tk
+        run: brew install python@3.13 python-tk@3.13
+      - name: Instalar dependencias
+        run: |
+          "$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv-macos
+          .venv-macos/bin/python -m pip install --upgrade pip pyinstaller certifi
+      - name: Probar
+        run: .venv-macos/bin/python -m unittest -v pruebas.probar_zynq_boot
+      - name: Construir aplicación y ZIP
+        run: PYTHON_BIN="$PWD/.venv-macos/bin/python" ./construir_zboot_macos.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MSXimusZboot-macOS-arm64
+          path: dist/MSXimusZboot_macOS_arm64.zip
+          if-no-files-found: error
+          retention-days: 14
