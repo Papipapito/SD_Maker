@@ -2,7 +2,22 @@ name: MSXimus Z Boot (beta)
 
 on:
   push:
-    branches: [zynq-arranque]
+    branches: [main]
+    paths:
+      - "MSXimusZboot.py"
+      - "sdmaker/zynq_boot.py"
+      - "sdmaker/ventana_zynq.py"
+      - "sdmaker/textos_zynq.py"
+      - "sdmaker/dispositivos.py"
+      - "sdmaker/particiones.py"
+      - "sdmaker/fatfs.py"
+      - "sdmaker/verificar.py"
+      - "sdmaker/idioma.py"
+      - "zynq/**"
+      - "pruebas/probar_zynq_boot.py"
+      - "construir_zboot.bat"
+      - "construir_zboot_macos.sh"
+      - ".github/workflows/construir_zboot.yml"
   workflow_dispatch:
 
 jobs:

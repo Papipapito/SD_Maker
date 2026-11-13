@@ -27,7 +27,10 @@ ventana), `sdmaker/textos_zynq.py` (los textos, castellano e inglés) y `MSXimus
 
 * Windows: `construir_zboot.bat` → `dist\MSXimusZboot.exe` (un solo fichero; pide administrador al abrirse).
 * macOS: `construir_zboot_macos.sh` → `dist/MSXimusZboot_macOS_arm64.zip` (pide la contraseña al escribir la tarjeta).
-* GitHub Actions: `.github/workflows/construir_zboot.yml` construye los dos al empujar la rama `zynq-arranque`.
+* GitHub Actions: `.github/workflows/construir_zboot.yml` construye los dos cuando cambia en `main` alguno de sus
+  ficheros (o a mano, con *Run workflow*).
+* Ya construido: va en la [release de la MSXimus Z](https://github.com/Papipapito/MSXimus_Z/releases/latest)
+  (`MSXimusZboot.exe` y `MSXimusZboot_macOS_arm64.zip`), junto a los `BOOT.bin`.
 * Pruebas: `python -m unittest -v pruebas.probar_zynq_boot` (sin red: firma con el manifiesto real como dato, un
   manifiesto alterado, la cabecera del `BOOT.bin`, y la tarjeta FAT32/FAT16 sobre una imagen releída).
 

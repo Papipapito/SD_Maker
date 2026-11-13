@@ -82,6 +82,8 @@ Sale de `sd/` y va dentro de la aplicación empaquetada: `base/`, `nextor-2.1.4/
 
 Casi todo lo de `sd/` es de terceros (Nextor, MSX-DOS, SofaRun, Multi Mente, las herramientas UNAPI...) y va bajo la responsabilidad del autor de este proyecto: autores y licencias en [`paquete/LICENCIAS.md`](paquete/LICENCIAS.md), con la licencia de Nextor. El programa es GPL v3 ([`LICENSE`](LICENSE)).
 
+Aparte de SD Maker, el repositorio lleva **MSXimusZboot** (beta): un programa pequeño que prepara la microSD de instalación (TF1) de una MSXimus Z con el `BOOT.bin` firmado de msx.barcelona. Está en `MSXimusZboot.py` y `zynq/` ([`zynq/LEEME.md`](zynq/LEEME.md)); ya construido, en la [release de la MSXimus Z](https://github.com/Papipapito/MSXimus_Z/releases/latest).
+
 ## Construir y probar
 
 ```bat

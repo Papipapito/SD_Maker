@@ -50,6 +50,7 @@ already included in that pack, so a separate EXTRA pack is not required.
 | `construir_macos.sh` | Builds the native `dist/MSXsdmaker.app` bundle and the macOS ZIP |
 | `hacer_zip.py`, `hacer_zip_macos.py` | Build the Windows and macOS release ZIPs |
 | `publicar_paquete.py` | Copies the `.exe` and the guide to the `MSXsdmaker/` folder of each machine's repository |
+| `MSXimusZboot.py`, `zynq/` | **MSXimusZboot** (beta), a separate small program: it prepares the install microSD (TF1) of an MSXimus Z, with the signed `BOOT.bin` from msx.barcelona ([zynq/LEEME.md](zynq/LEEME.md), Spanish). Built binaries are in the [MSXimus Z release](https://github.com/Papipapito/MSXimus_Z/releases/latest) |
 
 ## Build and test
 
